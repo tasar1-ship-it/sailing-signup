@@ -62,9 +62,7 @@ h1{font-size:32px;margin:36px 0 6px;letter-spacing:-.01em;line-height:1.1;font-w
 .note textarea:focus{outline:none;border-color:var(--sea)}
 .st{font-size:13px;color:var(--fg-2);margin:4px 2px 0;min-height:17px}
 .st.ok{color:var(--good)} .st.err{color:var(--bad)}
-.foot{margin-top:26px;font-size:15px;text-align:center}
-.foot a{color:var(--sea);font-weight:600}
-.ver{margin-top:10px;font-size:13px;color:var(--fg-2);text-align:center}
+.ver{margin-top:26px;font-size:13px;color:var(--fg-2);text-align:center}
 </style>
 </head>
 <body>
@@ -78,7 +76,7 @@ h1{font-size:32px;margin:36px 0 6px;letter-spacing:-.01em;line-height:1.1;font-w
    (key from the link's #part); writes only groups/<g>/coachNotes/<Friday>/<day> {text, at}. */
 (function () {
 'use strict';
-var VERSION = '1.1.0';
+var VERSION = '1.1.1';
 var FB = {
   apiKey: 'AIzaSyD3Q2TRCGlCkJPd8wvf8aijdQU8a0oJXmc',
   authDomain: 'sailing-signup.firebaseapp.com',
@@ -87,7 +85,6 @@ var FB = {
   appId: '1:1090198402941:web:30a83e8de794f93cff7e14'
 };
 var LS = 'ss1_';
-var BASE = 'https://tasar1-ship-it.github.io/sailing-signup/';
 var T = {
   es: {
     other: 'English', title: 'Panel de entrenadores', sub: 'Quién navega cada día. Se actualiza solo.',
@@ -96,7 +93,6 @@ var T = {
     count: function (n) { return n + (n === 1 ? ' apuntado' : ' apuntados'); }, sick: 'Enfermo/a', late: 'Llega tarde',
     noteLabel: 'Nota del entrenador', notePh: 'P. ej. salida 10:00, traer neopreno',
     saving: 'Guardando…', saved: 'Guardado', saveFail: 'No se guardó. Revisa la conexión.',
-    parents: 'Abrir la página de los padres',
     offline: 'Sin conexión. Las notas se guardarán al volver la conexión.',
     readFail: 'No se pudo leer la lista. Revisa la conexión y recarga.', connFail: 'No se pudo conectar. Revisa la conexión y recarga.',
     noLink: 'Abre el panel con el enlace completo de la guía de entrenadores.'
@@ -108,7 +104,6 @@ var T = {
     count: function (n) { return n + ' signed up'; }, sick: 'Sick', late: 'Running late',
     noteLabel: 'Coach’s note', notePh: 'E.g. start 10:00, bring a wetsuit',
     saving: 'Saving…', saved: 'Saved', saveFail: 'Not saved. Check the connection.',
-    parents: 'Open the parents’ page',
     offline: 'Offline. Notes will be saved when the connection is back.',
     readFail: 'Could not read the list. Check the connection and reload.', connFail: 'Could not connect. Check the connection and reload.',
     noLink: 'Open the dashboard with the full link from the coaches’ guide.'
@@ -258,7 +253,7 @@ function render() {
     } else { h.push('<p class="none">' + esc(l.nobody) + '</p>'); }
     h.push('<div class="note"><label for="note' + d + '">' + esc(l.noteLabel) + '</label><textarea id="note' + d + '" data-d="' + d + '" maxlength="500" placeholder="' + esc(l.notePh) + '">' + esc(val) + '</textarea><p class="st" id="st' + d + '" aria-live="polite"></p></div></section>');
   }
-  h.push('</div><p class="foot"><a href="' + esc(BASE + (g ? '#' + g : '')) + '" target="_blank" rel="noopener">' + esc(l.parents) + '</a></p><p class="ver">v' + VERSION + '</p></main>');
+  h.push('</div><p class="ver">v' + VERSION + '</p></main>');
   /* Live updates re-render; keep the cursor where a coach is typing. */
   var f = document.activeElement, fid = f && f.id, fs = fid && f.selectionStart, fe = fid && f.selectionEnd;
   app.innerHTML = h.join('');
