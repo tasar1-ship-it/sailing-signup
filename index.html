@@ -18,7 +18,7 @@
   --bg:#F3F7FA; --card:#FFFFFF; --field:#FFFFFF; --fg:#0B2545; --fg-2:#4A5D73; --line:#D3DEE8;
   --sea:#0B6FB8; --sea-2:#13A0C9; --navy:#0B2545; --navy-2:#134074; --tint:#E3F0F8;
   --on-fg:#FFFFFF; --btn:#134074; --good:#13795B; --bad:#C2273B; --shadow:0 1px 2px rgba(11,37,69,.06),0 6px 20px rgba(11,37,69,.07);
-  --f0:#E4572E; --f1:#E8A33D; --f2:#1F9E89; --f3:#7B61FF; --sun:#F5A83A;
+  --f0:#E4572E; --f1:#E8A33D; --f2:#1F9E89; --f3:#7B61FF; --sun:#F5A83A; --sun-soft:#FFCB80;
   --font:"Avenir Next",Avenir,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
 }
 @media (prefers-color-scheme: dark){
@@ -33,10 +33,10 @@ button{font-family:inherit}
 .hero-in{max-width:640px;margin:0 auto;padding:14px calc(16px + env(safe-area-inset-right)) 54px calc(16px + env(safe-area-inset-left));position:relative;z-index:1}
 .top{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .brand{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.85)}
-.brand .logo{display:block;height:57px;width:auto;border-radius:7px}
+.brand .logo{display:block;height:37px;width:auto}
 .lang{flex:none;border:1px solid rgba(255,255,255,.45);background:rgba(255,255,255,.12);color:#fff;border-radius:20px;padding:8px 16px;min-height:40px;font-size:15px;font-weight:600;cursor:pointer}
-h1{font-size:32px;margin:18px 0 6px;letter-spacing:-.01em;line-height:1.1;font-weight:700}
-.sub{color:var(--sun);font-size:16px;font-weight:600;margin:0;max-width:34em}
+h1{font-size:32px;margin:18px 0 6px;letter-spacing:-.01em;line-height:1.1;font-weight:700;color:var(--sun)}
+.sub{color:var(--sun-soft);font-size:16px;font-weight:400;margin:0;max-width:34em}
 .week{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:18px 0 0;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:16px;padding:6px}
 .week b{font-size:17px;text-align:center;flex:1;font-weight:600;color:var(--sun)}
 .nav{flex:none;width:44px;height:44px;border-radius:12px;border:0;background:rgba(255,255,255,.16);color:#fff;font-size:24px;line-height:1;cursor:pointer}
@@ -121,7 +121,7 @@ a.btn{display:block;text-align:center;text-decoration:none;line-height:24px}
 /* Sailing sign-up. Own code is ES5 on purpose (var and function only). */
 (function () {
 'use strict';
-var VERSION = '1.6.1';
+var VERSION = '1.6.2';
 var FB = {
   apiKey: 'AIzaSyD3Q2TRCGlCkJPd8wvf8aijdQU8a0oJXmc',
   authDomain: 'sailing-signup.firebaseapp.com',
@@ -391,7 +391,7 @@ function render() {
   var l = L(), h = [];
   document.documentElement.lang = lang;
   document.title = l.pageTitle;
-  h.push('<header class="hero"><div class="hero-in"><div class="top"><div class="brand">' + '<img class="logo" src="cna-logo.png" width="118" height="57" alt="Club Nàutic Arenal">' + '</div><button class="lang" data-a="lang" lang="' + (lang === 'es' ? 'en' : 'es') + '">' + esc(l.other) + '</button></div><h1>' + esc(l.title) + '</h1>');
+  h.push('<header class="hero"><div class="hero-in"><div class="top"><div class="brand">' + '<img class="logo" src="cna-logo-white.png" width="80" height="37" alt="Club Nàutic Arenal">' + '</div><button class="lang" data-a="lang" lang="' + (lang === 'es' ? 'en' : 'es') + '">' + esc(l.other) + '</button></div><h1>' + esc(l.title) + '</h1>');
   if (S.fatal) { app.innerHTML = h.join('') + '<p class="sub">' + esc(S.fatal()) + '</p></div>' + WAVE + '</header>'; return; }
   var kids = kidList(), o, d, j, p, on, date;
   h.push('<p class="sub">' + esc(l.intro) + '</p><button class="helpl" data-a="help" aria-expanded="' + (helpOpen() ? 'true' : 'false') + '">' + esc(l.helpLink) + '</button>');
