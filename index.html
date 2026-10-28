@@ -95,8 +95,9 @@ input[type=text]:focus{outline:none;border-color:var(--sea)}
 .remind.done p{flex:1;color:var(--fg-2);font-size:15px}
 .remind.done .alt{margin:0}
 .summary{margin-top:26px}
-/* Summary: days in two columns (Wednesday | Friday, Saturday | Sunday), each a bullet list of names. */
-.sum-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 18px;margin-top:4px}
+/* Summary: weekdays in the left column (Wednesday above Friday), the weekend in the right (Saturday above Sunday);
+   each day a bullet list of names. */
+.sum-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:auto auto;grid-auto-flow:column;gap:16px 18px;margin-top:4px;align-items:start}
 .sum-day{min-width:0}
 .sum-day b{display:block;font-size:16px;padding-bottom:4px;border-bottom:1px solid var(--line)}
 .sum-day b span{white-space:nowrap}
@@ -133,7 +134,7 @@ a.btn{display:block;text-align:center;text-decoration:none;line-height:24px}
 /* Sailing sign-up. Own code is ES5 on purpose (var and function only). */
 (function () {
 'use strict';
-var VERSION = '1.6.9';
+var VERSION = '1.6.10';
 var FB = {
   apiKey: 'AIzaSyD3Q2TRCGlCkJPd8wvf8aijdQU8a0oJXmc',
   authDomain: 'sailing-signup.firebaseapp.com',
