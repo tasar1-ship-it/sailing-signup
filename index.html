@@ -71,6 +71,25 @@ input[type=text]:focus{outline:none;border-color:var(--sea)}
 .foot{margin-top:30px;font-size:13px;color:var(--fg-2);text-align:center;display:flex;align-items:center;justify-content:center;gap:6px}
 .foot svg{width:16px;height:16px}
 .tools{max-width:640px}
+.panel{background:var(--card);border-radius:18px;padding:16px;margin-bottom:14px;box-shadow:var(--shadow);border:1px solid var(--line)}
+.panel h2{font-size:19px;margin:0 0 6px;display:flex;align-items:center;gap:8px}
+.panel h2 svg{width:22px;height:22px;color:var(--sea);flex:none}
+.panel p{margin:0}
+.remind{border:1.5px solid var(--sea);background:linear-gradient(180deg,var(--tint),var(--card) 80%)}
+.remind .btn{margin-top:12px}
+.alt{display:inline-block;margin-top:10px;color:var(--sea);font-size:15px;font-weight:600;background:none;border:0;padding:4px 0;cursor:pointer;text-decoration:underline}
+.remind.done{display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--card);border:1px solid var(--line)}
+.remind.done svg{width:22px;height:22px;color:var(--good);flex:none}
+.remind.done p{flex:1;color:var(--fg-2);font-size:15px}
+.remind.done .alt{margin:0}
+.summary{margin-top:26px}
+.sum-day{padding:10px 0;border-top:1px solid var(--line)}
+.sum-day:first-of-type{border-top:0}
+.sum-day b{display:block;font-size:16px;margin-bottom:2px}
+.sum-day p{font-size:16px}
+.none{color:var(--fg-2);font-style:italic}
+a.btn{display:block;text-align:center;text-decoration:none;line-height:24px}
+@media (min-width:900px){ .remind{max-width:640px} }
 @media (min-width:900px){
   .hero-in{max-width:1100px;padding:20px 32px 70px}
   h1{font-size:44px}
@@ -95,7 +114,7 @@ input[type=text]:focus{outline:none;border-color:var(--sea)}
 /* Sailing sign-up. Own code is ES5 on purpose (var and function only). */
 (function () {
 'use strict';
-var VERSION = '1.2.0';
+var VERSION = '1.3.0';
 var FB = {
   apiKey: 'AIzaSyD3Q2TRCGlCkJPd8wvf8aijdQU8a0oJXmc',
   authDomain: 'sailing-signup.firebaseapp.com',
@@ -120,7 +139,12 @@ var T = {
     saveFail: function (c) { return 'No se guardó (' + c + '). Inténtalo de nuevo.'; },
     readFail: function (c) { return 'No se pudo leer la lista (' + c + '). Revisa la conexión y recarga.'; },
     connFail: function (c) { return 'No se pudo conectar (' + c + '). Revisa la conexión y recarga.'; },
-    noLink: 'Abre la página con el enlace del grupo de WhatsApp (el enlace completo).'
+    noLink: 'Abre la página con el enlace del grupo de WhatsApp (el enlace completo).',
+    remTitle: 'Recordatorio cada lunes', remText: 'Toca una vez y tu calendario te avisará cada lunes a las 17:00 para apuntar a tu hijo/a, con este enlace dentro.',
+    remIcs: 'Añadir al calendario', remGoogle: 'Añadir a Google Calendar', remAltGoogle: '¿Usas Google Calendar?', remAltIcs: '¿Usas el calendario del iPhone o del Mac?',
+    remDone: 'Recordatorio añadido. Si lo guardaste en el calendario, te avisará cada lunes a las 17:00.', remAgain: 'Otra vez',
+    calTitle: 'Apuntar a vela (fin de semana)', calDesc: 'Apunta a tu hijo/a para el fin de semana:',
+    sumTitle: 'Resumen para el entrenador', nobody: 'nadie apuntado', copyFinal: 'Copiar lista final para WhatsApp', signHere: 'Apúntate aquí:'
   },
   en: {
     other: 'Español', title: 'Who’s sailing?', pageTitle: 'Sailing · Weekend',
@@ -136,7 +160,12 @@ var T = {
     saveFail: function (c) { return 'Not saved (' + c + '). Please try again.'; },
     readFail: function (c) { return 'Could not read the list (' + c + '). Check the connection and reload.'; },
     connFail: function (c) { return 'Could not connect (' + c + '). Check the connection and reload.'; },
-    noLink: 'Open this page with the full link from the WhatsApp group.'
+    noLink: 'Open this page with the full link from the WhatsApp group.',
+    remTitle: 'Monday reminder', remText: 'Tap once and your calendar will remind you every Monday at 17:00 to sign your child up, with this link inside.',
+    remIcs: 'Add to calendar', remGoogle: 'Add to Google Calendar', remAltGoogle: 'Using Google Calendar?', remAltIcs: 'Using the iPhone or Mac calendar?',
+    remDone: 'Reminder added. If you saved it in your calendar, it will remind you every Monday at 17:00.', remAgain: 'Again',
+    calTitle: 'Sign up for sailing (weekend)', calDesc: 'Sign your child up for the weekend:',
+    sumTitle: 'Summary for the coach', nobody: 'nobody signed up', copyFinal: 'Copy final list for WhatsApp', signHere: 'Sign up here:'
   }
 };
 /* Small drawings: the sailboat in the header, the wave under it, a pennant per day, the anchor in the footer. */
@@ -144,6 +173,9 @@ var BOAT = '<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 3v27" strok
 var WAVE = '<svg class="wave" viewBox="0 0 1440 80" preserveAspectRatio="none" aria-hidden="true"><path d="M0 34C200 6 380 64 620 40S1060 2 1240 26 1440 38 1440 38V80H0z" style="fill:var(--bg);opacity:.35"/><path d="M0 52C240 26 460 78 720 54S1180 22 1440 50V80H0z" style="fill:var(--bg)"/></svg>';
 var FLAGS = ['var(--f0)', 'var(--f1)', 'var(--f2)'];
 function flag(i) { return '<svg class="flag" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 2.5v19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M6 3.5l14 5.5-14 5.5z" style="fill:' + FLAGS[i] + '"/></svg>'; }
+var BELL = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg>';
+var CHECK = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M7.5 12.5l3 3 6-6.5"/></svg>';
+var LIST = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1.2"/><circle cx="4.5" cy="12" r="1.2"/><circle cx="4.5" cy="18" r="1.2"/></svg>';
 var ANCHOR = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="5" r="2"/><path d="M12 7v14M8 11h8M4 14a8 7 0 0 0 16 0"/></svg>';
 function lsGet(k) { try { return localStorage.getItem(LS + k); } catch (e) { return null; } }
 function lsSet(k, v) { try { localStorage.setItem(LS + k, v); } catch (e) {} }
@@ -268,22 +300,73 @@ function addKid() {
     if (list[j].name.toLowerCase() === name.toLowerCase()) { S.err = say('dup', name); render(); return; }
   }
   S.draftKid = '';
-  store.addKid(name).then(function () { S.msg = say('added', name); render(); })['catch'](fail);
+  store.addKid(name).then(function () { S.msg = say('added', name); S.msgAt = 'add'; render(); })['catch'](fail);
 }
+/* The shareable address of this group's page (the preview copy passes its group id in SS_PREVIEW_G). */
+var BASE = 'https://tasar1-ship-it.github.io/sailing-signup/';
+function groupLink() { var id = window.SS_PREVIEW_G || g; return BASE + (id ? '#' + id : ''); }
+function pickLine(x) { return x.name + (x.note ? ' (' + x.note + ')' : ''); }
 function waText() {
-  var lines = [], d, p, j;
+  var l = L(), lines = [], d, p, j;
   for (d = 0; d < 3; d++) {
     if (d) { lines.push(''); }
-    lines.push(T.es.days[d] + ' ' + dayDate(S.week, d).getDate());
+    lines.push(l.days[d] + ' ' + dayDate(S.week, d).getDate());
     p = picked(d);
-    for (j = 0; j < p.length; j++) { lines.push('• ' + p[j].name + (p[j].note ? ' (' + p[j].note + ')' : '')); }
+    if (!p.length) { lines.push('– ' + l.nobody + ' –'); }
+    for (j = 0; j < p.length; j++) { lines.push('• ' + pickLine(p[j])); }
   }
-  return lines.join('\n') + '\n\nApúntate aquí: ' + location.href;
+  return lines.join('\n') + '\n\n' + l.signHere + ' ' + groupLink();
 }
+
+/* ---------- Monday reminder: a weekly calendar event at 17:00 local time, with the link inside ---------- */
+var UA = navigator.userAgent || '';
+var IOS = /iPhone|iPad|iPod/.test(UA) || (/Macintosh/.test(UA) && navigator.maxTouchPoints > 1);
+var ANDROID = /Android/.test(UA);
+function nextMonday() {
+  var now = new Date(), d = new Date(); d.setHours(17, 0, 0, 0);
+  var add = (8 - d.getDay()) % 7;
+  if (add === 0 && now > d) { add = 7; }
+  d.setDate(d.getDate() + add);
+  return d;
+}
+function stamp(d, h, m) { return d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate()) + 'T' + pad(h) + pad(m) + '00'; }
+function icsEsc(t) { return String(t).replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\n/g, '\\n'); }
+function fold(line) { var out = [], i; for (i = 0; i < line.length; i += 60) { out.push((i ? ' ' : '') + line.slice(i, i + 60)); } return out.join('\r\n'); }
+function icsText() {
+  var l = L(), d = nextMonday(), now = new Date(), link = groupLink(), desc = l.calDesc + '\n' + link;
+  var utc = now.getUTCFullYear() + pad(now.getUTCMonth() + 1) + pad(now.getUTCDate()) + 'T' + pad(now.getUTCHours()) + pad(now.getUTCMinutes()) + pad(now.getUTCSeconds()) + 'Z';
+  var rows = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//sailing-signup//ES', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH',
+    'BEGIN:VEVENT', 'UID:' + now.getTime() + '-' + Math.floor(Math.random() * 1e9) + '@sailing-signup', 'DTSTAMP:' + utc,
+    'DTSTART:' + stamp(d, 17, 0), 'DTEND:' + stamp(d, 17, 15), 'RRULE:FREQ=WEEKLY;BYDAY=MO',
+    'SUMMARY:' + icsEsc('⛵ ' + l.calTitle), 'DESCRIPTION:' + icsEsc(desc), 'URL:' + link,
+    'BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:' + icsEsc(l.calTitle), 'TRIGGER:PT0M', 'END:VALARM',
+    'END:VEVENT', 'END:VCALENDAR'];
+  var j; for (j = 0; j < rows.length; j++) { rows[j] = fold(rows[j]); }
+  return rows.join('\r\n') + '\r\n';
+}
+function googleUrl() {
+  var l = L(), d = nextMonday();
+  return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=' + encodeURIComponent('⛵ ' + l.calTitle) +
+    '&dates=' + stamp(d, 17, 0) + '/' + stamp(d, 17, 15) + '&ctz=Europe/Madrid&recur=' + encodeURIComponent('RRULE:FREQ=WEEKLY;BYDAY=MO') +
+    '&details=' + encodeURIComponent(l.calDesc + '\n' + groupLink());
+}
+function openIcs() {
+  /* iPhone: open the calendar file itself, so iOS shows its "Add to Calendar" sheet (WebKit refuses data: links here).
+     Elsewhere: download it; Mac Calendar or Outlook opens it. */
+  var url = URL.createObjectURL(new Blob([icsText()], { type: 'text/calendar;charset=utf-8' }));
+  if (IOS) { location.href = url; }
+  else {
+    var a = document.createElement('a');
+    a.href = url; a.download = 'recordatorio-vela.ics'; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 10000);
+  }
+  remDone();
+}
+function remDone() { lsSet('rem', '1'); S.remAlt = false; setTimeout(render, 300); }
 function copyWa() {
   var t = waText();
   S.err = null;
-  function done() { S.msg = say('copied'); render(); }
+  function done() { S.msg = say('copied'); S.msgAt = 'copy'; render(); }
   function fallback() {
     var a = document.createElement('textarea'); a.value = t; a.setAttribute('readonly', ''); a.style.position = 'fixed'; a.style.opacity = '0';
     document.body.appendChild(a); a.select(); a.setSelectionRange(0, t.length);
@@ -295,6 +378,16 @@ function copyWa() {
 }
 
 /* ---------- render ---------- */
+function remindHtml(l) {
+  var google = ANDROID ? !S.remAlt : !!S.remAlt;
+  if (lsGet('rem') === '1') {
+    return '<section class="panel remind done">' + CHECK + '<p>' + esc(l.remDone) + '</p><button class="alt" data-a="remagain">' + esc(l.remAgain) + '</button></section>';
+  }
+  return '<section class="panel remind"><h2>' + BELL + esc(l.remTitle) + '</h2><p class="muted">' + esc(l.remText) + '</p>' +
+    (google ? '<a class="btn primary wide" data-a="remg" href="' + esc(googleUrl()) + '" target="_blank" rel="noopener">' + esc(l.remGoogle) + '</a>'
+            : '<button class="btn primary wide" data-a="remics">' + esc(l.remIcs) + '</button>') +
+    '<button class="alt" data-a="remalt">' + esc(google ? l.remAltIcs : l.remAltGoogle) + '</button></section>';
+}
 function render() {
   var l = L(), h = [];
   document.documentElement.lang = lang;
@@ -306,6 +399,8 @@ function render() {
   h.push('<div class="week"><button class="nav" data-a="prev" aria-label="' + esc(l.prev) + '">‹</button><b>' + esc(l.weekend + ' ' + weekLabel(S.week)) + '</b><button class="nav" data-a="next" aria-label="' + esc(l.next) + '">›</button></div>');
   h.push('</div>' + WAVE + '</header><main class="wrap">');
   if (S.offline) { h.push('<div class="bar">' + esc(l.offline) + '</div>'); }
+  h.push(remindHtml(l));
+  if (S.err) { h.push('<p class="err">' + esc(S.err()) + '</p>'); }
   if (!S.loadedKids) { h.push('<p class="muted">' + esc(l.loading) + '</p>'); }
   h.push('<div class="days">');
   for (d = 0; d < 3; d++) {
@@ -320,10 +415,17 @@ function render() {
     h.push('</div></section>');
   }
   h.push('</div><div class="tools">');
-  if (S.err) { h.push('<p class="err">' + esc(S.err()) + '</p>'); }
-  h.push('<button class="btn primary wide" data-a="copy">' + esc(l.copy) + '</button>');
-  h.push('<p class="ok">' + esc(S.msg ? S.msg() : '') + '</p>');
   h.push('<div class="sec">' + esc(l.missing) + '</div><div class="row"><input type="text" id="newkid" maxlength="30" placeholder="' + esc(l.kidPh) + '" value="' + esc(S.draftKid) + '" autocomplete="off"><button class="btn" data-a="add">' + esc(l.add) + '</button></div>');
+  if (S.msg && S.msgAt === 'add') { h.push('<p class="ok">' + esc(S.msg()) + '</p>'); }
+  h.push('<section class="panel summary"><h2>' + LIST + esc(l.sumTitle) + '</h2>');
+  for (d = 0; d < 3; d++) {
+    p = picked(d);
+    h.push('<div class="sum-day"><b>' + esc(l.days[d]) + ' ' + dayDate(S.week, d).getDate() + ' · ' + p.length + '</b><p>' +
+      (p.length ? esc(p.map(pickLine).join(', ')) : '<span class="none">' + esc(l.nobody) + '</span>') + '</p></div>');
+  }
+  h.push('<button class="btn wide" data-a="copy">' + esc(l.copyFinal) + '</button>');
+  if (S.msg && S.msgAt === 'copy') { h.push('<p class="ok">' + esc(S.msg()) + '</p>'); }
+  h.push('</section>');
   h.push('</div><p class="foot">' + ANCHOR + '<span>v' + VERSION + '</span></p></main>');
   if (S.sheet && S.kids[S.sheet.kid]) {
     h.push('<div class="shade" data-a="close"><div class="sheet" role="dialog" aria-modal="true"><h3>' + esc(S.kids[S.sheet.kid].name) + '</h3><p class="muted">' + esc(l.days[S.sheet.day]) + ' ' + dayDate(S.week, S.sheet.day).getDate() + '</p>' +
@@ -353,6 +455,10 @@ app.addEventListener('click', function (ev) {
   else if (a === 'close') { S.sheet = null; render(); }
   else if (a === 'copy') { copyWa(); }
   else if (a === 'add') { addKid(); }
+  else if (a === 'remics') { openIcs(); }
+  else if (a === 'remg') { remDone(); }
+  else if (a === 'remalt') { S.remAlt = !S.remAlt; render(); }
+  else if (a === 'remagain') { lsSet('rem', ''); render(); }
   else if (a === 'lang') { lang = lang === 'es' ? 'en' : 'es'; lsSet('lang', lang); render(); }
 });
 app.addEventListener('input', function (ev) { if (ev.target.id === 'newkid') { S.draftKid = ev.target.value; } });

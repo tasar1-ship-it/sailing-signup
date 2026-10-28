@@ -3,9 +3,9 @@
 Parents of the sailing group tick which days their child sails at the weekend (Viernes, Sábado, Domingo) by tapping the child's name, instead of copying and extending the list in the WhatsApp group. A "Copiar lista para WhatsApp" button produces the list in the old WhatsApp format, with the link at the end.
 
 ## Current version
-- App 1.2.0 (28 Oct 2026): sailing design (navy sea header with sailboat and wave, a coloured pennant per day, white cards, sea-blue selected names, works in dark mode). 1.1.0: English button and laptop layout. 1.0.0: first build.
+- App 1.3.0 (28 Oct 2026): Monday reminder, coach summary, coach guide page; the copied list marks empty days and follows the page language. 1.2.0: sailing design (navy sea header with sailboat and wave, a coloured pennant per day, white cards, sea-blue selected names, works in dark mode). 1.1.0: English button and laptop layout. 1.0.0: first build.
 - Repo: tasar1-ship-it/sailing-signup, served at https://tasar1-ship-it.github.io/sailing-signup/
-- Group link: `https://tasar1-ship-it.github.io/sailing-signup/#<group id>`. The group id (22 random characters) is NOT in this repo; Ronald holds the link. Without it the page shows "Abre la página con el enlace del grupo".
+- Group link: `https://tasar1-ship-it.github.io/sailing-signup/#<group id>`. Coach guide: `.../sailing-signup/coach.html#<group id>` (same key; the guide builds the parents' WhatsApp message from it). The group id (22 random characters) is NOT in this repo; Ronald holds the link. Without it the page shows "Abre la página con el enlace del grupo".
 - Example view without the database: `.../sailing-signup/?demo` (in memory, made-up names, nothing saved).
 - Review copy: a page that sets `window.SS_PREVIEW` to a list of names before the app script runs uses those names in memory instead of Firebase. Ronald's review file (Downloads/Sailing sign-up preview.html, 28 Oct 2026) was built that way, with the real names and the two share messages; it is not in the repo.
 - Firebase project: sailing-signup (project number 1090198402941), Realtime Database sailing-signup-default-rtdb in europe-west1, Anonymous sign-in on, web app "Sailing Signup" registered. Gemini and Google Analytics switched off. Spark (free) plan.
@@ -13,9 +13,16 @@ Parents of the sailing group tick which days their child sails at the weekend (V
 ## Files
 - index.html - the whole app (inline CSS and JS, own code ES5 only). Spanish and English UI: the button top right switches; the choice is kept per device (localStorage key ss1_lang); a phone set to English opens in English. The text copied for WhatsApp is always Spanish. The Firebase web config is written into it; that config is public by design, access is decided by the rules.
 - firebase-app-compat.js, firebase-auth-compat.js, firebase-database-compat.js - Firebase compat SDK 9.23.0, vendored, byte-identical to the copies in commitment-board.
+- coach.html - the coach's guide (ES5, Spanish/English): 1 send to the parents' group (wa.me button with the message filled in, copy as fallback), 2 pin it, 3 save the sign-up page; then "every week" and "if something goes wrong". Holds no group link; it reads the #part.
 - database.rules.json - the rules exactly as published.
 - icon-180.png - home-screen icon.
 - No service worker and no manifest, on purpose (same reasoning as commitment-board: it needs the network anyway and a stale cache is this family's usual failure). Nothing to bump on deploy.
+
+## Monday reminder (1.3.0)
+- A card at the top of the sign-up page adds a weekly calendar event: every Monday 17:00 local time (floating time, no time zone), 15 minutes, alert at the start, title "⛵ Apuntar a vela (fin de semana)" or the English one, the group link in URL and description. Nothing is stored on a server and no personal data is collected.
+- iPhone/iPad: opens the .ics as a blob: page so iOS shows "Add to Calendar" (WebKit refuses top-level data: links, checked 28 Oct 2026). Other desktops: downloads recordatorio-vela.ics. Android: Google Calendar "add event" link (recur=RRULE:FREQ=WEEKLY;BYDAY=MO, ctz Europe/Madrid). The other route is offered as a small link under the button.
+- After a tap the card collapses (localStorage ss1_rem); "Otra vez" brings it back. The page cannot know whether the parent really saved the event.
+- A parent who never taps it gets no reminder. Truly automatic reminders (push notifications, a WhatsApp bot, e-mail) were set aside: they need a paid plan or service, phone numbers or e-mail addresses, and on iPhone push needs a home-screen install first.
 
 ## Data
 - groups/<group id>/kids/<push id> {name (1-30 chars), at}
@@ -38,6 +45,10 @@ Parents of the sailing group tick which days their child sails at the weekend (V
 
 ## Tested (28 Oct 2026, 1.2.0)
 - Own script parses as ES5. Demo 12/12, language and layout 17/17 (320, 390 and 1440 px; smallest main text 15 px), review copy 12/12 in WebKit at iPhone, laptop and iPhone dark mode. Dark-mode primary buttons were too dark and were changed to sea blue.
+
+## Tested (28 Oct 2026, 1.3.0)
+- ES5 parse of index.html, coach.html and the review copy. WebKit 32/32 new checks: calendar file (Monday 17:00, weekly, alert, link, lines within 75 bytes), card collapse and "again", Google link, Android shows Google first, iPhone user agent opens the blob without being blocked, summary and "nadie apuntado", copied list (empty days, real link, English), coach guide (no key, 3 steps, WhatsApp text with link, copy, English, 320 and 1440 px), review copy. Chromium the same except the iPhone-user-agent check (irrelevant: every iPhone browser is WebKit). Earlier suites still pass.
+- Not tested: a real iPhone adding the event (from Safari and from inside WhatsApp), a real Android phone.
 
 ## Known limits
 - No reminder or notification; parents still need the link posted in the group.
