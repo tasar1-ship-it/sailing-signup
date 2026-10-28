@@ -122,7 +122,7 @@ a.btn{display:block;text-align:center;text-decoration:none;line-height:24px}
 /* Sailing sign-up. Own code is ES5 on purpose (var and function only). */
 (function () {
 'use strict';
-var VERSION = '1.5.0';
+var VERSION = '1.5.1';
 var FB = {
   apiKey: 'AIzaSyD3Q2TRCGlCkJPd8wvf8aijdQU8a0oJXmc',
   authDomain: 'sailing-signup.firebaseapp.com',
@@ -400,9 +400,10 @@ function copyWa() {
 }
 
 /* ---------- render ---------- */
-/* Parents' "how it works": open on a first visit until closed (ss1_help), and from the link under the intro. */
+/* Parents' "how it works": open on a first visit until closed (ss1_help); the link under the intro opens and closes it. */
+function helpOpen() { return !!S.help || lsGet('help') !== '1'; }
 function helpHtml(l) {
-  if (!S.help && lsGet('help') === '1') { return ''; }
+  if (!helpOpen()) { return ''; }
   var items = [], i;
   for (i = 0; i < l.help.length; i++) { items.push('<li>' + esc(l.help[i]).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>') + '</li>'); }
   return '<section class="panel howto"><h2>' + LIST + esc(l.helpT) + '</h2><ol>' + items.join('') + '</ol>' +
@@ -425,7 +426,7 @@ function render() {
   h.push('<header class="hero"><div class="hero-in"><div class="top"><div class="brand">' + BOAT + '<span>' + esc(l.pageTitle) + '</span></div><button class="lang" data-a="lang" lang="' + (lang === 'es' ? 'en' : 'es') + '">' + esc(l.other) + '</button></div><h1>' + esc(l.title) + '</h1>');
   if (S.fatal) { app.innerHTML = h.join('') + '<p class="sub">' + esc(S.fatal()) + '</p></div>' + WAVE + '</header>'; return; }
   var kids = kidList(), o, d, j, p, on, date;
-  h.push('<p class="sub">' + esc(l.intro) + '</p><button class="helpl" data-a="help">' + esc(l.helpLink) + '</button>');
+  h.push('<p class="sub">' + esc(l.intro) + '</p><button class="helpl" data-a="help" aria-expanded="' + (helpOpen() ? 'true' : 'false') + '">' + esc(l.helpLink) + '</button>');
   h.push('<div class="week"><button class="nav" data-a="prev" aria-label="' + esc(l.prev) + '">‹</button><b>' + esc(l.weekend + ' ' + weekLabel(S.week)) + '</b><button class="nav" data-a="next" aria-label="' + esc(l.next) + '">›</button></div>');
   h.push('</div>' + WAVE + '</header><main class="wrap">');
   if (S.offline) { h.push('<div class="bar">' + esc(l.offline) + '</div>'); }
@@ -492,7 +493,10 @@ app.addEventListener('click', function (ev) {
   else if (a === 'remg') { remDone(); }
   else if (a === 'remalt') { S.remAlt = !S.remAlt; render(); }
   else if (a === 'remagain') { lsSet('rem', ''); render(); }
-  else if (a === 'help') { S.help = true; render(); var hp = document.querySelector('.howto'); if (hp && hp.scrollIntoView) { hp.scrollIntoView({ behavior: 'smooth', block: 'start' }); } }
+  else if (a === 'help') {
+    if (helpOpen()) { S.help = false; lsSet('help', '1'); render(); }
+    else { S.help = true; render(); var hp = document.querySelector('.howto'); if (hp && hp.scrollIntoView) { hp.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } }
+  }
   else if (a === 'helpok') { S.help = false; lsSet('help', '1'); render(); }
   else if (a === 'lang') { lang = lang === 'es' ? 'en' : 'es'; lsSet('lang', lang); render(); }
 });
