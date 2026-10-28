@@ -138,7 +138,7 @@ a.btn{display:block;text-align:center;text-decoration:none;line-height:24px}
 /* Sailing sign-up. Own code is ES5 on purpose (var and function only). */
 (function () {
 'use strict';
-var VERSION = '1.7.0';
+var VERSION = '1.8.0';
 var FB = {
   apiKey: 'AIzaSyD3Q2TRCGlCkJPd8wvf8aijdQU8a0oJXmc',
   authDomain: 'sailing-signup.firebaseapp.com',
@@ -158,7 +158,9 @@ var T = {
     offline: 'Sin conexión. Los cambios se guardarán al volver la conexión.',
     missing: '¿Falta un nombre?', kidPh: 'Nombre del niño/a', add: 'Añadir',
     added: function (n) { return n + ' añadido.'; }, dup: function (n) { return n + ' ya está en la lista.'; },
-    notePh: 'Nota, p. ej. hasta las 14', saveNote: 'Guardar nota', sick: 'Enfermo/a', late: 'Llega tarde', remove: 'Quitar', close: 'Cerrar',
+    notePh: 'Nota, p. ej. hasta las 14', saveNote: 'Guardar nota', sick: 'Enfermo/a', late: 'Llega tarde',
+    lateAsk: 'Guardado en la lista. ¿Avisar también al entrenador por WhatsApp?', lateSend: 'Enviar WhatsApp al entrenador', lateSkip: 'No hace falta',
+    lateMsg: function (o) { return 'Hola, ' + o.name + ' llega tarde el ' + o.day.toLowerCase() + ' ' + o.date + (o.note ? ' (' + o.note + ')' : '') + '. Lo he marcado en la lista.'; }, remove: 'Quitar', close: 'Cerrar',
     saveFail: function (c) { return 'No se guardó (' + c + '). Inténtalo de nuevo.'; },
     readFail: function (c) { return 'No se pudo leer la lista (' + c + '). Revisa la conexión y recarga.'; },
     connFail: function (c) { return 'No se pudo conectar (' + c + '). Revisa la conexión y recarga.'; },
@@ -182,7 +184,9 @@ var T = {
     offline: 'Offline. Changes will be saved when the connection is back.',
     missing: 'Name missing?', kidPh: 'Child’s name', add: 'Add',
     added: function (n) { return n + ' added.'; }, dup: function (n) { return n + ' is already on the list.'; },
-    notePh: 'Note, e.g. until 2 pm', saveNote: 'Save note', sick: 'Sick', late: 'Running late', remove: 'Remove', close: 'Close',
+    notePh: 'Note, e.g. until 2 pm', saveNote: 'Save note', sick: 'Sick', late: 'Running late',
+    lateAsk: 'Saved on the list. Also tell the coach on WhatsApp?', lateSend: 'Send WhatsApp to the coach', lateSkip: 'No need',
+    lateMsg: function (o) { return 'Hi, ' + o.name + ' will be late on ' + o.day + ' ' + o.date + (o.note ? ' (' + o.note + ')' : '') + '. I have marked it on the list.'; }, remove: 'Remove', close: 'Close',
     saveFail: function (c) { return 'Not saved (' + c + '). Please try again.'; },
     readFail: function (c) { return 'Could not read the list (' + c + '). Check the connection and reload.'; },
     connFail: function (c) { return 'Could not connect (' + c + '). Check the connection and reload.'; },
@@ -336,8 +340,11 @@ function saveNote() {
 function makeNote(st, text) { text = clean(text, 36); return st ? MARKS[st] + (text ? ' ' + text : '') : text; }
 /* One tap saves and closes; tapping the chosen one again takes the mark off. */
 function setStatus(st) {
-  var sh = S.sheet, i = document.getElementById('note');
+  var sh = S.sheet, i = document.getElementById('note'), text = clean(i ? i.value : '', 36);
   S.sheet = null;
+  /* Late is time-critical and the coach gets no alert from the list, so offer a ready-written WhatsApp message.
+     No number is stored: WhatsApp opens its chat picker and the parent picks the coach. */
+  S.nudge = st === 'late' && sh.st !== 'late' && S.kids[sh.kid] ? { name: S.kids[sh.kid].name, day: sh.day, date: dayDate(S.week, sh.day).getDate(), note: text } : null;
   store.setPick(weekId(S.week), sh.day, sh.kid, { note: makeNote(sh.st === st ? '' : st, i ? i.value : ''), at: sh.at })['catch'](fail);
   render();
 }
@@ -470,6 +477,12 @@ function render() {
   }
   h.push('</div></section>');
   h.push('</div><p class="foot">' + ANCHOR + '<span>v' + VERSION + '</span></p></main>');
+  if (S.nudge) {
+    var nm = { name: S.nudge.name, day: l.days[S.nudge.day], date: S.nudge.date, note: S.nudge.note };
+    h.push('<div class="shade" data-a="nudgeoff"><div class="sheet" role="dialog" aria-modal="true"><h3>' + MARKS.late + ' ' + esc(S.nudge.name) + '</h3><p class="muted">' + esc(l.lateAsk) + '</p>' +
+      '<a class="btn primary wide" data-a="nudge" href="https://wa.me/?text=' + encodeURIComponent(l.lateMsg(nm)) + '" target="_blank" rel="noopener">' + esc(l.lateSend) + '</a>' +
+      '<button class="btn wide" data-a="nudgeoff">' + esc(l.lateSkip) + '</button></div></div>');
+  }
   if (S.sheet && S.kids[S.sheet.kid]) {
     h.push('<div class="shade" data-a="close"><div class="sheet" role="dialog" aria-modal="true"><h3>' + esc(S.kids[S.sheet.kid].name) + '</h3><p class="muted">' + esc(l.days[S.sheet.day]) + ' ' + dayDate(S.week, S.sheet.day).getDate() + '</p>' +
       '<div class="row"><button class="btn' + (S.sheet.st === 'sick' ? ' sel' : '') + '" data-a="sick" style="flex:1">' + MARKS.sick + ' ' + esc(l.sick) + '</button><button class="btn' + (S.sheet.st === 'late' ? ' sel' : '') + '" data-a="late" style="flex:1">' + MARKS.late + ' ' + esc(l.late) + '</button></div>' +
@@ -491,12 +504,14 @@ app.addEventListener('click', function (ev) {
   while (t && t !== app && !t.getAttribute('data-a')) { t = t.parentNode; }
   if (!t || t === app) { return; }
   a = t.getAttribute('data-a');
-  if (a === 'close' && t.className === 'shade' && ev.target !== t) { return; }
+  if ((a === 'close' || a === 'nudgeoff') && t.className === 'shade' && ev.target !== t) { return; }
   if (a === 'chip') { tapChip(+t.getAttribute('data-d'), t.getAttribute('data-k')); }
   else if (a === 'prev' || a === 'next') { S.week += a === 'next' ? 1 : -1; S.msg = null; S.err = null; watchWeek(); render(); }
   else if (a === 'save') { saveNote(); }
   else if (a === 'remove') { removePick(); }
   else if (a === 'sick' || a === 'late') { setStatus(a); }
+  else if (a === 'nudge') { S.nudge = null; setTimeout(render, 300); }
+  else if (a === 'nudgeoff') { S.nudge = null; render(); }
   else if (a === 'close') { S.sheet = null; render(); }
   else if (a === 'add') { addKid(); }
   else if (a === 'remics') { openIcs(); }
