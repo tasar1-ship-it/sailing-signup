@@ -3,14 +3,14 @@
 Parents of the sailing group tick which days their child sails at the weekend (Viernes, Sábado, Domingo) by tapping the child's name, instead of copying and extending the list in the WhatsApp group. A "Copiar lista para WhatsApp" button produces the list in the old WhatsApp format, with the link at the end.
 
 ## Current version
-- App 1.0.0 (28 Oct 2026). First build.
+- App 1.1.0 (28 Oct 2026): English button and laptop layout. 1.0.0 (28 Oct 2026) was the first build.
 - Repo: tasar1-ship-it/sailing-signup, served at https://tasar1-ship-it.github.io/sailing-signup/
 - Group link: `https://tasar1-ship-it.github.io/sailing-signup/#<group id>`. The group id (22 random characters) is NOT in this repo; Ronald holds the link. Without it the page shows "Abre la página con el enlace del grupo".
 - Example view without the database: `.../sailing-signup/?demo` (in memory, nothing saved).
 - Firebase project: sailing-signup (project number 1090198402941), Realtime Database sailing-signup-default-rtdb in europe-west1, Anonymous sign-in on, web app "Sailing Signup" registered. Gemini and Google Analytics switched off. Spark (free) plan.
 
 ## Files
-- index.html - the whole app (inline CSS and JS, own code ES5 only). Spanish UI. The Firebase web config is written into it; that config is public by design, access is decided by the rules.
+- index.html - the whole app (inline CSS and JS, own code ES5 only). Spanish and English UI: the button top right switches; the choice is kept per device (localStorage key ss1_lang); a phone set to English opens in English. The text copied for WhatsApp is always Spanish. The Firebase web config is written into it; that config is public by design, access is decided by the rules.
 - firebase-app-compat.js, firebase-auth-compat.js, firebase-database-compat.js - Firebase compat SDK 9.23.0, vendored, byte-identical to the copies in commitment-board.
 - database.rules.json - the rules exactly as published.
 - icon-180.png - home-screen icon.
@@ -31,6 +31,9 @@ Parents of the sailing group tick which days their child sails at the weekend (V
 - Demo UI: 12 checks in Chromium and WebKit (tick, note, remove, add name, duplicate refused, WhatsApp text, week switch).
 - Live database: two separate parents in Chromium and in WebKit, on a weekend five weeks out: names load, a tick appears for the other parent within 2 s, notes sync, untick syncs. Test ticks were removed. Raw API: read without sign-in refused, listing groups refused.
 - Not tested: a real iPhone or Android phone, WhatsApp's in-app browser.
+
+## Tested (28 Oct 2026, 1.1.0)
+- Own script parses as ES5. Demo checks 12 of 12 in Chromium and WebKit. Language checks 10 of 10 (switch, remembered after reload, English phone opens in English, WhatsApp text stays Spanish). Layout at 320 px (iPhone SE), 390 px (iPhone) and 1440 px (laptop): no sideways scrolling, smallest main text 15 px, three day cards side by side from 900 px.
 
 ## Known limits
 - No reminder or notification; parents still need the link posted in the group.

@@ -9,55 +9,68 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230071E3'/%3E%3Cpath d='M16 5v19M16 6l8 15h-8M15 8L8 21h7M6 25h20' fill='none' stroke='%23fff' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E">
 <link rel="apple-touch-icon" href="icon-180.png">
 <style>
-/* One column: week switcher, one card per day (Viernes, Sábado, Domingo) with every child as a tap chip,
-   then "add a child" and "copy for WhatsApp". A bottom sheet edits a chosen child's note or removes them. */
+/* One column on phones: title with language button, week switcher, one card per day (Friday, Saturday, Sunday)
+   with every child as a tap chip, then "copy for WhatsApp" and "add a child". From 900px wide the three day
+   cards sit side by side. A bottom sheet edits a chosen child's note or removes them. */
 :root{
   color-scheme:light dark;
-  --bg:#FFFFFF; --surface:#F5F5F7; --field:#FFFFFF; --fg:#1D1D1F; --fg-2:#6A6A70; --line:rgba(60,60,67,.16);
-  --chip:rgba(118,118,128,.12); --accent:#0071E3; --accent-fg:#FFFFFF; --good:#176B2C; --bad:#C20014;
+  --bg:#FFFFFF; --surface:#F5F5F7; --field:#FFFFFF; --fg:#1D1D1F; --fg-2:#5E5E64; --line:rgba(60,60,67,.22);
+  --chip:rgba(118,118,128,.14); --accent:#0071E3; --accent-fg:#FFFFFF; --good:#176B2C; --bad:#C20014;
   --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue","Segoe UI",Roboto,Arial,sans-serif;
 }
 @media (prefers-color-scheme: dark){
-  :root{ --bg:#000000; --surface:#1C1C1E; --field:#2C2C2E; --fg:#F5F5F7; --fg-2:#A1A1A6; --line:rgba(84,84,88,.6);
-    --chip:rgba(118,118,128,.26); --accent:#0A84FF; --good:#30D158; --bad:#FF453A; }
+  :root{ --bg:#000000; --surface:#1C1C1E; --field:#2C2C2E; --fg:#F5F5F7; --fg-2:#AEAEB2; --line:rgba(84,84,88,.7);
+    --chip:rgba(118,118,128,.30); --accent:#0A84FF; --good:#30D158; --bad:#FF453A; }
 }
 *{box-sizing:border-box}
-html,body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font);font-size:17px;-webkit-text-size-adjust:100%}
+html,body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font);font-size:17px;line-height:1.35;-webkit-text-size-adjust:100%}
 .wrap{max-width:640px;margin:0 auto;padding:calc(12px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right)) calc(40px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left))}
-h1{font-size:26px;margin:8px 0 2px;letter-spacing:-.02em}
-.muted{color:var(--fg-2);font-size:15px;margin:0}
-.week{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:14px 0 16px}
-.week b{font-size:17px;text-align:center;flex:1}
-.nav{width:44px;height:44px;border-radius:22px;border:0;background:var(--chip);color:var(--fg);font-size:22px;cursor:pointer}
-.card{background:var(--surface);border-radius:16px;padding:14px 14px 10px;margin-bottom:14px}
-.card h2{font-size:19px;margin:0 0 10px;display:flex;justify-content:space-between;align-items:baseline}
-.card h2 span{font-size:15px;font-weight:500;color:var(--fg-2)}
+.top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+h1{font-size:28px;margin:8px 0 4px;letter-spacing:-.02em;line-height:1.15}
+.lang{flex:none;margin-top:6px;border:1px solid var(--line);background:var(--bg);color:var(--accent);border-radius:20px;padding:8px 14px;min-height:40px;font:inherit;font-size:15px;font-weight:600;cursor:pointer}
+.muted{color:var(--fg-2);font-size:16px;margin:0}
+.week{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:16px 0}
+.week b{font-size:18px;text-align:center;flex:1}
+.nav{flex:none;width:44px;height:44px;border-radius:22px;border:0;background:var(--chip);color:var(--fg);font-size:24px;line-height:1;cursor:pointer}
+.card{background:var(--surface);border-radius:16px;padding:14px 14px 12px;margin-bottom:14px}
+.card h2{font-size:20px;margin:0 0 12px;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.card h2 span{font-size:15px;font-weight:500;color:var(--fg-2);white-space:nowrap}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
-.chip{border:0;border-radius:20px;padding:10px 14px;min-height:44px;font:inherit;font-size:16px;background:var(--chip);color:var(--fg);cursor:pointer;text-align:left;line-height:1.2}
+.chip{border:0;border-radius:22px;padding:10px 15px;min-height:44px;font:inherit;font-size:17px;background:var(--chip);color:var(--fg);cursor:pointer;text-align:left;line-height:1.2}
 .chip.on{background:var(--accent);color:var(--accent-fg)}
 .chip.on:before{content:"\2713\00a0"}
-.chip small{display:block;font-size:13px;opacity:.85}
-.hint{font-size:13px;color:var(--fg-2);margin:8px 2px 2px}
+.chip small{display:block;font-size:14px;opacity:.9}
 .row{display:flex;gap:8px;margin-top:6px}
-input[type=text]{flex:1;min-width:0;font:inherit;font-size:16px;padding:11px 12px;border-radius:12px;border:1px solid var(--line);background:var(--field);color:var(--fg)}
-.btn{border:0;border-radius:12px;padding:12px 16px;font:inherit;font-size:16px;font-weight:600;cursor:pointer;background:var(--chip);color:var(--fg)}
+input[type=text]{flex:1;min-width:0;font:inherit;font-size:17px;padding:11px 12px;border-radius:12px;border:1px solid var(--line);background:var(--field);color:var(--fg)}
+.btn{border:0;border-radius:12px;padding:12px 16px;min-height:46px;font:inherit;font-size:17px;font-weight:600;cursor:pointer;background:var(--chip);color:var(--fg)}
 .btn.primary{background:var(--accent);color:var(--accent-fg)}
 .btn.danger{color:var(--bad)}
 .btn.wide{width:100%;margin-top:6px}
-.sec{margin:22px 0 8px;font-size:15px;font-weight:600;color:var(--fg-2)}
-.ok{color:var(--good);font-size:14px;margin:6px 2px 0;min-height:18px}
-.err{color:var(--bad);font-size:14px;margin:6px 2px 0}
-.bar{background:var(--bad);color:#fff;border-radius:12px;padding:10px 12px;font-size:14px;margin:8px 0}
-.shade{position:fixed;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:flex-end;justify-content:center;z-index:5}
+.sec{margin:22px 0 8px;font-size:16px;font-weight:600;color:var(--fg-2)}
+.ok{color:var(--good);font-size:15px;margin:6px 2px 0;min-height:20px}
+.err{color:var(--bad);font-size:15px;margin:6px 2px 0}
+.bar{background:var(--bad);color:#fff;border-radius:12px;padding:10px 12px;font-size:15px;margin:8px 0}
+.shade{position:fixed;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:flex-end;justify-content:center;z-index:5}
 .sheet{background:var(--bg);width:100%;max-width:640px;border-radius:18px 18px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom))}
-.sheet h3{margin:0 0 4px;font-size:20px}
+.sheet h3{margin:0 0 4px;font-size:21px}
 .sheet .row{margin-top:12px}
-.foot{margin-top:28px;font-size:12px;color:var(--fg-2);text-align:center}
+.foot{margin-top:28px;font-size:13px;color:var(--fg-2);text-align:center}
+.tools{max-width:640px}
+@media (min-width:900px){
+  .wrap{max-width:1100px;padding-left:32px;padding-right:32px}
+  h1{font-size:34px}
+  .week{max-width:640px}
+  .days{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;align-items:start}
+  .days .card{margin:0;padding:18px}
+  .tools{margin-top:20px}
+  .shade{align-items:center}
+  .sheet{max-width:460px;border-radius:18px}
+}
 </style>
 </head>
 <body>
-<div id="app" class="wrap"><p class="muted">Cargando…</p></div>
-<noscript><p style="padding:20px">Esta página necesita JavaScript.</p></noscript>
+<div id="app" class="wrap"><p class="muted">Cargando… / Loading…</p></div>
+<noscript><p style="padding:20px">Esta página necesita JavaScript. This page needs JavaScript.</p></noscript>
 <script src="firebase-app-compat.js"></script>
 <script src="firebase-auth-compat.js"></script>
 <script src="firebase-database-compat.js"></script>
@@ -65,7 +78,7 @@ input[type=text]{flex:1;min-width:0;font:inherit;font-size:16px;padding:11px 12p
 /* Sailing sign-up. Own code is ES5 on purpose (var and function only). */
 (function () {
 'use strict';
-var VERSION = '1.0.0';
+var VERSION = '1.1.0';
 var FB = {
   apiKey: 'AIzaSyD3Q2TRCGlCkJPd8wvf8aijdQU8a0oJXmc',
   authDomain: 'sailing-signup.firebaseapp.com',
@@ -73,10 +86,50 @@ var FB = {
   projectId: 'sailing-signup',
   appId: '1:1090198402941:web:30a83e8de794f93cff7e14'
 };
-var DAYS = ['Viernes', 'Sábado', 'Domingo'];
-var MONTHS = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+var LS = 'ss1_';
+/* Screen text in both languages. The text copied for WhatsApp stays Spanish, because the group writes in Spanish. */
+var T = {
+  es: {
+    other: 'English', title: '¿Quién navega?', pageTitle: 'Vela · Fin de semana',
+    intro: 'Toca el nombre de tu hijo/a en cada día. Toca otra vez para añadir una nota o quitarlo.',
+    days: ['Viernes', 'Sábado', 'Domingo'], months: ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'],
+    weekend: 'Fin de semana', prev: 'Semana anterior', next: 'Semana siguiente', loading: 'Cargando…',
+    count: function (n) { return n + (n === 1 ? ' apuntado' : ' apuntados'); },
+    offline: 'Sin conexión. Los cambios se guardarán al volver la conexión.',
+    copy: 'Copiar lista para WhatsApp', copied: 'Copiado. Pégalo en WhatsApp.', copyFail: 'No se pudo copiar automáticamente.',
+    missing: '¿Falta un nombre?', kidPh: 'Nombre del niño/a', add: 'Añadir',
+    added: function (n) { return n + ' añadido.'; }, dup: function (n) { return n + ' ya está en la lista.'; },
+    notePh: 'Nota, p. ej. hasta las 14', saveNote: 'Guardar nota', remove: 'Quitar', close: 'Cerrar',
+    saveFail: function (c) { return 'No se guardó (' + c + '). Inténtalo de nuevo.'; },
+    readFail: function (c) { return 'No se pudo leer la lista (' + c + '). Revisa la conexión y recarga.'; },
+    connFail: function (c) { return 'No se pudo conectar (' + c + '). Revisa la conexión y recarga.'; },
+    noLink: 'Abre la página con el enlace del grupo de WhatsApp (el enlace completo).'
+  },
+  en: {
+    other: 'Español', title: 'Who’s sailing?', pageTitle: 'Sailing · Weekend',
+    intro: 'Tap your child’s name on each day. Tap again to add a note or remove them.',
+    days: ['Friday', 'Saturday', 'Sunday'], months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+    weekend: 'Weekend', prev: 'Previous week', next: 'Next week', loading: 'Loading…',
+    count: function (n) { return n + ' signed up'; },
+    offline: 'Offline. Changes will be saved when the connection is back.',
+    copy: 'Copy list for WhatsApp', copied: 'Copied. Paste it into WhatsApp.', copyFail: 'Could not copy automatically.',
+    missing: 'Name missing?', kidPh: 'Child’s name', add: 'Add',
+    added: function (n) { return n + ' added.'; }, dup: function (n) { return n + ' is already on the list.'; },
+    notePh: 'Note, e.g. until 2 pm', saveNote: 'Save note', remove: 'Remove', close: 'Close',
+    saveFail: function (c) { return 'Not saved (' + c + '). Please try again.'; },
+    readFail: function (c) { return 'Could not read the list (' + c + '). Check the connection and reload.'; },
+    connFail: function (c) { return 'Could not connect (' + c + '). Check the connection and reload.'; },
+    noLink: 'Open this page with the full link from the WhatsApp group.'
+  }
+};
+function lsGet(k) { try { return localStorage.getItem(LS + k); } catch (e) { return null; } }
+function lsSet(k, v) { try { localStorage.setItem(LS + k, v); } catch (e) {} }
+var lang = lsGet('lang');
+if (lang !== 'es' && lang !== 'en') { lang = /^en/i.test(navigator.language || '') ? 'en' : 'es'; }
+function L() { return T[lang]; }
 var app = document.getElementById('app');
-var S = { fatal: '', week: 0, kids: {}, picks: {}, loadedKids: false, sheet: null, msg: '', err: '', offline: false, draftKid: '' };
+/* fatal and err hold a function of the language, so a language switch also translates a message already shown. */
+var S = { fatal: null, week: 0, kids: {}, picks: {}, loadedKids: false, sheet: null, msg: null, err: null, offline: false, draftKid: '' };
 var store = null, offPicks = null;
 
 /* ---------- helpers ---------- */
@@ -84,6 +137,7 @@ var ESC = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' 
 function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return ESC[c]; }); }
 function clean(s, n) { return String(s || '').replace(/\s+/g, ' ').replace(/^ | $/g, '').slice(0, n); }
 function pad(n) { return n < 10 ? '0' + n : '' + n; }
+function say(key, arg) { return function () { var v = L()[key]; return typeof v === 'function' ? v(arg) : v; }; }
 /* Friday of the weekend to show: Mon-Fri -> the coming Friday, Sat/Sun -> the Friday just gone. */
 function friday(offset) {
   var d = new Date(); d.setHours(12, 0, 0, 0);
@@ -94,9 +148,9 @@ function friday(offset) {
 function weekId(offset) { var d = friday(offset); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
 function dayDate(offset, i) { var d = friday(offset); d.setDate(d.getDate() + i); return d; }
 function weekLabel(offset) {
-  var a = dayDate(offset, 0), b = dayDate(offset, 2);
-  var s = a.getMonth() === b.getMonth() ? a.getDate() : a.getDate() + ' ' + MONTHS[a.getMonth()];
-  return s + ' – ' + b.getDate() + ' ' + MONTHS[b.getMonth()];
+  var a = dayDate(offset, 0), b = dayDate(offset, 2), m = L().months;
+  var s = a.getMonth() === b.getMonth() ? a.getDate() : a.getDate() + ' ' + m[a.getMonth()];
+  return s + ' – ' + b.getDate() + ' ' + m[b.getMonth()];
 }
 function kidList() {
   var out = [], k;
@@ -156,7 +210,7 @@ function memStore() {
     onConn: function () {}
   };
 }
-function onFail(e) { S.fatal = 'No se pudo leer la lista (' + ((e && e.code) || 'error') + '). Revisa la conexión y recarga.'; render(); }
+function onFail(e) { S.fatal = say('readFail', (e && e.code) || 'error'); render(); }
 
 /* ---------- actions ---------- */
 function watchWeek() {
@@ -164,9 +218,9 @@ function watchWeek() {
   S.picks = {};
   offPicks = store.onPicks(weekId(S.week), function (v) { S.picks = v; render(); });
 }
-function fail(e) { S.err = 'No se guardó (' + ((e && e.code) || e || 'error') + '). Inténtalo de nuevo.'; render(); }
+function fail(e) { S.err = say('saveFail', (e && e.code) || e || 'error'); render(); }
 function tapChip(day, kid) {
-  S.err = ''; S.msg = '';
+  S.err = null; S.msg = null;
   var p = (S.picks[day] || {})[kid];
   if (!p) { store.setPick(weekId(S.week), day, kid, { note: '' })['catch'](fail); return; }
   S.sheet = { day: day, kid: kid, note: p.note || '', at: p.at }; render();
@@ -185,19 +239,19 @@ function removePick() {
 }
 function addKid() {
   var i = document.getElementById('newkid'), name = clean(i ? i.value : '', 30), list = kidList(), j;
-  S.err = ''; S.msg = '';
+  S.err = null; S.msg = null;
   if (!name) { return; }
   for (j = 0; j < list.length; j++) {
-    if (list[j].name.toLowerCase() === name.toLowerCase()) { S.err = name + ' ya está en la lista.'; render(); return; }
+    if (list[j].name.toLowerCase() === name.toLowerCase()) { S.err = say('dup', name); render(); return; }
   }
   S.draftKid = '';
-  store.addKid(name).then(function () { S.msg = name + ' añadido.'; render(); })['catch'](fail);
+  store.addKid(name).then(function () { S.msg = say('added', name); render(); })['catch'](fail);
 }
 function waText() {
   var lines = [], d, p, j;
   for (d = 0; d < 3; d++) {
     if (d) { lines.push(''); }
-    lines.push(DAYS[d] + ' ' + dayDate(S.week, d).getDate());
+    lines.push(T.es.days[d] + ' ' + dayDate(S.week, d).getDate());
     p = picked(d);
     for (j = 0; j < p.length; j++) { lines.push('• ' + p[j].name + (p[j].note ? ' (' + p[j].note + ')' : '')); }
   }
@@ -205,30 +259,35 @@ function waText() {
 }
 function copyWa() {
   var t = waText();
-  S.err = '';
-  function done() { S.msg = 'Copiado. Pégalo en WhatsApp.'; render(); }
+  S.err = null;
+  function done() { S.msg = say('copied'); render(); }
   function fallback() {
     var a = document.createElement('textarea'); a.value = t; a.setAttribute('readonly', ''); a.style.position = 'fixed'; a.style.opacity = '0';
     document.body.appendChild(a); a.select(); a.setSelectionRange(0, t.length);
     var ok = false; try { ok = document.execCommand('copy'); } catch (e) {}
     document.body.removeChild(a);
-    if (ok) { done(); } else { S.err = 'No se pudo copiar automáticamente.'; render(); }
+    if (ok) { done(); } else { S.err = say('copyFail'); render(); }
   }
   if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(t).then(done, fallback); } else { fallback(); }
 }
 
 /* ---------- render ---------- */
 function render() {
-  if (S.fatal) { app.innerHTML = '<h1>Vela · Fin de semana</h1><p class="muted">' + esc(S.fatal) + '</p>'; return; }
-  var kids = kidList(), h = [], d, j, p, on, date;
-  h.push('<h1>¿Quién navega?</h1><p class="muted">Toca el nombre de tu hijo/a en cada día. Toca otra vez para añadir una nota o quitarlo.</p>');
-  if (S.offline) { h.push('<div class="bar">Sin conexión. Los cambios se guardarán al volver la conexión.</div>'); }
-  h.push('<div class="week"><button class="nav" data-a="prev" aria-label="Semana anterior">‹</button><b>Fin de semana ' + esc(weekLabel(S.week)) + '</b><button class="nav" data-a="next" aria-label="Semana siguiente">›</button></div>');
-  if (!S.loadedKids) { h.push('<p class="muted">Cargando…</p>'); }
+  var l = L(), h = [];
+  document.documentElement.lang = lang;
+  document.title = l.pageTitle;
+  h.push('<div class="top"><h1>' + esc(l.title) + '</h1><button class="lang" data-a="lang" lang="' + (lang === 'es' ? 'en' : 'es') + '">' + esc(l.other) + '</button></div>');
+  if (S.fatal) { app.innerHTML = h.join('') + '<p class="muted">' + esc(S.fatal()) + '</p>'; return; }
+  var kids = kidList(), d, j, p, on, date;
+  h.push('<p class="muted">' + esc(l.intro) + '</p>');
+  if (S.offline) { h.push('<div class="bar">' + esc(l.offline) + '</div>'); }
+  h.push('<div class="week"><button class="nav" data-a="prev" aria-label="' + esc(l.prev) + '">‹</button><b>' + esc(l.weekend + ' ' + weekLabel(S.week)) + '</b><button class="nav" data-a="next" aria-label="' + esc(l.next) + '">›</button></div>');
+  if (!S.loadedKids) { h.push('<p class="muted">' + esc(l.loading) + '</p>'); }
+  h.push('<div class="days">');
   for (d = 0; d < 3; d++) {
     date = dayDate(S.week, d);
     p = S.picks[d] || {};
-    h.push('<section class="card"><h2>' + DAYS[d] + ' ' + date.getDate() + ' <span>' + picked(d).length + ' apuntados</span></h2><div class="chips">');
+    h.push('<section class="card"><h2>' + esc(l.days[d]) + ' ' + date.getDate() + ' <span>' + esc(l.count(picked(d).length)) + '</span></h2><div class="chips">');
     for (j = 0; j < kids.length; j++) {
       on = p[kids[j].id];
       h.push('<button class="chip' + (on ? ' on' : '') + '" data-a="chip" data-d="' + d + '" data-k="' + esc(kids[j].id) + '" aria-pressed="' + (on ? 'true' : 'false') + '">' +
@@ -236,16 +295,17 @@ function render() {
     }
     h.push('</div></section>');
   }
-  if (S.err) { h.push('<p class="err">' + esc(S.err) + '</p>'); }
-  h.push('<button class="btn primary wide" data-a="copy">Copiar lista para WhatsApp</button>');
-  h.push('<p class="ok">' + esc(S.msg) + '</p>');
-  h.push('<div class="sec">¿Falta un nombre?</div><div class="row"><input type="text" id="newkid" maxlength="30" placeholder="Nombre del niño/a" value="' + esc(S.draftKid) + '" autocomplete="off"><button class="btn" data-a="add">Añadir</button></div>');
-  h.push('<p class="foot">v' + VERSION + '</p>');
+  h.push('</div><div class="tools">');
+  if (S.err) { h.push('<p class="err">' + esc(S.err()) + '</p>'); }
+  h.push('<button class="btn primary wide" data-a="copy">' + esc(l.copy) + '</button>');
+  h.push('<p class="ok">' + esc(S.msg ? S.msg() : '') + '</p>');
+  h.push('<div class="sec">' + esc(l.missing) + '</div><div class="row"><input type="text" id="newkid" maxlength="30" placeholder="' + esc(l.kidPh) + '" value="' + esc(S.draftKid) + '" autocomplete="off"><button class="btn" data-a="add">' + esc(l.add) + '</button></div>');
+  h.push('</div><p class="foot">v' + VERSION + '</p>');
   if (S.sheet && S.kids[S.sheet.kid]) {
-    h.push('<div class="shade" data-a="close"><div class="sheet" role="dialog" aria-modal="true"><h3>' + esc(S.kids[S.sheet.kid].name) + '</h3><p class="muted">' + DAYS[S.sheet.day] + ' ' + dayDate(S.week, S.sheet.day).getDate() + '</p>' +
-      '<div class="row"><input type="text" id="note" maxlength="40" placeholder="Nota, p. ej. hasta las 14" value="' + esc(S.sheet.note) + '"></div>' +
-      '<div class="row"><button class="btn primary" data-a="save" style="flex:1">Guardar nota</button><button class="btn danger" data-a="remove">Quitar</button></div>' +
-      '<button class="btn wide" data-a="close">Cerrar</button></div></div>');
+    h.push('<div class="shade" data-a="close"><div class="sheet" role="dialog" aria-modal="true"><h3>' + esc(S.kids[S.sheet.kid].name) + '</h3><p class="muted">' + esc(l.days[S.sheet.day]) + ' ' + dayDate(S.week, S.sheet.day).getDate() + '</p>' +
+      '<div class="row"><input type="text" id="note" maxlength="40" placeholder="' + esc(l.notePh) + '" value="' + esc(S.sheet.note) + '"></div>' +
+      '<div class="row"><button class="btn primary" data-a="save" style="flex:1">' + esc(l.saveNote) + '</button><button class="btn danger" data-a="remove">' + esc(l.remove) + '</button></div>' +
+      '<button class="btn wide" data-a="close">' + esc(l.close) + '</button></div></div>');
   }
   /* Live updates re-render the page; keep the cursor in a text box someone is typing in. */
   var f = document.activeElement, fid = f && f.id, fv = fid && f.value, fs = fid && f.selectionStart;
@@ -263,12 +323,13 @@ app.addEventListener('click', function (ev) {
   a = t.getAttribute('data-a');
   if (a === 'close' && t.className === 'shade' && ev.target !== t) { return; }
   if (a === 'chip') { tapChip(+t.getAttribute('data-d'), t.getAttribute('data-k')); }
-  else if (a === 'prev' || a === 'next') { S.week += a === 'next' ? 1 : -1; S.msg = ''; S.err = ''; watchWeek(); render(); }
+  else if (a === 'prev' || a === 'next') { S.week += a === 'next' ? 1 : -1; S.msg = null; S.err = null; watchWeek(); render(); }
   else if (a === 'save') { saveNote(); }
   else if (a === 'remove') { removePick(); }
   else if (a === 'close') { S.sheet = null; render(); }
   else if (a === 'copy') { copyWa(); }
   else if (a === 'add') { addKid(); }
+  else if (a === 'lang') { lang = lang === 'es' ? 'en' : 'es'; lsSet('lang', lang); render(); }
 });
 app.addEventListener('input', function (ev) { if (ev.target.id === 'newkid') { S.draftKid = ev.target.value; } });
 app.addEventListener('keydown', function (ev) {
@@ -280,8 +341,8 @@ app.addEventListener('keydown', function (ev) {
 var g = (location.hash || '').replace(/^#/, '');
 if (/[?&]demo\b/.test(location.search)) { store = memStore(); }
 else if (/^[A-Za-z0-9]{20,40}$/.test(g)) { store = fbStore(g); }
-else { S.fatal = 'Abre la página con el enlace del grupo de WhatsApp (el enlace completo).'; render(); return; }
-store.ready['catch'](function (e) { S.fatal = 'No se pudo conectar (' + e + '). Revisa la conexión y recarga.'; render(); });
+else { S.fatal = say('noLink'); render(); return; }
+store.ready['catch'](function (e) { S.fatal = say('connFail', e); render(); });
 store.onKids(function (v) { S.kids = v; S.loadedKids = true; render(); });
 store.onConn(function (c) { if (c) { S.wasOn = true; } S.offline = S.wasOn && !c; render(); });
 watchWeek();
