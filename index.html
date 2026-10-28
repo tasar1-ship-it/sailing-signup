@@ -18,15 +18,15 @@
   --bg:#F3F7FA; --card:#FFFFFF; --field:#FFFFFF; --fg:#0B2545; --fg-2:#4A5D73; --line:#D3DEE8;
   --sea:#0B6FB8; --sea-2:#13A0C9; --navy:#0B2545; --navy-2:#134074; --tint:#E3F0F8;
   --on-fg:#FFFFFF; --btn:#134074; --good:#13795B; --bad:#C2273B; --shadow:0 1px 2px rgba(11,37,69,.06),0 6px 20px rgba(11,37,69,.07);
-  --f0:#E4572E; --f1:#2F7FC8; --f2:#2F7FC8; --f3:#7B61FF; --sun:#F5A83A; --sun-soft:#FFCB80;
-  --d0:#FDF1EC; --d0l:#F4D6CA; --d1:#DCEBF8; --d1l:#93BFE6; --d2:#C6DDF3; --d2l:#78ABDA; --d3:#F2EFFE; --d3l:#DAD2FB;
+  --f0:#2E9A5C; --f1:#2F7FC8; --f2:#2F7FC8; --f3:#2E9A5C; --sun:#F5A83A; --sun-soft:#FFCB80;
+  --d0:#D9F0E0; --d0l:#8FCBA3; --d1:#DCEBF8; --d1l:#93BFE6; --d2:#C6DDF3; --d2l:#78ABDA; --d3:#EAF6EE; --d3l:#B3DEC0;
   --font:"Avenir Next",Avenir,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
 }
 @media (prefers-color-scheme: dark){
   :root{ --bg:#07121F; --card:#0F2236; --field:#132B44; --fg:#EAF2F8; --fg-2:#9FB3C8; --line:#24405E;
     --sea:#2F8FD8; --sea-2:#3DB8DC; --navy:#040C16; --navy-2:#0B2545; --tint:#16344F;
     --btn:#1F74B8; --good:#4CD3A3; --bad:#FF6B7D; --shadow:0 1px 2px rgba(0,0,0,.4);
-    --d0:#24181E; --d0l:#4A2C2A; --d1:#12263D; --d1l:#2E5785; --d2:#16304F; --d2l:#3A6A9E; --d3:#1B1A33; --d3l:#38305F; }
+    --d0:#13301F; --d0l:#33694A; --d1:#12263D; --d1l:#2E5785; --d2:#16304F; --d2l:#3A6A9E; --d3:#10261A; --d3l:#2A573C; }
 }
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font);font-size:17px;line-height:1.35;-webkit-text-size-adjust:100%}
@@ -45,7 +45,7 @@ h1{font-size:32px;margin:18px 0 6px;letter-spacing:-.01em;line-height:1.1;font-w
 .wave{position:absolute;left:0;right:0;bottom:-1px;width:100%;height:46px;display:block}
 .wrap{max-width:640px;margin:0 auto;padding:4px calc(16px + env(safe-area-inset-right)) calc(36px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left))}
 .muted{color:var(--fg-2);font-size:16px;margin:0}
-/* Each day card carries a tint of its own pennant colour; the weekend (Saturday, Sunday) shares one stronger ocean blue, Sunday a shade deeper. */
+/* Weekdays (Wednesday, Friday) share a green family, the weekend (Saturday, Sunday) a stronger ocean blue; the later day of each pair is a shade deeper. */
 .day0{--cardbg:var(--d0);--cardline:var(--d0l)} .day1{--cardbg:var(--d1);--cardline:var(--d1l);--cardbw:1.5px} .day2{--cardbg:var(--d2);--cardline:var(--d2l);--cardbw:1.5px} .day3{--cardbg:var(--d3);--cardline:var(--d3l)}
 .card{background:var(--cardbg,var(--card));border-radius:18px;padding:16px 14px 14px;margin-bottom:14px;box-shadow:var(--shadow);border:var(--cardbw,1px) solid var(--cardline,var(--line))}
 .card h2{font-size:21px;margin:0 0 12px;display:flex;align-items:center;gap:8px;font-weight:700}
@@ -125,7 +125,7 @@ a.btn{display:block;text-align:center;text-decoration:none;line-height:24px}
 /* Sailing sign-up. Own code is ES5 on purpose (var and function only). */
 (function () {
 'use strict';
-var VERSION = '1.6.5';
+var VERSION = '1.6.6';
 var FB = {
   apiKey: 'AIzaSyD3Q2TRCGlCkJPd8wvf8aijdQU8a0oJXmc',
   authDomain: 'sailing-signup.firebaseapp.com',
