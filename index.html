@@ -95,10 +95,16 @@ input[type=text]:focus{outline:none;border-color:var(--sea)}
 .remind.done p{flex:1;color:var(--fg-2);font-size:15px}
 .remind.done .alt{margin:0}
 .summary{margin-top:26px}
-.sum-day{padding:10px 0;border-top:1px solid var(--line)}
-.sum-day:first-of-type{border-top:0}
-.sum-day b{display:block;font-size:16px;margin-bottom:2px}
-.sum-day p{font-size:16px}
+/* Summary: days in two columns (Wednesday | Friday, Saturday | Sunday), each a bullet list of names. */
+.sum-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 18px;margin-top:4px}
+.sum-day{min-width:0}
+.sum-day b{display:block;font-size:16px;padding-bottom:4px;border-bottom:1px solid var(--line)}
+.sum-day b span{white-space:nowrap}
+@media (max-width:360px){ .sum-day b{font-size:14px} .summary .sum-grid{gap:16px 12px} }
+.sum-day ul{margin:6px 0 0;padding-left:20px}
+.sum-day li{font-size:16px;margin:3px 0;overflow-wrap:anywhere}
+.sum-day li span{color:var(--fg-2);font-size:14px}
+.sum-day p{font-size:15px;margin:6px 0 0}
 .none{color:var(--fg-2);font-style:italic}
 a.btn{display:block;text-align:center;text-decoration:none;line-height:24px}
 @media (min-width:900px){ .remind{max-width:640px} }
@@ -127,7 +133,7 @@ a.btn{display:block;text-align:center;text-decoration:none;line-height:24px}
 /* Sailing sign-up. Own code is ES5 on purpose (var and function only). */
 (function () {
 'use strict';
-var VERSION = '1.6.8';
+var VERSION = '1.6.9';
 var FB = {
   apiKey: 'AIzaSyD3Q2TRCGlCkJPd8wvf8aijdQU8a0oJXmc',
   authDomain: 'sailing-signup.firebaseapp.com',
@@ -326,7 +332,6 @@ function addKid() {
 /* The shareable address of this group's page (the preview copy passes its group id in SS_PREVIEW_G). */
 var BASE = 'https://tasar1-ship-it.github.io/sailing-signup/';
 function groupLink() { var id = window.SS_PREVIEW_G || g; return BASE + (id ? '#' + id : ''); }
-function pickLine(x) { return x.name + (x.note ? ' (' + x.note + ')' : ''); }
 
 /* ---------- Monday reminder: a weekly calendar event at 17:00 local time, with the link inside ---------- */
 var UA = navigator.userAgent || '';
@@ -424,14 +429,19 @@ function render() {
   h.push('</div><div class="tools">');
   h.push('<div class="sec">' + esc(l.missing) + '</div><div class="row"><input type="text" id="newkid" maxlength="30" placeholder="' + esc(l.kidPh) + '" value="' + esc(S.draftKid) + '" autocomplete="off"><button class="btn" data-a="add">' + esc(l.add) + '</button></div>');
   if (S.msg && S.msgAt === 'add') { h.push('<p class="ok">' + esc(S.msg()) + '</p>'); }
-  h.push('<section class="panel summary"><h2>' + LIST + esc(l.sumTitle) + '</h2>');
+  h.push('<section class="panel summary"><h2>' + LIST + esc(l.sumTitle) + '</h2><div class="sum-grid">');
   for (o = 0; o < ORDER.length; o++) {
     d = ORDER[o];
     p = picked(d);
-    h.push('<div class="sum-day"><b>' + esc(l.days[d]) + ' ' + dayDate(S.week, d).getDate() + ' · ' + p.length + '</b><p>' +
-      (p.length ? esc(p.map(pickLine).join(', ')) : '<span class="none">' + esc(l.nobody) + '</span>') + '</p></div>');
+    h.push('<div class="sum-day"><b><span>' + esc(l.days[d]) + ' ' + dayDate(S.week, d).getDate() + '</span> <span>· ' + p.length + '</span></b>');
+    if (p.length) {
+      h.push('<ul>');
+      for (j = 0; j < p.length; j++) { h.push('<li>' + esc(p[j].name) + (p[j].note ? ' <span>(' + esc(p[j].note) + ')</span>' : '') + '</li>'); }
+      h.push('</ul>');
+    } else { h.push('<p class="none">' + esc(l.nobody) + '</p>'); }
+    h.push('</div>');
   }
-  h.push('</section>');
+  h.push('</div></section>');
   h.push('</div><p class="foot">' + ANCHOR + '<span>v' + VERSION + '</span></p></main>');
   if (S.sheet && S.kids[S.sheet.kid]) {
     h.push('<div class="shade" data-a="close"><div class="sheet" role="dialog" aria-modal="true"><h3>' + esc(S.kids[S.sheet.kid].name) + '</h3><p class="muted">' + esc(l.days[S.sheet.day]) + ' ' + dayDate(S.week, S.sheet.day).getDate() + '</p>' +
