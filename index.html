@@ -19,14 +19,14 @@
   --sea:#0B6FB8; --sea-2:#13A0C9; --navy:#0B2545; --navy-2:#134074; --tint:#E3F0F8;
   --on-fg:#FFFFFF; --btn:#134074; --good:#13795B; --bad:#C2273B; --shadow:0 1px 2px rgba(11,37,69,.06),0 6px 20px rgba(11,37,69,.07);
   --f0:#E4572E; --f1:#E8A33D; --f2:#1F9E89; --f3:#7B61FF; --sun:#F5A83A; --sun-soft:#FFCB80;
-  --d0:#FDF1EC; --d0l:#F4D6CA; --d1:#FDF6E9; --d1l:#F1DDB4; --d2:#EAF6F3; --d2l:#C3E4DD; --d3:#F2EFFE; --d3l:#DAD2FB;
+  --d0:#FDF1EC; --d0l:#F4D6CA; --d1:#FBE7BF; --d1l:#E6BD6E; --d2:#CDEDE5; --d2l:#86CBBC; --d3:#F2EFFE; --d3l:#DAD2FB;
   --font:"Avenir Next",Avenir,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
 }
 @media (prefers-color-scheme: dark){
   :root{ --bg:#07121F; --card:#0F2236; --field:#132B44; --fg:#EAF2F8; --fg-2:#9FB3C8; --line:#24405E;
     --sea:#2F8FD8; --sea-2:#3DB8DC; --navy:#040C16; --navy-2:#0B2545; --tint:#16344F;
     --btn:#1F74B8; --good:#4CD3A3; --bad:#FF6B7D; --shadow:0 1px 2px rgba(0,0,0,.4);
-    --d0:#24181E; --d0l:#4A2C2A; --d1:#231F17; --d1l:#4A3C21; --d2:#102624; --d2l:#1E4A44; --d3:#1B1A33; --d3l:#38305F; }
+    --d0:#24181E; --d0l:#4A2C2A; --d1:#37291A; --d1l:#7A5A26; --d2:#0F3631; --d2l:#2E7468; --d3:#1B1A33; --d3l:#38305F; }
 }
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font);font-size:17px;line-height:1.35;-webkit-text-size-adjust:100%}
@@ -45,9 +45,9 @@ h1{font-size:32px;margin:18px 0 6px;letter-spacing:-.01em;line-height:1.1;font-w
 .wave{position:absolute;left:0;right:0;bottom:-1px;width:100%;height:46px;display:block}
 .wrap{max-width:640px;margin:0 auto;padding:4px calc(16px + env(safe-area-inset-right)) calc(36px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left))}
 .muted{color:var(--fg-2);font-size:16px;margin:0}
-/* Each day card carries a pale tint of its own pennant colour. */
-.day0{--cardbg:var(--d0);--cardline:var(--d0l)} .day1{--cardbg:var(--d1);--cardline:var(--d1l)} .day2{--cardbg:var(--d2);--cardline:var(--d2l)} .day3{--cardbg:var(--d3);--cardline:var(--d3l)}
-.card{background:var(--cardbg,var(--card));border-radius:18px;padding:16px 14px 14px;margin-bottom:14px;box-shadow:var(--shadow);border:1px solid var(--cardline,var(--line))}
+/* Each day card carries a tint of its own pennant colour; the weekend (Saturday, Sunday) a stronger one. */
+.day0{--cardbg:var(--d0);--cardline:var(--d0l)} .day1{--cardbg:var(--d1);--cardline:var(--d1l);--cardbw:1.5px} .day2{--cardbg:var(--d2);--cardline:var(--d2l);--cardbw:1.5px} .day3{--cardbg:var(--d3);--cardline:var(--d3l)}
+.card{background:var(--cardbg,var(--card));border-radius:18px;padding:16px 14px 14px;margin-bottom:14px;box-shadow:var(--shadow);border:var(--cardbw,1px) solid var(--cardline,var(--line))}
 .card h2{font-size:21px;margin:0 0 12px;display:flex;align-items:center;gap:8px;font-weight:700}
 .card h2 .flag{width:22px;height:22px;flex:none}
 .card h2 .dn{white-space:nowrap}
@@ -125,7 +125,7 @@ a.btn{display:block;text-align:center;text-decoration:none;line-height:24px}
 /* Sailing sign-up. Own code is ES5 on purpose (var and function only). */
 (function () {
 'use strict';
-var VERSION = '1.6.3';
+var VERSION = '1.6.4';
 var FB = {
   apiKey: 'AIzaSyD3Q2TRCGlCkJPd8wvf8aijdQU8a0oJXmc',
   authDomain: 'sailing-signup.firebaseapp.com',
