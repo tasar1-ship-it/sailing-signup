@@ -77,6 +77,11 @@ input[type=text]:focus{outline:none;border-color:var(--sea)}
 .panel h2{font-size:19px;margin:0 0 6px;display:flex;align-items:center;gap:8px}
 .panel h2 svg{width:22px;height:22px;color:var(--sea);flex:none}
 .panel p{margin:0}
+.helpl{display:inline-block;margin-top:10px;background:none;border:0;padding:4px 0;color:#fff;font-size:16px;font-weight:600;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.howto ol{margin:6px 0 0;padding-left:22px}
+.howto li{margin:8px 0;font-size:16px;line-height:1.4}
+.howto li b{color:var(--fg)}
+.howto .btn{margin-top:8px}
 .remind{border:1.5px solid var(--sea);background:linear-gradient(180deg,var(--tint),var(--card) 80%)}
 .remind .btn{margin-top:12px}
 .alt{display:inline-block;margin-top:10px;color:var(--sea);font-size:15px;font-weight:600;background:none;border:0;padding:4px 0;cursor:pointer;text-decoration:underline}
@@ -117,7 +122,7 @@ a.btn{display:block;text-align:center;text-decoration:none;line-height:24px}
 /* Sailing sign-up. Own code is ES5 on purpose (var and function only). */
 (function () {
 'use strict';
-var VERSION = '1.4.0';
+var VERSION = '1.5.0';
 var FB = {
   apiKey: 'AIzaSyD3Q2TRCGlCkJPd8wvf8aijdQU8a0oJXmc',
   authDomain: 'sailing-signup.firebaseapp.com',
@@ -147,7 +152,12 @@ var T = {
     remIcs: 'Añadir al calendario', remGoogle: 'Añadir a Google Calendar', remAltGoogle: '¿Usas Google Calendar?', remAltIcs: '¿Usas el calendario del iPhone o del Mac?',
     remDone: 'Recordatorio añadido. Si lo guardaste en el calendario, te avisará cada lunes a las 17:00.', remAgain: 'Otra vez',
     calTitle: 'Apuntar a vela', calDesc: 'Apunta a tu hijo/a para esta semana:',
-    sumTitle: 'Resumen', nobody: 'nadie apuntado', copyFinal: 'Copiar lista final para WhatsApp', signHere: 'Apúntate aquí:'
+    sumTitle: 'Resumen', nobody: 'nadie apuntado', copyFinal: 'Copiar lista final para WhatsApp', signHere: 'Apúntate aquí:',
+    helpLink: '¿Cómo funciona?', helpT: 'Cómo funciona', helpOk: 'Entendido', help: [
+      '**Una vez:** toca «Añadir al calendario». Cada lunes a las 17:00 te llega un aviso con este enlace.',
+      '**Cada semana:** toca el nombre de tu hijo/a en los días que navega. Se pone azul: ya está apuntado/a.',
+      '**¿Un cambio?** Toca el nombre otra vez para añadir una nota (p. ej. hasta las 14) o para quitarlo.',
+      '**Nada más.** No hace falta copiar la lista en WhatsApp: los entrenadores la ven aquí.']
   },
   en: {
     other: 'Español', title: 'Who’s sailing?', pageTitle: 'Sailing · This week',
@@ -168,7 +178,12 @@ var T = {
     remIcs: 'Add to calendar', remGoogle: 'Add to Google Calendar', remAltGoogle: 'Using Google Calendar?', remAltIcs: 'Using the iPhone or Mac calendar?',
     remDone: 'Reminder added. If you saved it in your calendar, it will remind you every Monday at 17:00.', remAgain: 'Again',
     calTitle: 'Sign up for sailing', calDesc: 'Sign your child up for this week:',
-    sumTitle: 'Summary', nobody: 'nobody signed up', copyFinal: 'Copy final list for WhatsApp', signHere: 'Sign up here:'
+    sumTitle: 'Summary', nobody: 'nobody signed up', copyFinal: 'Copy final list for WhatsApp', signHere: 'Sign up here:',
+    helpLink: 'How does it work?', helpT: 'How it works', helpOk: 'Got it', help: [
+      '**Once:** tap “Add to calendar”. Every Monday at 17:00 you get a reminder with this link.',
+      '**Every week:** tap your child’s name on the days they sail. It turns blue: they are signed up.',
+      '**A change?** Tap the name again to add a note (e.g. until 2 pm) or to remove them.',
+      '**That’s all.** No need to copy the list into WhatsApp: the coaches see it here.']
   }
 };
 /* Small drawings: the sailboat in the header, the wave under it, a pennant per day, the anchor in the footer. */
@@ -385,6 +400,14 @@ function copyWa() {
 }
 
 /* ---------- render ---------- */
+/* Parents' "how it works": open on a first visit until closed (ss1_help), and from the link under the intro. */
+function helpHtml(l) {
+  if (!S.help && lsGet('help') === '1') { return ''; }
+  var items = [], i;
+  for (i = 0; i < l.help.length; i++) { items.push('<li>' + esc(l.help[i]).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>') + '</li>'); }
+  return '<section class="panel howto"><h2>' + LIST + esc(l.helpT) + '</h2><ol>' + items.join('') + '</ol>' +
+    '<button class="btn primary wide" data-a="helpok">' + esc(l.helpOk) + '</button></section>';
+}
 function remindHtml(l) {
   var google = ANDROID ? !S.remAlt : !!S.remAlt;
   if (lsGet('rem') === '1') {
@@ -402,10 +425,11 @@ function render() {
   h.push('<header class="hero"><div class="hero-in"><div class="top"><div class="brand">' + BOAT + '<span>' + esc(l.pageTitle) + '</span></div><button class="lang" data-a="lang" lang="' + (lang === 'es' ? 'en' : 'es') + '">' + esc(l.other) + '</button></div><h1>' + esc(l.title) + '</h1>');
   if (S.fatal) { app.innerHTML = h.join('') + '<p class="sub">' + esc(S.fatal()) + '</p></div>' + WAVE + '</header>'; return; }
   var kids = kidList(), o, d, j, p, on, date;
-  h.push('<p class="sub">' + esc(l.intro) + '</p>');
+  h.push('<p class="sub">' + esc(l.intro) + '</p><button class="helpl" data-a="help">' + esc(l.helpLink) + '</button>');
   h.push('<div class="week"><button class="nav" data-a="prev" aria-label="' + esc(l.prev) + '">‹</button><b>' + esc(l.weekend + ' ' + weekLabel(S.week)) + '</b><button class="nav" data-a="next" aria-label="' + esc(l.next) + '">›</button></div>');
   h.push('</div>' + WAVE + '</header><main class="wrap">');
   if (S.offline) { h.push('<div class="bar">' + esc(l.offline) + '</div>'); }
+  h.push(helpHtml(l));
   h.push(remindHtml(l));
   if (S.err) { h.push('<p class="err">' + esc(S.err()) + '</p>'); }
   if (!S.loadedKids) { h.push('<p class="muted">' + esc(l.loading) + '</p>'); }
@@ -468,6 +492,8 @@ app.addEventListener('click', function (ev) {
   else if (a === 'remg') { remDone(); }
   else if (a === 'remalt') { S.remAlt = !S.remAlt; render(); }
   else if (a === 'remagain') { lsSet('rem', ''); render(); }
+  else if (a === 'help') { S.help = true; render(); var hp = document.querySelector('.howto'); if (hp && hp.scrollIntoView) { hp.scrollIntoView({ behavior: 'smooth', block: 'start' }); } }
+  else if (a === 'helpok') { S.help = false; lsSet('help', '1'); render(); }
   else if (a === 'lang') { lang = lang === 'es' ? 'en' : 'es'; lsSet('lang', lang); render(); }
 });
 app.addEventListener('input', function (ev) { if (ev.target.id === 'newkid') { S.draftKid = ev.target.value; } });

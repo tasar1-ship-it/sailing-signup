@@ -3,7 +3,7 @@
 Parents of the sailing group tick which days their child sails at the weekend (Viernes, Sábado, Domingo) by tapping the child's name, instead of copying and extending the list in the WhatsApp group. A "Copiar lista para WhatsApp" button produces the list in the old WhatsApp format, with the link at the end.
 
 ## Current version
-- App 1.4.0 (28 Oct 2026): Wednesday added as a fourth day (shown first); the summary is called Resumen / Summary; the week label reads "Semana 28 oct – 1 nov". 1.3.0: Monday reminder, coach summary, coach guide page; the copied list marks empty days and follows the page language. 1.2.0: sailing design (navy sea header with sailboat and wave, a coloured pennant per day, white cards, sea-blue selected names, works in dark mode). 1.1.0: English button and laptop layout. 1.0.0: first build.
+- App 1.5.0 (28 Oct 2026): parents' "¿Cómo funciona?" box (open on a first visit until "Entendido", ss1_help; reopened from the link under the intro); the coach guide is now the coaches' manual for three coaches (how-it-works flow, "all three see the same list", steps 1-2 tagged one coach only, step 3 all three). 1.4.0: Wednesday added as a fourth day (shown first); the summary is called Resumen / Summary; the week label reads "Semana 28 oct – 1 nov". 1.3.0: Monday reminder, coach summary, coach guide page; the copied list marks empty days and follows the page language. 1.2.0: sailing design (navy sea header with sailboat and wave, a coloured pennant per day, white cards, sea-blue selected names, works in dark mode). 1.1.0: English button and laptop layout. 1.0.0: first build.
 - Repo: tasar1-ship-it/sailing-signup, served at https://tasar1-ship-it.github.io/sailing-signup/
 - Group link: `https://tasar1-ship-it.github.io/sailing-signup/#<group id>`. Coach guide: `.../sailing-signup/coach.html#<group id>` (same key; the guide builds the parents' WhatsApp message from it). The group id (22 random characters) is NOT in this repo; Ronald holds the link. Without it the page shows "Abre la página con el enlace del grupo".
 - Example view without the database: `.../sailing-signup/?demo` (in memory, made-up names, nothing saved).
@@ -52,6 +52,9 @@ Parents of the sailing group tick which days their child sails at the weekend (V
 
 ## Tested (28 Oct 2026, 1.4.0)
 - Rules 21 cases (19 + Wednesday allowed, day 4 refused). Demo 12/12, language and layout 17/17 (four days side by side from 1200 px, two from 900 px, day headings never wrap), features 32/32 in WebKit (Chromium 31/32: the iPhone-user-agent check, irrelevant), review copy 12/12.
+
+## Tested (28 Oct 2026, 1.5.0)
+- help-test 16/16 in Chromium and WebKit (parents' box: first visit, close, stays closed, reopen, English; coaches' manual: flow, same-list note, tags, 7 tips, 320 and 1440 px). Earlier suites unchanged: demo 12, language 17, features 32 (WebKit), review copy 12.
 
 ## Known limits
 - No reminder or notification; parents still need the link posted in the group.

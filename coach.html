@@ -47,6 +47,17 @@ h1{font-size:32px;margin:18px 0 6px;line-height:1.1}
 .btn.wa{background:var(--wa)}
 .alt{display:inline-block;margin-top:10px;color:var(--sea);font-size:15px;font-weight:600;background:none;border:0;padding:4px 0;cursor:pointer;text-decoration:underline}
 .ok{color:var(--good);font-size:15px;margin:6px 0 0;min-height:20px}
+.how{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin:0 0 14px;box-shadow:var(--shadow)}
+.how h2{font-size:19px;margin:0 0 12px}
+.flow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;position:relative}
+.flow:before{content:"";position:absolute;left:16%;right:16%;top:22px;border-top:2px dashed var(--line)}
+.fstep{text-align:center;position:relative}
+.fstep .ic{width:44px;height:44px;margin:0 auto 8px;border-radius:22px;background:var(--sea);color:#fff;display:flex;align-items:center;justify-content:center}
+.fstep .ic svg{width:22px;height:22px}
+.fstep b{display:block;font-size:15px;line-height:1.2}
+.fstep span{display:block;font-size:14px;color:var(--fg-2);line-height:1.3;margin-top:3px}
+.same{margin:14px 0 0;padding:12px 14px;background:var(--tint);border-radius:12px;font-size:16px}
+.tag{display:inline-block;font-size:13px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;color:var(--sea);background:var(--tint);border-radius:20px;padding:3px 10px;margin:2px 0 4px}
 .box{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin:22px 0 14px;box-shadow:var(--shadow)}
 .box h2{font-size:19px;margin:0 0 8px;display:flex;align-items:center;gap:8px}
 .box h2 svg{width:22px;height:22px;color:var(--sea)}
@@ -69,21 +80,25 @@ var BASE = 'https://tasar1-ship-it.github.io/sailing-signup/';
 var LS = 'ss1_';
 var T = {
   es: {
-    other: 'English', brand: 'Vela · Guía', title: 'Guía para el entrenador',
-    sub: 'Solo lo haces una vez. Después, los padres se apuntan solos y tú solo miras la página.',
+    other: 'English', brand: 'Vela · Guía', title: 'Guía para los entrenadores',
+    sub: 'Se prepara una vez. Después, los padres se apuntan solos y vosotros solo miráis la página.',
+    howT: 'Cómo funciona', flow: [['Lunes, 17:00', 'Los padres reciben un aviso con el enlace'], ['Padres', 'Tocan el nombre de su hijo/a en cada día'], ['Entrenadores', 'Abren la página y ven quién va']],
+    same: 'Los tres entrenadores veis la misma lista: es una sola página en internet y cada cambio aparece al momento para todos. Nadie tiene que copiar ni enviar listas.',
+    one: 'Solo un entrenador', all: 'Los tres entrenadores',
     s1: 'Envía el enlace al grupo de padres', s1t: 'Toca el botón verde, elige el grupo de padres en WhatsApp y toca Enviar.',
     wa: 'Enviar por WhatsApp', showMsg: 'Ver el mensaje', hideMsg: 'Ocultar el mensaje', copy: 'Copiar el mensaje', copied: 'Copiado. Pégalo en el grupo.',
     s2: 'Fija el mensaje en el grupo', s2t: 'En el grupo, mantén pulsado el mensaje que acabas de enviar y toca «Fijar». Así los padres siempre encuentran el enlace.',
-    s3: 'Guarda la página para ti', s3t: 'Ábrela y guárdala: en el iPhone toca Compartir y luego «Añadir a pantalla de inicio»; en Android, el menú ⋮ y «Añadir a pantalla de inicio».',
+    s3: 'Guarda la página en tu móvil', s3t: 'Ábrela y guárdala: en el iPhone toca Compartir y luego «Añadir a pantalla de inicio»; en Android, el menú ⋮ y «Añadir a pantalla de inicio».',
     open: 'Abrir la página de inscripción',
     weekT: 'Cada semana', week: [
       '<b>Lunes, 17:00:</b> los padres reciben un aviso en su calendario con el enlace (si tocaron «Recordatorio cada lunes» una vez).',
       '<b>Antes de cada día de vela</b> (miércoles, viernes, sábado, domingo): cada padre toca el nombre de su hijo/a en los días que navega.',
-      '<b>Antes de salir:</b> abre tu página. Abajo, el «Resumen» dice quién va cada día. Si quieres, «Copiar lista final» la pega en el grupo.'],
+      '<b>Antes de salir:</b> cualquiera de vosotros abre la página. Abajo, el «Resumen» dice quién va cada día. Si quieres, «Copiar lista final» la pega en el grupo.'],
     helpT: 'Si algo falla', help: [
       '<b>Falta un niño:</b> cualquiera puede añadirlo al final de la página.',
       '<b>Alguien apuntado por error:</b> toca su nombre y luego «Quitar».',
-      '<b>Nombre repetido o mal escrito:</b> avisa a Ronald; él lo borra.'],
+      '<b>Nombre repetido o mal escrito:</b> avisa a Ronald; él lo borra.',
+      '<b>El mensaje llegó dos veces al grupo:</b> no pasa nada; el que lo envió borra uno.'],
     msg: function (link) {
       return '⛵ A partir de ahora, apuntad a los niños aquí (sin copiar la lista):\n' + link + '\n\n' +
         '1️⃣ Abre el enlace y toca «Recordatorio cada lunes» una vez. Tu calendario te avisará cada lunes.\n' +
@@ -93,21 +108,25 @@ var T = {
     noLink: 'Abre esta guía con el enlace completo que te enviaron.'
   },
   en: {
-    other: 'Español', brand: 'Sailing · Guide', title: 'Coach’s guide',
-    sub: 'You only do this once. After that, parents sign up by themselves and you just look at the page.',
+    other: 'Español', brand: 'Sailing · Guide', title: 'Coaches’ guide',
+    sub: 'Set up once. After that, parents sign up by themselves and you just look at the page.',
+    howT: 'How it works', flow: [['Monday, 17:00', 'Parents get a reminder with the link'], ['Parents', 'Tap their child’s name on each day'], ['Coaches', 'Open the page and see who sails']],
+    same: 'All three coaches see the same list: it is one page on the internet, and every change shows up for everyone at once. Nobody has to copy or send lists.',
+    one: 'One coach only', all: 'All three coaches',
     s1: 'Send the link to the parents’ group', s1t: 'Tap the green button, choose the parents’ group in WhatsApp and tap Send.',
     wa: 'Send on WhatsApp', showMsg: 'Show the message', hideMsg: 'Hide the message', copy: 'Copy the message', copied: 'Copied. Paste it into the group.',
     s2: 'Pin the message in the group', s2t: 'In the group, press and hold the message you just sent and tap “Pin”. That way parents can always find the link.',
-    s3: 'Save the page for yourself', s3t: 'Open it and keep it: on iPhone tap Share, then “Add to Home Screen”; on Android, the ⋮ menu and “Add to Home screen”.',
+    s3: 'Save the page on your phone', s3t: 'Open it and keep it: on iPhone tap Share, then “Add to Home Screen”; on Android, the ⋮ menu and “Add to Home screen”.',
     open: 'Open the sign-up page',
     weekT: 'Every week', week: [
       '<b>Monday, 17:00:</b> parents get a reminder in their calendar with the link (if they tapped “Monday reminder” once).',
       '<b>Before each sailing day</b> (Wednesday, Friday, Saturday, Sunday): each parent taps their child’s name on the days they sail.',
-      '<b>Before you go out:</b> open your page. At the bottom, the “Summary” shows who sails each day. If you like, “Copy final list” pastes it into the group.'],
+      '<b>Before you go out:</b> any of you opens the page. At the bottom, the “Summary” shows who sails each day. If you like, “Copy final list” pastes it into the group.'],
     helpT: 'If something goes wrong', help: [
       '<b>A child is missing:</b> anyone can add the name at the bottom of the page.',
       '<b>Someone signed up by mistake:</b> tap their name, then “Remove”.',
-      '<b>Duplicate or misspelled name:</b> tell Ronald; he deletes it.'],
+      '<b>Duplicate or misspelled name:</b> tell Ronald; he deletes it.',
+      '<b>The message reached the group twice:</b> no problem; whoever sent it deletes one.'],
     msg: function (link) {
       return '⛵ From now on, sign the kids up here (no more copying the list):\n' + link + '\n\n' +
         '1️⃣ Open the link and tap “Monday reminder” once. Your calendar will remind you every Monday.\n' +
@@ -120,6 +139,9 @@ var T = {
 var BOAT = '<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 3v27" stroke="currentColor" stroke-width="2"/><path d="M21.5 5L34 28H21.5z" fill="currentColor"/><path d="M18.5 9L8 28h10.5z" fill="currentColor" opacity=".75"/><path d="M5 31h30l-4.5 5.5h-21z" fill="currentColor"/></svg>';
 var WAVE = '<svg class="wave" viewBox="0 0 1440 80" preserveAspectRatio="none" aria-hidden="true"><path d="M0 34C200 6 380 64 620 40S1060 2 1240 26 1440 38 1440 38V80H0z" style="fill:var(--bg);opacity:.35"/><path d="M0 52C240 26 460 78 720 54S1180 22 1440 50V80H0z" style="fill:var(--bg)"/></svg>';
 var CAL = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>';
+var BELL = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg>';
+var TAP = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11V5.5a1.5 1.5 0 0 1 3 0V11"/><path d="M12 10.5V9a1.5 1.5 0 0 1 3 0v2"/><path d="M15 10.5a1.5 1.5 0 0 1 3 0V15a6 6 0 0 1-6 6h-1a6 6 0 0 1-5-2.7L3.5 14.6a1.5 1.5 0 0 1 2.4-1.8L9 15"/></svg>';
+var EYE = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
 var LIFE = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="M5.6 5.6l3.6 3.6M14.8 14.8l3.6 3.6M18.4 5.6l-3.6 3.6M9.2 14.8l-3.6 3.6"/></svg>';
 
 function lsGet(k) { try { return localStorage.getItem(LS + k); } catch (e) { return null; } }
@@ -143,13 +165,17 @@ function render() {
   if (!valid) { app.innerHTML = h.join(''); return; }
   var msg = l.msg(link);
   h.push('<main class="wrap">');
-  h.push('<section class="step"><div class="num">1</div><div class="body"><h2>' + esc(l.s1) + '</h2><p>' + esc(l.s1t) + '</p>' +
+  var icons = [BELL, TAP, EYE];
+  h.push('<section class="how"><h2>' + esc(l.howT) + '</h2><div class="flow">');
+  for (i = 0; i < 3; i++) { h.push('<div class="fstep"><div class="ic">' + icons[i] + '</div><b>' + esc(l.flow[i][0]) + '</b><span>' + esc(l.flow[i][1]) + '</span></div>'); }
+  h.push('</div><p class="same">' + esc(l.same) + '</p></section>');
+  h.push('<section class="step"><div class="num">1</div><div class="body"><span class="tag">' + esc(l.one) + '</span><h2>' + esc(l.s1) + '</h2><p>' + esc(l.s1t) + '</p>' +
     '<a class="btn wa" href="https://wa.me/?text=' + esc(encodeURIComponent(msg)) + '" target="_blank" rel="noopener">' + esc(l.wa) + '</a>' +
     '<button class="alt" data-a="msg">' + esc(S.showMsg ? l.hideMsg : l.showMsg) + '</button>' +
     (S.showMsg ? '<p class="msg" id="msg">' + esc(msg) + '</p><button class="alt" data-a="copy">' + esc(l.copy) + '</button><p class="ok">' + esc(S.ok) + '</p>' : '') +
     '</div></section>');
-  h.push('<section class="step"><div class="num">2</div><div class="body"><h2>' + esc(l.s2) + '</h2><p>' + esc(l.s2t) + '</p></div></section>');
-  h.push('<section class="step"><div class="num">3</div><div class="body"><h2>' + esc(l.s3) + '</h2><p>' + esc(l.s3t) + '</p>' +
+  h.push('<section class="step"><div class="num">2</div><div class="body"><span class="tag">' + esc(l.one) + '</span><h2>' + esc(l.s2) + '</h2><p>' + esc(l.s2t) + '</p></div></section>');
+  h.push('<section class="step"><div class="num">3</div><div class="body"><span class="tag">' + esc(l.all) + '</span><h2>' + esc(l.s3) + '</h2><p>' + esc(l.s3t) + '</p>' +
     '<a class="btn" href="' + esc(link) + '" target="_blank" rel="noopener">' + esc(l.open) + '</a></div></section>');
   h.push('<section class="box"><h2>' + CAL + esc(l.weekT) + '</h2><ul>');
   for (i = 0; i < l.week.length; i++) { h.push('<li>' + l.week[i] + '</li>'); }
