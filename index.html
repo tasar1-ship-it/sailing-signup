@@ -60,6 +60,9 @@ h1{font-size:32px;margin:36px 0 6px;letter-spacing:-.01em;line-height:1.1;font-w
 .chip.on{background:linear-gradient(135deg,var(--sea) 0%,var(--sea-2) 100%);border-color:transparent;color:var(--on-fg);font-weight:600}
 .chip.on:before{content:"\2713\00a0"}
 .chip small{display:block;font-size:14px;font-weight:500;opacity:.92}
+.chip.on.sick{background:var(--field);color:var(--fg-2);border:1.5px dashed var(--line);font-weight:500}
+.chip.on.sick:before{content:none}
+.btn.sel{outline:2.5px solid var(--sea);outline-offset:1px;font-weight:700}
 @media (hover:hover){ .chip:hover{border-color:var(--sea)} .chip.on:hover{filter:brightness(1.06)} }
 .row{display:flex;gap:8px;margin-top:6px}
 input[type=text]{flex:1;min-width:0;font:inherit;font-size:17px;padding:11px 12px;border-radius:12px;border:1.5px solid var(--line);background:var(--field);color:var(--fg)}
@@ -105,6 +108,7 @@ input[type=text]:focus{outline:none;border-color:var(--sea)}
 .sum-day ul{margin:6px 0 0;padding-left:20px}
 .sum-day li{font-size:16px;margin:3px 0;overflow-wrap:anywhere}
 .sum-day li span{color:var(--fg-2);font-size:14px}
+.sum-day li.sick{color:var(--fg-2)}
 .sum-day p{font-size:15px;margin:6px 0 0}
 .none{color:var(--fg-2);font-style:italic}
 a.btn{display:block;text-align:center;text-decoration:none;line-height:24px}
@@ -134,7 +138,7 @@ a.btn{display:block;text-align:center;text-decoration:none;line-height:24px}
 /* Sailing sign-up. Own code is ES5 on purpose (var and function only). */
 (function () {
 'use strict';
-var VERSION = '1.6.11';
+var VERSION = '1.7.0';
 var FB = {
   apiKey: 'AIzaSyD3Q2TRCGlCkJPd8wvf8aijdQU8a0oJXmc',
   authDomain: 'sailing-signup.firebaseapp.com',
@@ -147,14 +151,14 @@ var LS = 'ss1_';
 var T = {
   es: {
     other: 'English', title: '¿Quién navega?', pageTitle: 'Vela · Esta semana',
-    intro: 'Toca el nombre de tu hijo/a en cada día. Toca otra vez para añadir una nota o quitarlo.',
+    intro: 'Toca el nombre de tu hijo/a en cada día. Toca otra vez para avisar si está enfermo/a o llega tarde, añadir una nota o quitarlo.',
     days: ['Viernes', 'Sábado', 'Domingo', 'Miércoles'], months: ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'],
     weekend: 'Semana', prev: 'Semana anterior', next: 'Semana siguiente', loading: 'Cargando…',
     count: function (n) { return n + (n === 1 ? ' apuntado' : ' apuntados'); },
     offline: 'Sin conexión. Los cambios se guardarán al volver la conexión.',
     missing: '¿Falta un nombre?', kidPh: 'Nombre del niño/a', add: 'Añadir',
     added: function (n) { return n + ' añadido.'; }, dup: function (n) { return n + ' ya está en la lista.'; },
-    notePh: 'Nota, p. ej. hasta las 14', saveNote: 'Guardar nota', remove: 'Quitar', close: 'Cerrar',
+    notePh: 'Nota, p. ej. hasta las 14', saveNote: 'Guardar nota', sick: 'Enfermo/a', late: 'Llega tarde', remove: 'Quitar', close: 'Cerrar',
     saveFail: function (c) { return 'No se guardó (' + c + '). Inténtalo de nuevo.'; },
     readFail: function (c) { return 'No se pudo leer la lista (' + c + '). Revisa la conexión y recarga.'; },
     connFail: function (c) { return 'No se pudo conectar (' + c + '). Revisa la conexión y recarga.'; },
@@ -167,18 +171,18 @@ var T = {
     helpLink: '¿Cómo funciona?', helpT: 'Cómo funciona', help: [
       '**Una vez:** toca «Añadir al calendario». Cada lunes a las 17:00 te llega un aviso con este enlace.',
       '**Cada semana:** toca el nombre de tu hijo/a en los días que navega. Se pone azul: ya está apuntado/a.',
-      '**¿Un cambio?** Toca el nombre otra vez para añadir una nota (p. ej. hasta las 14) o para quitarlo.']
+      '**¿Un cambio?** Toca el nombre otra vez: «Enfermo/a», «Llega tarde», una nota (p. ej. hasta las 14) o quitarlo.']
   },
   en: {
     other: 'Español', title: 'Who’s sailing?', pageTitle: 'Sailing · This week',
-    intro: 'Tap your child’s name on each day. Tap again to add a note or remove them.',
+    intro: 'Tap your child’s name on each day. Tap again to report them sick or late, add a note or remove them.',
     days: ['Friday', 'Saturday', 'Sunday', 'Wednesday'], months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
     weekend: 'Week', prev: 'Previous week', next: 'Next week', loading: 'Loading…',
     count: function (n) { return n + ' signed up'; },
     offline: 'Offline. Changes will be saved when the connection is back.',
     missing: 'Name missing?', kidPh: 'Child’s name', add: 'Add',
     added: function (n) { return n + ' added.'; }, dup: function (n) { return n + ' is already on the list.'; },
-    notePh: 'Note, e.g. until 2 pm', saveNote: 'Save note', remove: 'Remove', close: 'Close',
+    notePh: 'Note, e.g. until 2 pm', saveNote: 'Save note', sick: 'Sick', late: 'Running late', remove: 'Remove', close: 'Close',
     saveFail: function (c) { return 'Not saved (' + c + '). Please try again.'; },
     readFail: function (c) { return 'Could not read the list (' + c + '). Check the connection and reload.'; },
     connFail: function (c) { return 'Could not connect (' + c + '). Check the connection and reload.'; },
@@ -191,7 +195,7 @@ var T = {
     helpLink: 'How does it work?', helpT: 'How it works', help: [
       '**Once:** tap “Add to calendar”. Every Monday at 17:00 you get a reminder with this link.',
       '**Every week:** tap your child’s name on the days they sail. It turns blue: they are signed up.',
-      '**A change?** Tap the name again to add a note (e.g. until 2 pm) or to remove them.']
+      '**A change?** Tap the name again: “Sick”, “Running late”, a note (e.g. until 2 pm) or remove them.']
   }
 };
 /* Small drawings: the wave under the header, a pennant per day, the anchor in the footer. */
@@ -217,6 +221,19 @@ var ESC = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' 
 function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return ESC[c]; }); }
 function clean(s, n) { return String(s || '').replace(/\s+/g, ' ').replace(/^ | $/g, '').slice(0, n); }
 function pad(n) { return n < 10 ? '0' + n : '' + n; }
+/* Sick and late are kept in the note itself, as a mark at its start, so the database rules stay as they are. */
+var MARKS = { sick: '🤒', late: '⏰' };
+function parseNote(note) {
+  var st;
+  note = note || '';
+  for (st in MARKS) { if (note.indexOf(MARKS[st]) === 0) { return { st: st, text: note.slice(MARKS[st].length).replace(/^ /, '') }; } }
+  return { st: '', text: note };
+}
+function showNote(note) {
+  var n = parseNote(note), l = L();
+  return (n.st ? MARKS[n.st] + ' ' + l[n.st] : '') + (n.st && n.text ? ' · ' : '') + n.text;
+}
+function sailing(list) { var n = 0, j; for (j = 0; j < list.length; j++) { if (!list[j].sick) { n++; } } return n; }
 function say(key, arg) { return function () { var v = L()[key]; return typeof v === 'function' ? v(arg) : v; }; }
 /* Friday of the weekend to show: Mon-Fri -> the coming Friday, Sat/Sun -> the Friday just gone. */
 function friday(offset) {
@@ -243,7 +260,7 @@ function kidList() {
 }
 function picked(day) {
   var p = S.picks[day] || {}, out = [], k;
-  for (k in p) { if (S.kids[k]) { out.push({ id: k, name: S.kids[k].name, note: p[k].note || '', at: p[k].at || 0 }); } }
+  for (k in p) { if (S.kids[k]) { out.push({ id: k, name: S.kids[k].name, note: p[k].note || '', at: p[k].at || 0, sick: parseNote(p[k].note).st === 'sick' }); } }
   out.sort(function (a, b) { return a.at - b.at; });
   return out;
 }
@@ -306,13 +323,22 @@ function tapChip(day, kid) {
   S.err = null; S.msg = null;
   var p = (S.picks[day] || {})[kid];
   if (!p) { store.setPick(weekId(S.week), day, kid, { note: '' })['catch'](fail); return; }
-  S.sheet = { day: day, kid: kid, note: p.note || '', at: p.at }; render();
+  var n = parseNote(p.note);
+  S.sheet = { day: day, kid: kid, note: n.text, st: n.st, at: p.at }; render();
   var i = document.getElementById('note'); if (i) { i.focus(); }
 }
 function saveNote() {
   var sh = S.sheet, i = document.getElementById('note');
   S.sheet = null;
-  store.setPick(weekId(S.week), sh.day, sh.kid, { note: clean(i ? i.value : '', 40), at: sh.at })['catch'](fail);
+  store.setPick(weekId(S.week), sh.day, sh.kid, { note: makeNote(sh.st, i ? i.value : ''), at: sh.at })['catch'](fail);
+  render();
+}
+function makeNote(st, text) { text = clean(text, 36); return st ? MARKS[st] + (text ? ' ' + text : '') : text; }
+/* One tap saves and closes; tapping the chosen one again takes the mark off. */
+function setStatus(st) {
+  var sh = S.sheet, i = document.getElementById('note');
+  S.sheet = null;
+  store.setPick(weekId(S.week), sh.day, sh.kid, { note: makeNote(sh.st === st ? '' : st, i ? i.value : ''), at: sh.at })['catch'](fail);
   render();
 }
 function removePick() {
@@ -419,11 +445,11 @@ function render() {
     d = ORDER[o];
     date = dayDate(S.week, d);
     p = S.picks[d] || {};
-    h.push('<section class="card day' + d + '"><h2>' + flag(d) + '<span class="dn">' + esc(l.days[d]) + ' ' + date.getDate() + '</span><span class="n">' + esc(l.count(picked(d).length)) + '</span></h2><div class="chips">');
+    h.push('<section class="card day' + d + '"><h2>' + flag(d) + '<span class="dn">' + esc(l.days[d]) + ' ' + date.getDate() + '</span><span class="n">' + esc(l.count(sailing(picked(d)))) + '</span></h2><div class="chips">');
     for (j = 0; j < kids.length; j++) {
       on = p[kids[j].id];
-      h.push('<button class="chip' + (on ? ' on' : '') + '" data-a="chip" data-d="' + d + '" data-k="' + esc(kids[j].id) + '" aria-pressed="' + (on ? 'true' : 'false') + '">' +
-        esc(kids[j].name) + (on && on.note ? '<small>' + esc(on.note) + '</small>' : '') + '</button>');
+      h.push('<button class="chip' + (on ? ' on' : '') + (on && parseNote(on.note).st === 'sick' ? ' sick' : '') + '" data-a="chip" data-d="' + d + '" data-k="' + esc(kids[j].id) + '" aria-pressed="' + (on ? 'true' : 'false') + '">' +
+        esc(kids[j].name) + (on && on.note ? '<small>' + esc(showNote(on.note)) + '</small>' : '') + '</button>');
     }
     h.push('</div></section>');
   }
@@ -434,10 +460,10 @@ function render() {
   for (o = 0; o < ORDER.length; o++) {
     d = ORDER[o];
     p = picked(d);
-    h.push('<div class="sum-day"><b><span>' + esc(l.days[d]) + ' ' + dayDate(S.week, d).getDate() + '</span> <span>· ' + p.length + '</span></b>');
+    h.push('<div class="sum-day"><b><span>' + esc(l.days[d]) + ' ' + dayDate(S.week, d).getDate() + '</span> <span>· ' + sailing(p) + '</span></b>');
     if (p.length) {
       h.push('<ul>');
-      for (j = 0; j < p.length; j++) { h.push('<li>' + esc(p[j].name) + (p[j].note ? ' <span>(' + esc(p[j].note) + ')</span>' : '') + '</li>'); }
+      for (j = 0; j < p.length; j++) { h.push('<li' + (p[j].sick ? ' class="sick"' : '') + '>' + esc(p[j].name) + (p[j].note ? ' <span>(' + esc(showNote(p[j].note)) + ')</span>' : '') + '</li>'); }
       h.push('</ul>');
     } else { h.push('<p class="none">' + esc(l.nobody) + '</p>'); }
     h.push('</div>');
@@ -446,7 +472,8 @@ function render() {
   h.push('</div><p class="foot">' + ANCHOR + '<span>v' + VERSION + '</span></p></main>');
   if (S.sheet && S.kids[S.sheet.kid]) {
     h.push('<div class="shade" data-a="close"><div class="sheet" role="dialog" aria-modal="true"><h3>' + esc(S.kids[S.sheet.kid].name) + '</h3><p class="muted">' + esc(l.days[S.sheet.day]) + ' ' + dayDate(S.week, S.sheet.day).getDate() + '</p>' +
-      '<div class="row"><input type="text" id="note" maxlength="40" placeholder="' + esc(l.notePh) + '" value="' + esc(S.sheet.note) + '"></div>' +
+      '<div class="row"><button class="btn' + (S.sheet.st === 'sick' ? ' sel' : '') + '" data-a="sick" style="flex:1">' + MARKS.sick + ' ' + esc(l.sick) + '</button><button class="btn' + (S.sheet.st === 'late' ? ' sel' : '') + '" data-a="late" style="flex:1">' + MARKS.late + ' ' + esc(l.late) + '</button></div>' +
+      '<div class="row"><input type="text" id="note" maxlength="36" placeholder="' + esc(l.notePh) + '" value="' + esc(S.sheet.note) + '"></div>' +
       '<div class="row"><button class="btn primary" data-a="save" style="flex:1">' + esc(l.saveNote) + '</button><button class="btn danger" data-a="remove">' + esc(l.remove) + '</button></div>' +
       '<button class="btn wide" data-a="close">' + esc(l.close) + '</button></div></div>');
   }
@@ -469,6 +496,7 @@ app.addEventListener('click', function (ev) {
   else if (a === 'prev' || a === 'next') { S.week += a === 'next' ? 1 : -1; S.msg = null; S.err = null; watchWeek(); render(); }
   else if (a === 'save') { saveNote(); }
   else if (a === 'remove') { removePick(); }
+  else if (a === 'sick' || a === 'late') { setStatus(a); }
   else if (a === 'close') { S.sheet = null; render(); }
   else if (a === 'add') { addKid(); }
   else if (a === 'remics') { openIcs(); }
