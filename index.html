@@ -9,67 +9,84 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230071E3'/%3E%3Cpath d='M16 5v19M16 6l8 15h-8M15 8L8 21h7M6 25h20' fill='none' stroke='%23fff' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E">
 <link rel="apple-touch-icon" href="icon-180.png">
 <style>
-/* One column on phones: title with language button, week switcher, one card per day (Friday, Saturday, Sunday)
-   with every child as a tap chip, then "copy for WhatsApp" and "add a child". From 900px wide the three day
-   cards sit side by side. A bottom sheet edits a chosen child's note or removes them. */
+/* Sailing look. A navy sea header (title, language button, week switcher) ends in a wave over the page.
+   Below it, one white card per day (Friday, Saturday, Sunday), each marked by a coloured pennant, with every
+   child as a tap button; selected children turn sea blue. Then "copy for WhatsApp" and "add a child".
+   Phones: one column. From 900px wide the three day cards sit side by side. A sheet edits a child's note. */
 :root{
   color-scheme:light dark;
-  --bg:#FFFFFF; --surface:#F5F5F7; --field:#FFFFFF; --fg:#1D1D1F; --fg-2:#5E5E64; --line:rgba(60,60,67,.22);
-  --chip:rgba(118,118,128,.14); --accent:#0071E3; --accent-fg:#FFFFFF; --good:#176B2C; --bad:#C20014;
-  --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue","Segoe UI",Roboto,Arial,sans-serif;
+  --bg:#F3F7FA; --card:#FFFFFF; --field:#FFFFFF; --fg:#0B2545; --fg-2:#4A5D73; --line:#D3DEE8;
+  --sea:#0B6FB8; --sea-2:#13A0C9; --navy:#0B2545; --navy-2:#134074; --tint:#E3F0F8;
+  --on-fg:#FFFFFF; --btn:#134074; --good:#13795B; --bad:#C2273B; --shadow:0 1px 2px rgba(11,37,69,.06),0 6px 20px rgba(11,37,69,.07);
+  --f0:#E4572E; --f1:#E8A33D; --f2:#1F9E89;
+  --font:"Avenir Next",Avenir,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
 }
 @media (prefers-color-scheme: dark){
-  :root{ --bg:#000000; --surface:#1C1C1E; --field:#2C2C2E; --fg:#F5F5F7; --fg-2:#AEAEB2; --line:rgba(84,84,88,.7);
-    --chip:rgba(118,118,128,.30); --accent:#0A84FF; --good:#30D158; --bad:#FF453A; }
+  :root{ --bg:#07121F; --card:#0F2236; --field:#132B44; --fg:#EAF2F8; --fg-2:#9FB3C8; --line:#24405E;
+    --sea:#2F8FD8; --sea-2:#3DB8DC; --navy:#040C16; --navy-2:#0B2545; --tint:#16344F;
+    --btn:#1F74B8; --good:#4CD3A3; --bad:#FF6B7D; --shadow:0 1px 2px rgba(0,0,0,.4); }
 }
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font);font-size:17px;line-height:1.35;-webkit-text-size-adjust:100%}
-.wrap{max-width:640px;margin:0 auto;padding:calc(12px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right)) calc(40px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left))}
-.top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
-h1{font-size:28px;margin:8px 0 4px;letter-spacing:-.02em;line-height:1.15}
-.lang{flex:none;margin-top:6px;border:1px solid var(--line);background:var(--bg);color:var(--accent);border-radius:20px;padding:8px 14px;min-height:40px;font:inherit;font-size:15px;font-weight:600;cursor:pointer}
+button{font-family:inherit}
+.hero{position:relative;color:#fff;background:linear-gradient(160deg,var(--navy) 0%,var(--navy-2) 60%,#1B5E8C 100%);padding-top:env(safe-area-inset-top)}
+.hero-in{max-width:640px;margin:0 auto;padding:14px calc(16px + env(safe-area-inset-right)) 54px calc(16px + env(safe-area-inset-left));position:relative;z-index:1}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.85)}
+.brand svg{width:26px;height:26px;color:#fff}
+.lang{flex:none;border:1px solid rgba(255,255,255,.45);background:rgba(255,255,255,.12);color:#fff;border-radius:20px;padding:8px 16px;min-height:40px;font-size:15px;font-weight:600;cursor:pointer}
+h1{font-size:32px;margin:18px 0 6px;letter-spacing:-.01em;line-height:1.1;font-weight:700}
+.sub{color:rgba(255,255,255,.88);font-size:16px;margin:0;max-width:34em}
+.week{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:18px 0 0;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:16px;padding:6px}
+.week b{font-size:17px;text-align:center;flex:1;font-weight:600}
+.nav{flex:none;width:44px;height:44px;border-radius:12px;border:0;background:rgba(255,255,255,.16);color:#fff;font-size:24px;line-height:1;cursor:pointer}
+.wave{position:absolute;left:0;right:0;bottom:-1px;width:100%;height:46px;display:block}
+.wrap{max-width:640px;margin:0 auto;padding:4px calc(16px + env(safe-area-inset-right)) calc(36px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left))}
 .muted{color:var(--fg-2);font-size:16px;margin:0}
-.week{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:16px 0}
-.week b{font-size:18px;text-align:center;flex:1}
-.nav{flex:none;width:44px;height:44px;border-radius:22px;border:0;background:var(--chip);color:var(--fg);font-size:24px;line-height:1;cursor:pointer}
-.card{background:var(--surface);border-radius:16px;padding:14px 14px 12px;margin-bottom:14px}
-.card h2{font-size:20px;margin:0 0 12px;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
-.card h2 span{font-size:15px;font-weight:500;color:var(--fg-2);white-space:nowrap}
+.card{background:var(--card);border-radius:18px;padding:16px 14px 14px;margin-bottom:14px;box-shadow:var(--shadow);border:1px solid var(--line)}
+.card h2{font-size:21px;margin:0 0 12px;display:flex;align-items:center;gap:8px;font-weight:700}
+.card h2 .flag{width:22px;height:22px;flex:none}
+.card h2 .n{margin-left:auto;font-size:15px;font-weight:600;color:var(--sea);background:var(--tint);border-radius:20px;padding:4px 10px;white-space:nowrap}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
-.chip{border:0;border-radius:22px;padding:10px 15px;min-height:44px;font:inherit;font-size:17px;background:var(--chip);color:var(--fg);cursor:pointer;text-align:left;line-height:1.2}
-.chip.on{background:var(--accent);color:var(--accent-fg)}
+.chip{border:1.5px solid var(--line);border-radius:22px;padding:9px 15px;min-height:44px;font-size:17px;font-weight:500;background:var(--field);color:var(--fg);cursor:pointer;text-align:left;line-height:1.2}
+.chip.on{background:linear-gradient(135deg,var(--sea) 0%,var(--sea-2) 100%);border-color:transparent;color:var(--on-fg);font-weight:600}
 .chip.on:before{content:"\2713\00a0"}
-.chip small{display:block;font-size:14px;opacity:.9}
+.chip small{display:block;font-size:14px;font-weight:500;opacity:.92}
+@media (hover:hover){ .chip:hover{border-color:var(--sea)} .chip.on:hover{filter:brightness(1.06)} }
 .row{display:flex;gap:8px;margin-top:6px}
-input[type=text]{flex:1;min-width:0;font:inherit;font-size:17px;padding:11px 12px;border-radius:12px;border:1px solid var(--line);background:var(--field);color:var(--fg)}
-.btn{border:0;border-radius:12px;padding:12px 16px;min-height:46px;font:inherit;font-size:17px;font-weight:600;cursor:pointer;background:var(--chip);color:var(--fg)}
-.btn.primary{background:var(--accent);color:var(--accent-fg)}
+input[type=text]{flex:1;min-width:0;font:inherit;font-size:17px;padding:11px 12px;border-radius:12px;border:1.5px solid var(--line);background:var(--field);color:var(--fg)}
+input[type=text]:focus{outline:none;border-color:var(--sea)}
+.btn{border:0;border-radius:14px;padding:12px 16px;min-height:48px;font-size:17px;font-weight:600;cursor:pointer;background:var(--tint);color:var(--fg)}
+.btn.primary{background:var(--btn);color:#fff}
 .btn.danger{color:var(--bad)}
 .btn.wide{width:100%;margin-top:6px}
 .sec{margin:22px 0 8px;font-size:16px;font-weight:600;color:var(--fg-2)}
-.ok{color:var(--good);font-size:15px;margin:6px 2px 0;min-height:20px}
+.ok{color:var(--good);font-size:15px;margin:8px 2px 0;min-height:20px}
 .err{color:var(--bad);font-size:15px;margin:6px 2px 0}
-.bar{background:var(--bad);color:#fff;border-radius:12px;padding:10px 12px;font-size:15px;margin:8px 0}
-.shade{position:fixed;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:flex-end;justify-content:center;z-index:5}
-.sheet{background:var(--bg);width:100%;max-width:640px;border-radius:18px 18px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom))}
-.sheet h3{margin:0 0 4px;font-size:21px}
+.bar{background:var(--bad);color:#fff;border-radius:12px;padding:10px 12px;font-size:15px;margin:0 0 12px}
+.shade{position:fixed;inset:0;background:rgba(4,12,22,.5);display:flex;align-items:flex-end;justify-content:center;z-index:5}
+.sheet{background:var(--card);color:var(--fg);width:100%;max-width:640px;border-radius:20px 20px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom))}
+.sheet h3{margin:0 0 4px;font-size:22px}
 .sheet .row{margin-top:12px}
-.foot{margin-top:28px;font-size:13px;color:var(--fg-2);text-align:center}
+.foot{margin-top:30px;font-size:13px;color:var(--fg-2);text-align:center;display:flex;align-items:center;justify-content:center;gap:6px}
+.foot svg{width:16px;height:16px}
 .tools{max-width:640px}
 @media (min-width:900px){
+  .hero-in{max-width:1100px;padding:20px 32px 70px}
+  h1{font-size:44px}
+  .week{max-width:520px}
+  .wave{height:70px}
   .wrap{max-width:1100px;padding-left:32px;padding-right:32px}
-  h1{font-size:34px}
-  .week{max-width:640px}
-  .days{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;align-items:start}
-  .days .card{margin:0;padding:18px}
-  .tools{margin-top:20px}
+  .days{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;align-items:start}
+  .days .card{margin:0;padding:20px 18px 18px}
+  .tools{margin-top:24px}
   .shade{align-items:center}
-  .sheet{max-width:460px;border-radius:18px}
+  .sheet{max-width:460px;border-radius:20px}
 }
 </style>
 </head>
 <body>
-<div id="app" class="wrap"><p class="muted">Cargando… / Loading…</p></div>
+<div id="app"><p class="muted" style="padding:20px">Cargando… / Loading…</p></div>
 <noscript><p style="padding:20px">Esta página necesita JavaScript. This page needs JavaScript.</p></noscript>
 <script src="firebase-app-compat.js"></script>
 <script src="firebase-auth-compat.js"></script>
@@ -78,7 +95,7 @@ input[type=text]{flex:1;min-width:0;font:inherit;font-size:17px;padding:11px 12p
 /* Sailing sign-up. Own code is ES5 on purpose (var and function only). */
 (function () {
 'use strict';
-var VERSION = '1.1.0';
+var VERSION = '1.2.0';
 var FB = {
   apiKey: 'AIzaSyD3Q2TRCGlCkJPd8wvf8aijdQU8a0oJXmc',
   authDomain: 'sailing-signup.firebaseapp.com',
@@ -122,6 +139,12 @@ var T = {
     noLink: 'Open this page with the full link from the WhatsApp group.'
   }
 };
+/* Small drawings: the sailboat in the header, the wave under it, a pennant per day, the anchor in the footer. */
+var BOAT = '<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 3v27" stroke="currentColor" stroke-width="2"/><path d="M21.5 5L34 28H21.5z" fill="currentColor"/><path d="M18.5 9L8 28h10.5z" fill="currentColor" opacity=".75"/><path d="M5 31h30l-4.5 5.5h-21z" fill="currentColor"/></svg>';
+var WAVE = '<svg class="wave" viewBox="0 0 1440 80" preserveAspectRatio="none" aria-hidden="true"><path d="M0 34C200 6 380 64 620 40S1060 2 1240 26 1440 38 1440 38V80H0z" style="fill:var(--bg);opacity:.35"/><path d="M0 52C240 26 460 78 720 54S1180 22 1440 50V80H0z" style="fill:var(--bg)"/></svg>';
+var FLAGS = ['var(--f0)', 'var(--f1)', 'var(--f2)'];
+function flag(i) { return '<svg class="flag" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 2.5v19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M6 3.5l14 5.5-14 5.5z" style="fill:' + FLAGS[i] + '"/></svg>'; }
+var ANCHOR = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="5" r="2"/><path d="M12 7v14M8 11h8M4 14a8 7 0 0 0 16 0"/></svg>';
 function lsGet(k) { try { return localStorage.getItem(LS + k); } catch (e) { return null; } }
 function lsSet(k, v) { try { localStorage.setItem(LS + k, v); } catch (e) {} }
 var lang = lsGet('lang');
@@ -193,9 +216,9 @@ function fbStore(g) {
     onConn: function (cb) { ready.then(function (db) { db.ref('.info/connected').on('value', function (s) { cb(!!s.val()); }); }); }
   };
 }
-function memStore() {
+function memStore(names) {
   var kids = {}, picks = {}, kcb = null, pcbs = {}, n = 0;
-  ['Telminator', 'Marc S', 'Diego', 'Biel', 'Lukas'].forEach(function (nm) { kids['-demo' + (n++)] = { name: nm, at: n }; });
+  (names || ['Ana', 'Bruno', 'Carla', 'Dani', 'Eva']).forEach(function (nm) { kids['-demo' + (n++)] = { name: nm, at: n }; });
   function emitP(w) { if (pcbs[w]) { pcbs[w](JSON.parse(JSON.stringify(picks[w] || {}))); } }
   return {
     ready: Promise.resolve(),
@@ -276,18 +299,19 @@ function render() {
   var l = L(), h = [];
   document.documentElement.lang = lang;
   document.title = l.pageTitle;
-  h.push('<div class="top"><h1>' + esc(l.title) + '</h1><button class="lang" data-a="lang" lang="' + (lang === 'es' ? 'en' : 'es') + '">' + esc(l.other) + '</button></div>');
-  if (S.fatal) { app.innerHTML = h.join('') + '<p class="muted">' + esc(S.fatal()) + '</p>'; return; }
+  h.push('<header class="hero"><div class="hero-in"><div class="top"><div class="brand">' + BOAT + '<span>' + esc(l.pageTitle) + '</span></div><button class="lang" data-a="lang" lang="' + (lang === 'es' ? 'en' : 'es') + '">' + esc(l.other) + '</button></div><h1>' + esc(l.title) + '</h1>');
+  if (S.fatal) { app.innerHTML = h.join('') + '<p class="sub">' + esc(S.fatal()) + '</p></div>' + WAVE + '</header>'; return; }
   var kids = kidList(), d, j, p, on, date;
-  h.push('<p class="muted">' + esc(l.intro) + '</p>');
-  if (S.offline) { h.push('<div class="bar">' + esc(l.offline) + '</div>'); }
+  h.push('<p class="sub">' + esc(l.intro) + '</p>');
   h.push('<div class="week"><button class="nav" data-a="prev" aria-label="' + esc(l.prev) + '">‹</button><b>' + esc(l.weekend + ' ' + weekLabel(S.week)) + '</b><button class="nav" data-a="next" aria-label="' + esc(l.next) + '">›</button></div>');
+  h.push('</div>' + WAVE + '</header><main class="wrap">');
+  if (S.offline) { h.push('<div class="bar">' + esc(l.offline) + '</div>'); }
   if (!S.loadedKids) { h.push('<p class="muted">' + esc(l.loading) + '</p>'); }
   h.push('<div class="days">');
   for (d = 0; d < 3; d++) {
     date = dayDate(S.week, d);
     p = S.picks[d] || {};
-    h.push('<section class="card"><h2>' + esc(l.days[d]) + ' ' + date.getDate() + ' <span>' + esc(l.count(picked(d).length)) + '</span></h2><div class="chips">');
+    h.push('<section class="card"><h2>' + flag(d) + esc(l.days[d]) + ' ' + date.getDate() + '<span class="n">' + esc(l.count(picked(d).length)) + '</span></h2><div class="chips">');
     for (j = 0; j < kids.length; j++) {
       on = p[kids[j].id];
       h.push('<button class="chip' + (on ? ' on' : '') + '" data-a="chip" data-d="' + d + '" data-k="' + esc(kids[j].id) + '" aria-pressed="' + (on ? 'true' : 'false') + '">' +
@@ -300,7 +324,7 @@ function render() {
   h.push('<button class="btn primary wide" data-a="copy">' + esc(l.copy) + '</button>');
   h.push('<p class="ok">' + esc(S.msg ? S.msg() : '') + '</p>');
   h.push('<div class="sec">' + esc(l.missing) + '</div><div class="row"><input type="text" id="newkid" maxlength="30" placeholder="' + esc(l.kidPh) + '" value="' + esc(S.draftKid) + '" autocomplete="off"><button class="btn" data-a="add">' + esc(l.add) + '</button></div>');
-  h.push('</div><p class="foot">v' + VERSION + '</p>');
+  h.push('</div><p class="foot">' + ANCHOR + '<span>v' + VERSION + '</span></p></main>');
   if (S.sheet && S.kids[S.sheet.kid]) {
     h.push('<div class="shade" data-a="close"><div class="sheet" role="dialog" aria-modal="true"><h3>' + esc(S.kids[S.sheet.kid].name) + '</h3><p class="muted">' + esc(l.days[S.sheet.day]) + ' ' + dayDate(S.week, S.sheet.day).getDate() + '</p>' +
       '<div class="row"><input type="text" id="note" maxlength="40" placeholder="' + esc(l.notePh) + '" value="' + esc(S.sheet.note) + '"></div>' +
@@ -339,7 +363,8 @@ app.addEventListener('keydown', function (ev) {
 
 /* ---------- start ---------- */
 var g = (location.hash || '').replace(/^#/, '');
-if (/[?&]demo\b/.test(location.search)) { store = memStore(); }
+if (window.SS_PREVIEW) { store = memStore(window.SS_PREVIEW); }
+else if (/[?&]demo\b/.test(location.search)) { store = memStore(); }
 else if (/^[A-Za-z0-9]{20,40}$/.test(g)) { store = fbStore(g); }
 else { S.fatal = say('noLink'); render(); return; }
 store.ready['catch'](function (e) { S.fatal = say('connFail', e); render(); });

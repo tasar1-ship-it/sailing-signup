@@ -3,10 +3,11 @@
 Parents of the sailing group tick which days their child sails at the weekend (Viernes, Sábado, Domingo) by tapping the child's name, instead of copying and extending the list in the WhatsApp group. A "Copiar lista para WhatsApp" button produces the list in the old WhatsApp format, with the link at the end.
 
 ## Current version
-- App 1.1.0 (28 Oct 2026): English button and laptop layout. 1.0.0 (28 Oct 2026) was the first build.
+- App 1.2.0 (28 Oct 2026): sailing design (navy sea header with sailboat and wave, a coloured pennant per day, white cards, sea-blue selected names, works in dark mode). 1.1.0: English button and laptop layout. 1.0.0: first build.
 - Repo: tasar1-ship-it/sailing-signup, served at https://tasar1-ship-it.github.io/sailing-signup/
 - Group link: `https://tasar1-ship-it.github.io/sailing-signup/#<group id>`. The group id (22 random characters) is NOT in this repo; Ronald holds the link. Without it the page shows "Abre la página con el enlace del grupo".
-- Example view without the database: `.../sailing-signup/?demo` (in memory, nothing saved).
+- Example view without the database: `.../sailing-signup/?demo` (in memory, made-up names, nothing saved).
+- Review copy: a page that sets `window.SS_PREVIEW` to a list of names before the app script runs uses those names in memory instead of Firebase. Ronald's review file (Downloads/Sailing sign-up preview.html, 28 Oct 2026) was built that way, with the real names and the two share messages; it is not in the repo.
 - Firebase project: sailing-signup (project number 1090198402941), Realtime Database sailing-signup-default-rtdb in europe-west1, Anonymous sign-in on, web app "Sailing Signup" registered. Gemini and Google Analytics switched off. Spark (free) plan.
 
 ## Files
@@ -34,6 +35,9 @@ Parents of the sailing group tick which days their child sails at the weekend (V
 
 ## Tested (28 Oct 2026, 1.1.0)
 - Own script parses as ES5. Demo checks 12 of 12 in Chromium and WebKit. Language checks 10 of 10 (switch, remembered after reload, English phone opens in English, WhatsApp text stays Spanish). Layout at 320 px (iPhone SE), 390 px (iPhone) and 1440 px (laptop): no sideways scrolling, smallest main text 15 px, three day cards side by side from 900 px.
+
+## Tested (28 Oct 2026, 1.2.0)
+- Own script parses as ES5. Demo 12/12, language and layout 17/17 (320, 390 and 1440 px; smallest main text 15 px), review copy 12/12 in WebKit at iPhone, laptop and iPhone dark mode. Dark-mode primary buttons were too dark and were changed to sea blue.
 
 ## Known limits
 - No reminder or notification; parents still need the link posted in the group.
