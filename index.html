@@ -65,8 +65,8 @@ h1{font-size:32px;margin:36px 0 6px;letter-spacing:-.01em;line-height:1.1;font-w
 .btn.sel{outline:2.5px solid var(--sea);outline-offset:1px;font-weight:700}
 @media (hover:hover){ .chip:hover{border-color:var(--sea)} .chip.on:hover{filter:brightness(1.06)} }
 .row{display:flex;gap:8px;margin-top:6px}
-input[type=text]{flex:1;min-width:0;font:inherit;font-size:17px;padding:11px 12px;border-radius:12px;border:1.5px solid var(--line);background:var(--field);color:var(--fg)}
-input[type=text]:focus{outline:none;border-color:var(--sea)}
+input[type=text],input[type=time]{flex:1;min-width:0;font:inherit;font-size:17px;padding:11px 12px;border-radius:12px;border:1.5px solid var(--line);background:var(--field);color:var(--fg)}
+input[type=text]:focus,input[type=time]:focus{outline:none;border-color:var(--sea)}
 .btn{border:0;border-radius:14px;padding:12px 16px;min-height:48px;font-size:17px;font-weight:600;cursor:pointer;background:var(--tint);color:var(--fg)}
 .btn.primary{background:var(--btn);color:#fff}
 .btn.danger{color:var(--bad)}
@@ -138,7 +138,7 @@ a.btn{display:block;text-align:center;text-decoration:none;line-height:24px}
 /* Sailing sign-up. Own code is ES5 on purpose (var and function only). */
 (function () {
 'use strict';
-var VERSION = '1.8.0';
+var VERSION = '1.8.1';
 var FB = {
   apiKey: 'AIzaSyD3Q2TRCGlCkJPd8wvf8aijdQU8a0oJXmc',
   authDomain: 'sailing-signup.firebaseapp.com',
@@ -160,7 +160,8 @@ var T = {
     added: function (n) { return n + ' añadido.'; }, dup: function (n) { return n + ' ya está en la lista.'; },
     notePh: 'Nota, p. ej. hasta las 14', saveNote: 'Guardar nota', sick: 'Enfermo/a', late: 'Llega tarde',
     lateAsk: 'Guardado en la lista. ¿Avisar también al entrenador por WhatsApp?', lateSend: 'Enviar WhatsApp al entrenador', lateSkip: 'No hace falta',
-    lateMsg: function (o) { return 'Hola, ' + o.name + ' llega tarde el ' + o.day.toLowerCase() + ' ' + o.date + (o.note ? ' (' + o.note + ')' : '') + '. Lo he marcado en la lista.'; }, remove: 'Quitar', close: 'Cerrar',
+    lateAt: '¿A qué hora llega? (opcional)',
+    lateMsg: function (o) { return 'Hola, ' + o.name + ' llega tarde el ' + o.day.toLowerCase() + ' ' + o.date + (o.time ? ', sobre las ' + o.time : '') + (o.note ? ' (' + o.note + ')' : '') + '. Lo he marcado en la lista.'; }, remove: 'Quitar', close: 'Cerrar',
     saveFail: function (c) { return 'No se guardó (' + c + '). Inténtalo de nuevo.'; },
     readFail: function (c) { return 'No se pudo leer la lista (' + c + '). Revisa la conexión y recarga.'; },
     connFail: function (c) { return 'No se pudo conectar (' + c + '). Revisa la conexión y recarga.'; },
@@ -186,7 +187,8 @@ var T = {
     added: function (n) { return n + ' added.'; }, dup: function (n) { return n + ' is already on the list.'; },
     notePh: 'Note, e.g. until 2 pm', saveNote: 'Save note', sick: 'Sick', late: 'Running late',
     lateAsk: 'Saved on the list. Also tell the coach on WhatsApp?', lateSend: 'Send WhatsApp to the coach', lateSkip: 'No need',
-    lateMsg: function (o) { return 'Hi, ' + o.name + ' will be late on ' + o.day + ' ' + o.date + (o.note ? ' (' + o.note + ')' : '') + '. I have marked it on the list.'; }, remove: 'Remove', close: 'Close',
+    lateAt: 'Arriving at about (optional)',
+    lateMsg: function (o) { return 'Hi, ' + o.name + ' will be late on ' + o.day + ' ' + o.date + (o.time ? ', at about ' + o.time : '') + (o.note ? ' (' + o.note + ')' : '') + '. I have marked it on the list.'; }, remove: 'Remove', close: 'Close',
     saveFail: function (c) { return 'Not saved (' + c + '). Please try again.'; },
     readFail: function (c) { return 'Could not read the list (' + c + '). Check the connection and reload.'; },
     connFail: function (c) { return 'Could not connect (' + c + '). Check the connection and reload.'; },
@@ -340,12 +342,14 @@ function saveNote() {
 function makeNote(st, text) { text = clean(text, 36); return st ? MARKS[st] + (text ? ' ' + text : '') : text; }
 /* One tap saves and closes; tapping the chosen one again takes the mark off. */
 function setStatus(st) {
-  var sh = S.sheet, i = document.getElementById('note'), text = clean(i ? i.value : '', 36);
+  var sh = S.sheet, i = document.getElementById('note'), next = sh.st === st ? '' : st, text = clean(i ? i.value : '', 36);
   S.sheet = null;
+  /* The text in the box goes only with "late" (its time); marking sick or taking a mark off clears it, so no time is left behind. */
+  if (next !== 'late') { text = ''; }
   /* Late is time-critical and the coach gets no alert from the list, so offer a ready-written WhatsApp message.
      No number is stored: WhatsApp opens its chat picker and the parent picks the coach. */
-  S.nudge = st === 'late' && sh.st !== 'late' && S.kids[sh.kid] ? { name: S.kids[sh.kid].name, day: sh.day, date: dayDate(S.week, sh.day).getDate(), note: text } : null;
-  store.setPick(weekId(S.week), sh.day, sh.kid, { note: makeNote(sh.st === st ? '' : st, i ? i.value : ''), at: sh.at })['catch'](fail);
+  S.nudge = next === 'late' && S.kids[sh.kid] ? { name: S.kids[sh.kid].name, kid: sh.kid, w: weekId(S.week), day: sh.day, at: sh.at, date: dayDate(S.week, sh.day).getDate(), note: text } : null;
+  store.setPick(weekId(S.week), sh.day, sh.kid, { note: makeNote(next, text), at: sh.at })['catch'](fail);
   render();
 }
 function removePick() {
@@ -478,8 +482,11 @@ function render() {
   h.push('</div></section>');
   h.push('</div><p class="foot">' + ANCHOR + '<span>v' + VERSION + '</span></p></main>');
   if (S.nudge) {
-    var nm = { name: S.nudge.name, day: l.days[S.nudge.day], date: S.nudge.date, note: S.nudge.note };
-    h.push('<div class="shade" data-a="nudgeoff"><div class="sheet" role="dialog" aria-modal="true"><h3>' + MARKS.late + ' ' + esc(S.nudge.name) + '</h3><p class="muted">' + esc(l.lateAsk) + '</p>' +
+    var tm = /^(\d{1,2}):(\d{2})$/.exec(S.nudge.note), hhmm = tm ? pad(+tm[1]) + ':' + tm[2] : '';
+    var nm = { name: S.nudge.name, day: l.days[S.nudge.day], date: S.nudge.date, time: hhmm, note: tm ? '' : S.nudge.note };
+    h.push('<div class="shade" data-a="nudgeoff"><div class="sheet" role="dialog" aria-modal="true"><h3>' + MARKS.late + ' ' + esc(S.nudge.name) + '</h3>' +
+      '<div class="sec" style="margin-top:4px"><label for="lateAt">' + esc(l.lateAt) + '</label></div><div class="row"><input type="time" id="lateAt" value="' + esc(hhmm) + '"></div>' +
+      '<p class="muted">' + esc(l.lateAsk) + '</p>' +
       '<a class="btn primary wide" data-a="nudge" href="https://wa.me/?text=' + encodeURIComponent(l.lateMsg(nm)) + '" target="_blank" rel="noopener">' + esc(l.lateSend) + '</a>' +
       '<button class="btn wide" data-a="nudgeoff">' + esc(l.lateSkip) + '</button></div></div>');
   }
@@ -525,6 +532,14 @@ app.addEventListener('click', function (ev) {
   else if (a === 'lang') { lang = lang === 'es' ? 'en' : 'es'; lsSet('lang', lang); render(); }
 });
 app.addEventListener('input', function (ev) { if (ev.target.id === 'newkid') { S.draftKid = ev.target.value; } });
+/* A time picked after "late" replaces the note, so the list and the WhatsApp text both carry it. */
+app.addEventListener('change', function (ev) {
+  var n = S.nudge;
+  if (ev.target.id !== 'lateAt' || !n) { return; }
+  n.note = ev.target.value;
+  store.setPick(n.w, n.day, n.kid, { note: makeNote('late', n.note), at: n.at })['catch'](fail);
+  render();
+});
 app.addEventListener('keydown', function (ev) {
   if (ev.keyCode !== 13) { return; }
   if (ev.target.id === 'newkid') { addKid(); } else if (ev.target.id === 'note') { saveNote(); }
