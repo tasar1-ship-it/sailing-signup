@@ -18,7 +18,7 @@
           "$week": {
             ".validate": "$week.matches(/^20[0-9][0-9]-[01][0-9]-[0-3][0-9]$/)",
             "$day": {
-              ".validate": "$day === '0' || $day === '1' || $day === '2'",
+              ".validate": "$day === '0' || $day === '1' || $day === '2' || $day === '3'",
               "$k": {
                 ".write": "auth != null && root.child('groups').child($g).child('kids').child($k).exists()",
                 ".validate": "newData.hasChildren(['note', 'at']) && newData.child('note').isString() && newData.child('note').val().length <= 40 && newData.child('at').isNumber()",

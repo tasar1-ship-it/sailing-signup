@@ -18,7 +18,7 @@
   --bg:#F3F7FA; --card:#FFFFFF; --field:#FFFFFF; --fg:#0B2545; --fg-2:#4A5D73; --line:#D3DEE8;
   --sea:#0B6FB8; --sea-2:#13A0C9; --navy:#0B2545; --navy-2:#134074; --tint:#E3F0F8;
   --on-fg:#FFFFFF; --btn:#134074; --good:#13795B; --bad:#C2273B; --shadow:0 1px 2px rgba(11,37,69,.06),0 6px 20px rgba(11,37,69,.07);
-  --f0:#E4572E; --f1:#E8A33D; --f2:#1F9E89;
+  --f0:#E4572E; --f1:#E8A33D; --f2:#1F9E89; --f3:#7B61FF;
   --font:"Avenir Next",Avenir,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
 }
 @media (prefers-color-scheme: dark){
@@ -46,6 +46,8 @@ h1{font-size:32px;margin:18px 0 6px;letter-spacing:-.01em;line-height:1.1;font-w
 .card{background:var(--card);border-radius:18px;padding:16px 14px 14px;margin-bottom:14px;box-shadow:var(--shadow);border:1px solid var(--line)}
 .card h2{font-size:21px;margin:0 0 12px;display:flex;align-items:center;gap:8px;font-weight:700}
 .card h2 .flag{width:22px;height:22px;flex:none}
+.card h2 .dn{white-space:nowrap}
+.card h2{flex-wrap:wrap;row-gap:6px}
 .card h2 .n{margin-left:auto;font-size:15px;font-weight:600;color:var(--sea);background:var(--tint);border-radius:20px;padding:4px 10px;white-space:nowrap}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chip{border:1.5px solid var(--line);border-radius:22px;padding:9px 15px;min-height:44px;font-size:17px;font-weight:500;background:var(--field);color:var(--fg);cursor:pointer;text-align:left;line-height:1.2}
@@ -96,12 +98,13 @@ a.btn{display:block;text-align:center;text-decoration:none;line-height:24px}
   .week{max-width:520px}
   .wave{height:70px}
   .wrap{max-width:1100px;padding-left:32px;padding-right:32px}
-  .days{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;align-items:start}
+  .days{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:start}
   .days .card{margin:0;padding:20px 18px 18px}
   .tools{margin-top:24px}
   .shade{align-items:center}
   .sheet{max-width:460px;border-radius:20px}
 }
+@media (min-width:1200px){ .days{grid-template-columns:repeat(4,minmax(0,1fr))} }
 </style>
 </head>
 <body>
@@ -114,7 +117,7 @@ a.btn{display:block;text-align:center;text-decoration:none;line-height:24px}
 /* Sailing sign-up. Own code is ES5 on purpose (var and function only). */
 (function () {
 'use strict';
-var VERSION = '1.3.0';
+var VERSION = '1.4.0';
 var FB = {
   apiKey: 'AIzaSyD3Q2TRCGlCkJPd8wvf8aijdQU8a0oJXmc',
   authDomain: 'sailing-signup.firebaseapp.com',
@@ -126,10 +129,10 @@ var LS = 'ss1_';
 /* Screen text in both languages. The text copied for WhatsApp stays Spanish, because the group writes in Spanish. */
 var T = {
   es: {
-    other: 'English', title: '¿Quién navega?', pageTitle: 'Vela · Fin de semana',
+    other: 'English', title: '¿Quién navega?', pageTitle: 'Vela · Esta semana',
     intro: 'Toca el nombre de tu hijo/a en cada día. Toca otra vez para añadir una nota o quitarlo.',
-    days: ['Viernes', 'Sábado', 'Domingo'], months: ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'],
-    weekend: 'Fin de semana', prev: 'Semana anterior', next: 'Semana siguiente', loading: 'Cargando…',
+    days: ['Viernes', 'Sábado', 'Domingo', 'Miércoles'], months: ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'],
+    weekend: 'Semana', prev: 'Semana anterior', next: 'Semana siguiente', loading: 'Cargando…',
     count: function (n) { return n + (n === 1 ? ' apuntado' : ' apuntados'); },
     offline: 'Sin conexión. Los cambios se guardarán al volver la conexión.',
     copy: 'Copiar lista para WhatsApp', copied: 'Copiado. Pégalo en WhatsApp.', copyFail: 'No se pudo copiar automáticamente.',
@@ -143,14 +146,14 @@ var T = {
     remTitle: 'Recordatorio cada lunes', remText: 'Toca una vez y tu calendario te avisará cada lunes a las 17:00 para apuntar a tu hijo/a, con este enlace dentro.',
     remIcs: 'Añadir al calendario', remGoogle: 'Añadir a Google Calendar', remAltGoogle: '¿Usas Google Calendar?', remAltIcs: '¿Usas el calendario del iPhone o del Mac?',
     remDone: 'Recordatorio añadido. Si lo guardaste en el calendario, te avisará cada lunes a las 17:00.', remAgain: 'Otra vez',
-    calTitle: 'Apuntar a vela (fin de semana)', calDesc: 'Apunta a tu hijo/a para el fin de semana:',
-    sumTitle: 'Resumen para el entrenador', nobody: 'nadie apuntado', copyFinal: 'Copiar lista final para WhatsApp', signHere: 'Apúntate aquí:'
+    calTitle: 'Apuntar a vela', calDesc: 'Apunta a tu hijo/a para esta semana:',
+    sumTitle: 'Resumen', nobody: 'nadie apuntado', copyFinal: 'Copiar lista final para WhatsApp', signHere: 'Apúntate aquí:'
   },
   en: {
-    other: 'Español', title: 'Who’s sailing?', pageTitle: 'Sailing · Weekend',
+    other: 'Español', title: 'Who’s sailing?', pageTitle: 'Sailing · This week',
     intro: 'Tap your child’s name on each day. Tap again to add a note or remove them.',
-    days: ['Friday', 'Saturday', 'Sunday'], months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-    weekend: 'Weekend', prev: 'Previous week', next: 'Next week', loading: 'Loading…',
+    days: ['Friday', 'Saturday', 'Sunday', 'Wednesday'], months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+    weekend: 'Week', prev: 'Previous week', next: 'Next week', loading: 'Loading…',
     count: function (n) { return n + ' signed up'; },
     offline: 'Offline. Changes will be saved when the connection is back.',
     copy: 'Copy list for WhatsApp', copied: 'Copied. Paste it into WhatsApp.', copyFail: 'Could not copy automatically.',
@@ -164,14 +167,14 @@ var T = {
     remTitle: 'Monday reminder', remText: 'Tap once and your calendar will remind you every Monday at 17:00 to sign your child up, with this link inside.',
     remIcs: 'Add to calendar', remGoogle: 'Add to Google Calendar', remAltGoogle: 'Using Google Calendar?', remAltIcs: 'Using the iPhone or Mac calendar?',
     remDone: 'Reminder added. If you saved it in your calendar, it will remind you every Monday at 17:00.', remAgain: 'Again',
-    calTitle: 'Sign up for sailing (weekend)', calDesc: 'Sign your child up for the weekend:',
-    sumTitle: 'Summary for the coach', nobody: 'nobody signed up', copyFinal: 'Copy final list for WhatsApp', signHere: 'Sign up here:'
+    calTitle: 'Sign up for sailing', calDesc: 'Sign your child up for this week:',
+    sumTitle: 'Summary', nobody: 'nobody signed up', copyFinal: 'Copy final list for WhatsApp', signHere: 'Sign up here:'
   }
 };
 /* Small drawings: the sailboat in the header, the wave under it, a pennant per day, the anchor in the footer. */
 var BOAT = '<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 3v27" stroke="currentColor" stroke-width="2"/><path d="M21.5 5L34 28H21.5z" fill="currentColor"/><path d="M18.5 9L8 28h10.5z" fill="currentColor" opacity=".75"/><path d="M5 31h30l-4.5 5.5h-21z" fill="currentColor"/></svg>';
 var WAVE = '<svg class="wave" viewBox="0 0 1440 80" preserveAspectRatio="none" aria-hidden="true"><path d="M0 34C200 6 380 64 620 40S1060 2 1240 26 1440 38 1440 38V80H0z" style="fill:var(--bg);opacity:.35"/><path d="M0 52C240 26 460 78 720 54S1180 22 1440 50V80H0z" style="fill:var(--bg)"/></svg>';
-var FLAGS = ['var(--f0)', 'var(--f1)', 'var(--f2)'];
+var FLAGS = ['var(--f0)', 'var(--f1)', 'var(--f2)', 'var(--f3)'];
 function flag(i) { return '<svg class="flag" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 2.5v19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M6 3.5l14 5.5-14 5.5z" style="fill:' + FLAGS[i] + '"/></svg>'; }
 var BELL = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg>';
 var CHECK = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M7.5 12.5l3 3 6-6.5"/></svg>';
@@ -201,9 +204,12 @@ function friday(offset) {
   return d;
 }
 function weekId(offset) { var d = friday(offset); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
-function dayDate(offset, i) { var d = friday(offset); d.setDate(d.getDate() + i); return d; }
+/* Days are stored as 0 Friday, 1 Saturday, 2 Sunday, 3 Wednesday (added in 1.4.0, two days before Friday),
+   so sign-ups made before Wednesday existed keep their place. ORDER is the order on screen. */
+var ORDER = [3, 0, 1, 2];
+function dayDate(offset, i) { var d = friday(offset); d.setDate(d.getDate() + (i === 3 ? -2 : i)); return d; }
 function weekLabel(offset) {
-  var a = dayDate(offset, 0), b = dayDate(offset, 2), m = L().months;
+  var a = dayDate(offset, ORDER[0]), b = dayDate(offset, ORDER[ORDER.length - 1]), m = L().months;
   var s = a.getMonth() === b.getMonth() ? a.getDate() : a.getDate() + ' ' + m[a.getMonth()];
   return s + ' – ' + b.getDate() + ' ' + m[b.getMonth()];
 }
@@ -307,9 +313,10 @@ var BASE = 'https://tasar1-ship-it.github.io/sailing-signup/';
 function groupLink() { var id = window.SS_PREVIEW_G || g; return BASE + (id ? '#' + id : ''); }
 function pickLine(x) { return x.name + (x.note ? ' (' + x.note + ')' : ''); }
 function waText() {
-  var l = L(), lines = [], d, p, j;
-  for (d = 0; d < 3; d++) {
-    if (d) { lines.push(''); }
+  var l = L(), lines = [], o, d, p, j;
+  for (o = 0; o < ORDER.length; o++) {
+    d = ORDER[o];
+    if (o) { lines.push(''); }
     lines.push(l.days[d] + ' ' + dayDate(S.week, d).getDate());
     p = picked(d);
     if (!p.length) { lines.push('– ' + l.nobody + ' –'); }
@@ -394,7 +401,7 @@ function render() {
   document.title = l.pageTitle;
   h.push('<header class="hero"><div class="hero-in"><div class="top"><div class="brand">' + BOAT + '<span>' + esc(l.pageTitle) + '</span></div><button class="lang" data-a="lang" lang="' + (lang === 'es' ? 'en' : 'es') + '">' + esc(l.other) + '</button></div><h1>' + esc(l.title) + '</h1>');
   if (S.fatal) { app.innerHTML = h.join('') + '<p class="sub">' + esc(S.fatal()) + '</p></div>' + WAVE + '</header>'; return; }
-  var kids = kidList(), d, j, p, on, date;
+  var kids = kidList(), o, d, j, p, on, date;
   h.push('<p class="sub">' + esc(l.intro) + '</p>');
   h.push('<div class="week"><button class="nav" data-a="prev" aria-label="' + esc(l.prev) + '">‹</button><b>' + esc(l.weekend + ' ' + weekLabel(S.week)) + '</b><button class="nav" data-a="next" aria-label="' + esc(l.next) + '">›</button></div>');
   h.push('</div>' + WAVE + '</header><main class="wrap">');
@@ -403,10 +410,11 @@ function render() {
   if (S.err) { h.push('<p class="err">' + esc(S.err()) + '</p>'); }
   if (!S.loadedKids) { h.push('<p class="muted">' + esc(l.loading) + '</p>'); }
   h.push('<div class="days">');
-  for (d = 0; d < 3; d++) {
+  for (o = 0; o < ORDER.length; o++) {
+    d = ORDER[o];
     date = dayDate(S.week, d);
     p = S.picks[d] || {};
-    h.push('<section class="card"><h2>' + flag(d) + esc(l.days[d]) + ' ' + date.getDate() + '<span class="n">' + esc(l.count(picked(d).length)) + '</span></h2><div class="chips">');
+    h.push('<section class="card"><h2>' + flag(d) + '<span class="dn">' + esc(l.days[d]) + ' ' + date.getDate() + '</span><span class="n">' + esc(l.count(picked(d).length)) + '</span></h2><div class="chips">');
     for (j = 0; j < kids.length; j++) {
       on = p[kids[j].id];
       h.push('<button class="chip' + (on ? ' on' : '') + '" data-a="chip" data-d="' + d + '" data-k="' + esc(kids[j].id) + '" aria-pressed="' + (on ? 'true' : 'false') + '">' +
@@ -418,7 +426,8 @@ function render() {
   h.push('<div class="sec">' + esc(l.missing) + '</div><div class="row"><input type="text" id="newkid" maxlength="30" placeholder="' + esc(l.kidPh) + '" value="' + esc(S.draftKid) + '" autocomplete="off"><button class="btn" data-a="add">' + esc(l.add) + '</button></div>');
   if (S.msg && S.msgAt === 'add') { h.push('<p class="ok">' + esc(S.msg()) + '</p>'); }
   h.push('<section class="panel summary"><h2>' + LIST + esc(l.sumTitle) + '</h2>');
-  for (d = 0; d < 3; d++) {
+  for (o = 0; o < ORDER.length; o++) {
+    d = ORDER[o];
     p = picked(d);
     h.push('<div class="sum-day"><b>' + esc(l.days[d]) + ' ' + dayDate(S.week, d).getDate() + ' · ' + p.length + '</b><p>' +
       (p.length ? esc(p.map(pickLine).join(', ')) : '<span class="none">' + esc(l.nobody) + '</span>') + '</p></div>');
