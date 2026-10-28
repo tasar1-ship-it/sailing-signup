@@ -31,7 +31,7 @@ button{font-family:inherit}
 .hero-in{max-width:680px;margin:0 auto;padding:14px calc(16px + env(safe-area-inset-right)) 58px calc(16px + env(safe-area-inset-left));position:relative;z-index:1}
 .top{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .brand{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.85)}
-.brand .logo{display:block;height:44px;width:auto;border-radius:6px}
+.brand .logo{display:block;height:57px;width:auto;border-radius:7px}
 .lang{flex:none;border:1px solid rgba(255,255,255,.45);background:rgba(255,255,255,.12);color:#fff;border-radius:20px;padding:8px 16px;min-height:40px;font-size:15px;font-weight:600;cursor:pointer}
 h1{font-size:32px;margin:18px 0 6px;line-height:1.1}
 .sub{color:rgba(255,255,255,.9);font-size:17px;margin:0}
@@ -159,7 +159,7 @@ function render() {
   var l = T[lang], h = [], i;
   document.documentElement.lang = lang;
   document.title = l.title + ' · ' + l.brand;
-  h.push('<header class="hero"><div class="hero-in"><div class="top"><div class="brand">' + '<img class="logo" src="cna-logo.png" width="91" height="44" alt="Club Nàutic Arenal">' + '</div>' +
+  h.push('<header class="hero"><div class="hero-in"><div class="top"><div class="brand">' + '<img class="logo" src="cna-logo.png" width="118" height="57" alt="Club Nàutic Arenal">' + '</div>' +
     '<button class="lang" data-a="lang">' + esc(l.other) + '</button></div><h1>' + esc(l.title) + '</h1><p class="sub">' + esc(valid ? l.sub : l.noLink) + '</p></div>' + WAVE + '</header>');
   if (!valid) { app.innerHTML = h.join(''); return; }
   var msg = l.msg(link);
