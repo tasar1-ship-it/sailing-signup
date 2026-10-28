@@ -44,6 +44,7 @@ h1{font-size:32px;margin:18px 0 6px;line-height:1.1}
 .body{flex:1;min-width:0}
 .step h2{font-size:20px;margin:5px 0 6px}
 .step p{margin:0 0 10px;color:var(--fg-2)}
+.msg a{color:var(--sea);font-weight:600;text-decoration:underline;overflow-wrap:anywhere}
 .msg{white-space:pre-wrap;word-break:break-word;background:var(--tint);border-radius:12px;padding:12px 14px;font-size:15px;line-height:1.45;margin:10px 0 0;color:var(--fg)}
 .btn{display:block;width:100%;border:0;border-radius:14px;padding:13px 16px;min-height:50px;font-size:17px;font-weight:600;cursor:pointer;background:var(--btn);color:#fff;text-align:center;text-decoration:none}
 .btn.wa{background:var(--wa)}
@@ -102,7 +103,7 @@ var T = {
       '<b>Nombre repetido o mal escrito:</b> avisa a Ronald; él lo borra.',
       '<b>El mensaje llegó dos veces al grupo:</b> no pasa nada; el que lo envió borra uno.'],
     msg: function (link) {
-      return '⛵ A partir de ahora, apuntad a los niños aquí (sin copiar la lista):\n' + link + '\n\n' +
+      return '⛵ Por favor, apuntad a vuestros hijos aquí (sin copiar la lista):\n' + link + '\n\n' +
         '1️⃣ Abre el enlace y toca «Recordatorio cada lunes» una vez. Tu calendario te avisará cada lunes.\n' +
         '2️⃣ Toca el nombre de tu hijo/a en cada día que navega. ¡Listo!\n\n' +
         'English: open the link, tap «Monday reminder» once, then tap your child\'s name on each day. There is an English button at the top.';
@@ -130,7 +131,7 @@ var T = {
       '<b>Duplicate or misspelled name:</b> tell Ronald; he deletes it.',
       '<b>The message reached the group twice:</b> no problem; whoever sent it deletes one.'],
     msg: function (link) {
-      return '⛵ From now on, sign the kids up here (no more copying the list):\n' + link + '\n\n' +
+      return '⛵ Please sign your kids up here (no more copying the list):\n' + link + '\n\n' +
         '1️⃣ Open the link and tap “Monday reminder” once. Your calendar will remind you every Monday.\n' +
         '2️⃣ Tap your child\'s name on each day they sail. Done!\n\n' +
         'Español: abre el enlace, toca «Recordatorio cada lunes» una vez y luego el nombre de tu hijo/a en cada día. Hay un botón para español arriba.';
@@ -173,7 +174,7 @@ function render() {
   h.push('<section class="step"><div class="num">1</div><div class="body"><span class="tag">' + esc(l.one) + '</span><h2>' + esc(l.s1) + '</h2><p>' + esc(l.s1t) + '</p>' +
     '<a class="btn wa" href="https://wa.me/?text=' + esc(encodeURIComponent(msg)) + '" target="_blank" rel="noopener">' + esc(l.wa) + '</a>' +
     '<button class="alt" data-a="msg">' + esc(S.showMsg ? l.hideMsg : l.showMsg) + '</button>' +
-    (S.showMsg ? '<p class="msg" id="msg">' + esc(msg) + '</p><button class="alt" data-a="copy">' + esc(l.copy) + '</button><p class="ok">' + esc(S.ok) + '</p>' : '') +
+    (S.showMsg ? '<p class="msg" id="msg">' + esc(msg).split(esc(link)).join('<a href="' + esc(link) + '" target="_blank" rel="noopener">' + esc(link) + '</a>') + '</p><button class="alt" data-a="copy">' + esc(l.copy) + '</button><p class="ok">' + esc(S.ok) + '</p>' : '') +
     '</div></section>');
   h.push('<section class="step"><div class="num">2</div><div class="body"><span class="tag">' + esc(l.one) + '</span><h2>' + esc(l.s2) + '</h2><p>' + esc(l.s2t) + '</p></div></section>');
   h.push('<section class="step"><div class="num">3</div><div class="body"><span class="tag">' + esc(l.all) + '</span><h2>' + esc(l.s3) + '</h2><p>' + esc(l.s3t) + '</p>' +
