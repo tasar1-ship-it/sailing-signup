@@ -32,7 +32,9 @@ button{font-family:inherit}
 .top{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .brand{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.85)}
 .brand .logo{display:block;height:37px;width:auto}
-.lang{flex:none;border:1px solid rgba(255,255,255,.45);background:rgba(255,255,255,.12);color:#fff;border-radius:20px;padding:8px 16px;min-height:40px;font-size:15px;font-weight:600;cursor:pointer}
+.lang{position:relative;flex:none;border:1px solid rgba(255,255,255,.45);background:rgba(255,255,255,.12);color:#fff;border-radius:10px;padding:2px 9px;min-height:20px;font-size:11px;font-weight:600;line-height:1.3;cursor:pointer}
+/* Half-size look, full-size tap area. */
+.lang::after{content:"";position:absolute;inset:-12px -10px}
 h1{font-size:32px;margin:18px 0 6px;line-height:1.1}
 .sub{color:rgba(255,255,255,.9);font-size:17px;margin:0}
 .wave{position:absolute;left:0;right:0;bottom:-1px;width:100%;height:46px;display:block}
