@@ -121,7 +121,7 @@ a.btn{display:block;text-align:center;text-decoration:none;line-height:24px}
 /* Sailing sign-up. Own code is ES5 on purpose (var and function only). */
 (function () {
 'use strict';
-var VERSION = '1.5.3';
+var VERSION = '1.5.4';
 var FB = {
   apiKey: 'AIzaSyD3Q2TRCGlCkJPd8wvf8aijdQU8a0oJXmc',
   authDomain: 'sailing-signup.firebaseapp.com',
@@ -130,7 +130,7 @@ var FB = {
   appId: '1:1090198402941:web:30a83e8de794f93cff7e14'
 };
 var LS = 'ss1_';
-/* Screen text in both languages. The text copied for WhatsApp stays Spanish, because the group writes in Spanish. */
+/* Screen text in both languages. */
 var T = {
   es: {
     other: 'English', title: '¿Quién navega?', pageTitle: 'Vela · Esta semana',
@@ -139,7 +139,6 @@ var T = {
     weekend: 'Semana', prev: 'Semana anterior', next: 'Semana siguiente', loading: 'Cargando…',
     count: function (n) { return n + (n === 1 ? ' apuntado' : ' apuntados'); },
     offline: 'Sin conexión. Los cambios se guardarán al volver la conexión.',
-    copy: 'Copiar lista para WhatsApp', copied: 'Copiado. Pégalo en WhatsApp.', copyFail: 'No se pudo copiar automáticamente.',
     missing: '¿Falta un nombre?', kidPh: 'Nombre del niño/a', add: 'Añadir',
     added: function (n) { return n + ' añadido.'; }, dup: function (n) { return n + ' ya está en la lista.'; },
     notePh: 'Nota, p. ej. hasta las 14', saveNote: 'Guardar nota', remove: 'Quitar', close: 'Cerrar',
@@ -151,7 +150,7 @@ var T = {
     remIcs: 'Añadir al calendario', remGoogle: 'Añadir a Google Calendar', remAltGoogle: '¿Usas Google Calendar?', remAltIcs: '¿Usas el calendario del iPhone o del Mac?',
     remDone: 'Recordatorio añadido. Si lo guardaste en el calendario, te avisará cada lunes a las 17:00.', remAgain: 'Otra vez',
     calTitle: 'Apuntar a vela', calDesc: 'Apunta a tu hijo/a para esta semana:',
-    sumTitle: 'Resumen', nobody: 'nadie apuntado', copyFinal: 'Copiar lista final para WhatsApp', signHere: 'Apúntate aquí:',
+    sumTitle: 'Resumen', nobody: 'nadie apuntado',
     helpLink: '¿Cómo funciona?', helpT: 'Cómo funciona', help: [
       '**Una vez:** toca «Añadir al calendario». Cada lunes a las 17:00 te llega un aviso con este enlace.',
       '**Cada semana:** toca el nombre de tu hijo/a en los días que navega. Se pone azul: ya está apuntado/a.',
@@ -164,7 +163,6 @@ var T = {
     weekend: 'Week', prev: 'Previous week', next: 'Next week', loading: 'Loading…',
     count: function (n) { return n + ' signed up'; },
     offline: 'Offline. Changes will be saved when the connection is back.',
-    copy: 'Copy list for WhatsApp', copied: 'Copied. Paste it into WhatsApp.', copyFail: 'Could not copy automatically.',
     missing: 'Name missing?', kidPh: 'Child’s name', add: 'Add',
     added: function (n) { return n + ' added.'; }, dup: function (n) { return n + ' is already on the list.'; },
     notePh: 'Note, e.g. until 2 pm', saveNote: 'Save note', remove: 'Remove', close: 'Close',
@@ -176,7 +174,7 @@ var T = {
     remIcs: 'Add to calendar', remGoogle: 'Add to Google Calendar', remAltGoogle: 'Using Google Calendar?', remAltIcs: 'Using the iPhone or Mac calendar?',
     remDone: 'Reminder added. If you saved it in your calendar, it will remind you every Monday at 17:00.', remAgain: 'Again',
     calTitle: 'Sign up for sailing', calDesc: 'Sign your child up for this week:',
-    sumTitle: 'Summary', nobody: 'nobody signed up', copyFinal: 'Copy final list for WhatsApp', signHere: 'Sign up here:',
+    sumTitle: 'Summary', nobody: 'nobody signed up',
     helpLink: 'How does it work?', helpT: 'How it works', help: [
       '**Once:** tap “Add to calendar”. Every Monday at 17:00 you get a reminder with this link.',
       '**Every week:** tap your child’s name on the days they sail. It turns blue: they are signed up.',
@@ -324,18 +322,6 @@ function addKid() {
 var BASE = 'https://tasar1-ship-it.github.io/sailing-signup/';
 function groupLink() { var id = window.SS_PREVIEW_G || g; return BASE + (id ? '#' + id : ''); }
 function pickLine(x) { return x.name + (x.note ? ' (' + x.note + ')' : ''); }
-function waText() {
-  var l = L(), lines = [], o, d, p, j;
-  for (o = 0; o < ORDER.length; o++) {
-    d = ORDER[o];
-    if (o) { lines.push(''); }
-    lines.push(l.days[d] + ' ' + dayDate(S.week, d).getDate());
-    p = picked(d);
-    if (!p.length) { lines.push('– ' + l.nobody + ' –'); }
-    for (j = 0; j < p.length; j++) { lines.push('• ' + pickLine(p[j])); }
-  }
-  return lines.join('\n') + '\n\n' + l.signHere + ' ' + groupLink();
-}
 
 /* ---------- Monday reminder: a weekly calendar event at 17:00 local time, with the link inside ---------- */
 var UA = navigator.userAgent || '';
@@ -382,19 +368,6 @@ function openIcs() {
   remDone();
 }
 function remDone() { lsSet('rem', '1'); S.remAlt = false; setTimeout(render, 300); }
-function copyWa() {
-  var t = waText();
-  S.err = null;
-  function done() { S.msg = say('copied'); S.msgAt = 'copy'; render(); }
-  function fallback() {
-    var a = document.createElement('textarea'); a.value = t; a.setAttribute('readonly', ''); a.style.position = 'fixed'; a.style.opacity = '0';
-    document.body.appendChild(a); a.select(); a.setSelectionRange(0, t.length);
-    var ok = false; try { ok = document.execCommand('copy'); } catch (e) {}
-    document.body.removeChild(a);
-    if (ok) { done(); } else { S.err = say('copyFail'); render(); }
-  }
-  if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(t).then(done, fallback); } else { fallback(); }
-}
 
 /* ---------- render ---------- */
 /* Parents' "how it works": open on a first visit until closed (ss1_help); the link under the intro opens and closes it. */
@@ -453,8 +426,6 @@ function render() {
     h.push('<div class="sum-day"><b>' + esc(l.days[d]) + ' ' + dayDate(S.week, d).getDate() + ' · ' + p.length + '</b><p>' +
       (p.length ? esc(p.map(pickLine).join(', ')) : '<span class="none">' + esc(l.nobody) + '</span>') + '</p></div>');
   }
-  h.push('<button class="btn wide" data-a="copy">' + esc(l.copyFinal) + '</button>');
-  if (S.msg && S.msgAt === 'copy') { h.push('<p class="ok">' + esc(S.msg()) + '</p>'); }
   h.push('</section>');
   h.push('</div><p class="foot">' + ANCHOR + '<span>v' + VERSION + '</span></p></main>');
   if (S.sheet && S.kids[S.sheet.kid]) {
@@ -483,7 +454,6 @@ app.addEventListener('click', function (ev) {
   else if (a === 'save') { saveNote(); }
   else if (a === 'remove') { removePick(); }
   else if (a === 'close') { S.sheet = null; render(); }
-  else if (a === 'copy') { copyWa(); }
   else if (a === 'add') { addKid(); }
   else if (a === 'remics') { openIcs(); }
   else if (a === 'remg') { remDone(); }
