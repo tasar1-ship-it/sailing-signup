@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="referrer" content="no-referrer">
+<title>Vela · Fin de semana</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230071E3'/%3E%3Cpath d='M16 5v19M16 6l8 15h-8M15 8L8 21h7M6 25h20' fill='none' stroke='%23fff' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="icon-180.png">
+<style>
+/* One column: week switcher, one card per day (Viernes, Sábado, Domingo) with every child as a tap chip,
+   then "add a child" and "copy for WhatsApp". A bottom sheet edits a chosen child's note or removes them. */
+:root{
+  color-scheme:light dark;
+  --bg:#FFFFFF; --surface:#F5F5F7; --field:#FFFFFF; --fg:#1D1D1F; --fg-2:#6A6A70; --line:rgba(60,60,67,.16);
+  --chip:rgba(118,118,128,.12); --accent:#0071E3; --accent-fg:#FFFFFF; --good:#176B2C; --bad:#C20014;
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue","Segoe UI",Roboto,Arial,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#000000; --surface:#1C1C1E; --field:#2C2C2E; --fg:#F5F5F7; --fg-2:#A1A1A6; --line:rgba(84,84,88,.6);
+    --chip:rgba(118,118,128,.26); --accent:#0A84FF; --good:#30D158; --bad:#FF453A; }
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font);font-size:17px;-webkit-text-size-adjust:100%}
+.wrap{max-width:640px;margin:0 auto;padding:calc(12px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right)) calc(40px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left))}
+h1{font-size:26px;margin:8px 0 2px;letter-spacing:-.02em}
+.muted{color:var(--fg-2);font-size:15px;margin:0}
+.week{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:14px 0 16px}
+.week b{font-size:17px;text-align:center;flex:1}
+.nav{width:44px;height:44px;border-radius:22px;border:0;background:var(--chip);color:var(--fg);font-size:22px;cursor:pointer}
+.card{background:var(--surface);border-radius:16px;padding:14px 14px 10px;margin-bottom:14px}
+.card h2{font-size:19px;margin:0 0 10px;display:flex;justify-content:space-between;align-items:baseline}
+.card h2 span{font-size:15px;font-weight:500;color:var(--fg-2)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:0;border-radius:20px;padding:10px 14px;min-height:44px;font:inherit;font-size:16px;background:var(--chip);color:var(--fg);cursor:pointer;text-align:left;line-height:1.2}
+.chip.on{background:var(--accent);color:var(--accent-fg)}
+.chip.on:before{content:"\2713\00a0"}
+.chip small{display:block;font-size:13px;opacity:.85}
+.hint{font-size:13px;color:var(--fg-2);margin:8px 2px 2px}
+.row{display:flex;gap:8px;margin-top:6px}
+input[type=text]{flex:1;min-width:0;font:inherit;font-size:16px;padding:11px 12px;border-radius:12px;border:1px solid var(--line);background:var(--field);color:var(--fg)}
+.btn{border:0;border-radius:12px;padding:12px 16px;font:inherit;font-size:16px;font-weight:600;cursor:pointer;background:var(--chip);color:var(--fg)}
+.btn.primary{background:var(--accent);color:var(--accent-fg)}
+.btn.danger{color:var(--bad)}
+.btn.wide{width:100%;margin-top:6px}
+.sec{margin:22px 0 8px;font-size:15px;font-weight:600;color:var(--fg-2)}
+.ok{color:var(--good);font-size:14px;margin:6px 2px 0;min-height:18px}
+.err{color:var(--bad);font-size:14px;margin:6px 2px 0}
+.bar{background:var(--bad);color:#fff;border-radius:12px;padding:10px 12px;font-size:14px;margin:8px 0}
+.shade{position:fixed;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:flex-end;justify-content:center;z-index:5}
+.sheet{background:var(--bg);width:100%;max-width:640px;border-radius:18px 18px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom))}
+.sheet h3{margin:0 0 4px;font-size:20px}
+.sheet .row{margin-top:12px}
+.foot{margin-top:28px;font-size:12px;color:var(--fg-2);text-align:center}
+</style>
+</head>
+<body>
+<div id="app" class="wrap"><p class="muted">Cargando…</p></div>
+<noscript><p style="padding:20px">Esta página necesita JavaScript.</p></noscript>
+<script src="firebase-app-compat.js"></script>
+<script src="firebase-auth-compat.js"></script>
+<script src="firebase-database-compat.js"></script>
+<script>
+/* Sailing sign-up. Own code is ES5 on purpose (var and function only). */
+(function () {
+'use strict';
+var VERSION = '1.0.0';
+var FB = {
+  apiKey: 'AIzaSyD3Q2TRCGlCkJPd8wvf8aijdQU8a0oJXmc',
+  authDomain: 'sailing-signup.firebaseapp.com',
+  databaseURL: 'https://sailing-signup-default-rtdb.europe-west1.firebasedatabase.app',
+  projectId: 'sailing-signup',
+  appId: '1:1090198402941:web:30a83e8de794f93cff7e14'
+};
+var DAYS = ['Viernes', 'Sábado', 'Domingo'];
+var MONTHS = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+var app = document.getElementById('app');
+var S = { fatal: '', week: 0, kids: {}, picks: {}, loadedKids: false, sheet: null, msg: '', err: '', offline: false, draftKid: '' };
+var store = null, offPicks = null;
+
+/* ---------- helpers ---------- */
+var ESC = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return ESC[c]; }); }
+function clean(s, n) { return String(s || '').replace(/\s+/g, ' ').replace(/^ | $/g, '').slice(0, n); }
+function pad(n) { return n < 10 ? '0' + n : '' + n; }
+/* Friday of the weekend to show: Mon-Fri -> the coming Friday, Sat/Sun -> the Friday just gone. */
+function friday(offset) {
+  var d = new Date(); d.setHours(12, 0, 0, 0);
+  var wd = d.getDay(), back = wd === 6 ? 1 : (wd === 0 ? 2 : -(5 - wd));
+  d.setDate(d.getDate() - back + 7 * offset);
+  return d;
+}
+function weekId(offset) { var d = friday(offset); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+function dayDate(offset, i) { var d = friday(offset); d.setDate(d.getDate() + i); return d; }
+function weekLabel(offset) {
+  var a = dayDate(offset, 0), b = dayDate(offset, 2);
+  var s = a.getMonth() === b.getMonth() ? a.getDate() : a.getDate() + ' ' + MONTHS[a.getMonth()];
+  return s + ' – ' + b.getDate() + ' ' + MONTHS[b.getMonth()];
+}
+function kidList() {
+  var out = [], k;
+  for (k in S.kids) { if (S.kids[k] && S.kids[k].name) { out.push({ id: k, name: S.kids[k].name }); } }
+  out.sort(function (a, b) { return a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1; });
+  return out;
+}
+function picked(day) {
+  var p = S.picks[day] || {}, out = [], k;
+  for (k in p) { if (S.kids[k]) { out.push({ id: k, name: S.kids[k].name, note: p[k].note || '', at: p[k].at || 0 }); } }
+  out.sort(function (a, b) { return a.at - b.at; });
+  return out;
+}
+
+/* ---------- stores: Firebase, or in memory for ?demo ---------- */
+function fbStore(g) {
+  var ready = new Promise(function (res, rej) {
+    if (typeof firebase === 'undefined') { rej('no-sdk'); return; }
+    try { firebase.initializeApp(FB); } catch (e) { rej('no-sdk'); return; }
+    firebase.auth().signInAnonymously().then(function () { res(firebase.database()); }).catch(function (e) { rej((e && e.code) || 'no-auth'); });
+  });
+  function base(db) { return db.ref('groups/' + g); }
+  return {
+    ready: ready,
+    onKids: function (cb) { ready.then(function (db) { base(db).child('kids').on('value', function (s) { cb(s.val() || {}); }, onFail); }); },
+    onPicks: function (w, cb) {
+      var r = null;
+      ready.then(function (db) { r = base(db).child('picks/' + w); r.on('value', function (s) { cb(s.val() || {}); }, onFail); });
+      return function () { if (r) { r.off(); } };
+    },
+    setPick: function (w, day, kid, v) {
+      return ready.then(function (db) {
+        var r = base(db).child('picks/' + w + '/' + day + '/' + kid);
+        return v ? r.set({ note: v.note, at: v.at || firebase.database.ServerValue.TIMESTAMP }) : r.remove();
+      });
+    },
+    addKid: function (name) {
+      return ready.then(function (db) { return base(db).child('kids').push({ name: name, at: firebase.database.ServerValue.TIMESTAMP }); });
+    },
+    onConn: function (cb) { ready.then(function (db) { db.ref('.info/connected').on('value', function (s) { cb(!!s.val()); }); }); }
+  };
+}
+function memStore() {
+  var kids = {}, picks = {}, kcb = null, pcbs = {}, n = 0;
+  ['Telminator', 'Marc S', 'Diego', 'Biel', 'Lukas'].forEach(function (nm) { kids['-demo' + (n++)] = { name: nm, at: n }; });
+  function emitP(w) { if (pcbs[w]) { pcbs[w](JSON.parse(JSON.stringify(picks[w] || {}))); } }
+  return {
+    ready: Promise.resolve(),
+    onKids: function (cb) { kcb = cb; setTimeout(function () { cb(kids); }, 0); },
+    onPicks: function (w, cb) { pcbs[w] = cb; setTimeout(function () { emitP(w); }, 0); return function () { delete pcbs[w]; }; },
+    setPick: function (w, day, kid, v) {
+      picks[w] = picks[w] || {}; picks[w][day] = picks[w][day] || {};
+      if (v) { picks[w][day][kid] = { note: v.note, at: v.at || new Date().getTime() }; } else { delete picks[w][day][kid]; }
+      emitP(w); return Promise.resolve();
+    },
+    addKid: function (name) { kids['-demo' + (n++)] = { name: name, at: n }; kcb(kids); return Promise.resolve(); },
+    onConn: function () {}
+  };
+}
+function onFail(e) { S.fatal = 'No se pudo leer la lista (' + ((e && e.code) || 'error') + '). Revisa la conexión y recarga.'; render(); }
+
+/* ---------- actions ---------- */
+function watchWeek() {
+  if (offPicks) { offPicks(); }
+  S.picks = {};
+  offPicks = store.onPicks(weekId(S.week), function (v) { S.picks = v; render(); });
+}
+function fail(e) { S.err = 'No se guardó (' + ((e && e.code) || e || 'error') + '). Inténtalo de nuevo.'; render(); }
+function tapChip(day, kid) {
+  S.err = ''; S.msg = '';
+  var p = (S.picks[day] || {})[kid];
+  if (!p) { store.setPick(weekId(S.week), day, kid, { note: '' })['catch'](fail); return; }
+  S.sheet = { day: day, kid: kid, note: p.note || '', at: p.at }; render();
+  var i = document.getElementById('note'); if (i) { i.focus(); }
+}
+function saveNote() {
+  var sh = S.sheet, i = document.getElementById('note');
+  S.sheet = null;
+  store.setPick(weekId(S.week), sh.day, sh.kid, { note: clean(i ? i.value : '', 40), at: sh.at })['catch'](fail);
+  render();
+}
+function removePick() {
+  var sh = S.sheet; S.sheet = null;
+  store.setPick(weekId(S.week), sh.day, sh.kid, null)['catch'](fail);
+  render();
+}
+function addKid() {
+  var i = document.getElementById('newkid'), name = clean(i ? i.value : '', 30), list = kidList(), j;
+  S.err = ''; S.msg = '';
+  if (!name) { return; }
+  for (j = 0; j < list.length; j++) {
+    if (list[j].name.toLowerCase() === name.toLowerCase()) { S.err = name + ' ya está en la lista.'; render(); return; }
+  }
+  S.draftKid = '';
+  store.addKid(name).then(function () { S.msg = name + ' añadido.'; render(); })['catch'](fail);
+}
+function waText() {
+  var lines = [], d, p, j;
+  for (d = 0; d < 3; d++) {
+    if (d) { lines.push(''); }
+    lines.push(DAYS[d] + ' ' + dayDate(S.week, d).getDate());
+    p = picked(d);
+    for (j = 0; j < p.length; j++) { lines.push('• ' + p[j].name + (p[j].note ? ' (' + p[j].note + ')' : '')); }
+  }
+  return lines.join('\n') + '\n\nApúntate aquí: ' + location.href;
+}
+function copyWa() {
+  var t = waText();
+  S.err = '';
+  function done() { S.msg = 'Copiado. Pégalo en WhatsApp.'; render(); }
+  function fallback() {
+    var a = document.createElement('textarea'); a.value = t; a.setAttribute('readonly', ''); a.style.position = 'fixed'; a.style.opacity = '0';
+    document.body.appendChild(a); a.select(); a.setSelectionRange(0, t.length);
+    var ok = false; try { ok = document.execCommand('copy'); } catch (e) {}
+    document.body.removeChild(a);
+    if (ok) { done(); } else { S.err = 'No se pudo copiar automáticamente.'; render(); }
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(t).then(done, fallback); } else { fallback(); }
+}
+
+/* ---------- render ---------- */
+function render() {
+  if (S.fatal) { app.innerHTML = '<h1>Vela · Fin de semana</h1><p class="muted">' + esc(S.fatal) + '</p>'; return; }
+  var kids = kidList(), h = [], d, j, p, on, date;
+  h.push('<h1>¿Quién navega?</h1><p class="muted">Toca el nombre de tu hijo/a en cada día. Toca otra vez para añadir una nota o quitarlo.</p>');
+  if (S.offline) { h.push('<div class="bar">Sin conexión. Los cambios se guardarán al volver la conexión.</div>'); }
+  h.push('<div class="week"><button class="nav" data-a="prev" aria-label="Semana anterior">‹</button><b>Fin de semana ' + esc(weekLabel(S.week)) + '</b><button class="nav" data-a="next" aria-label="Semana siguiente">›</button></div>');
+  if (!S.loadedKids) { h.push('<p class="muted">Cargando…</p>'); }
+  for (d = 0; d < 3; d++) {
+    date = dayDate(S.week, d);
+    p = S.picks[d] || {};
+    h.push('<section class="card"><h2>' + DAYS[d] + ' ' + date.getDate() + ' <span>' + picked(d).length + ' apuntados</span></h2><div class="chips">');
+    for (j = 0; j < kids.length; j++) {
+      on = p[kids[j].id];
+      h.push('<button class="chip' + (on ? ' on' : '') + '" data-a="chip" data-d="' + d + '" data-k="' + esc(kids[j].id) + '" aria-pressed="' + (on ? 'true' : 'false') + '">' +
+        esc(kids[j].name) + (on && on.note ? '<small>' + esc(on.note) + '</small>' : '') + '</button>');
+    }
+    h.push('</div></section>');
+  }
+  if (S.err) { h.push('<p class="err">' + esc(S.err) + '</p>'); }
+  h.push('<button class="btn primary wide" data-a="copy">Copiar lista para WhatsApp</button>');
+  h.push('<p class="ok">' + esc(S.msg) + '</p>');
+  h.push('<div class="sec">¿Falta un nombre?</div><div class="row"><input type="text" id="newkid" maxlength="30" placeholder="Nombre del niño/a" value="' + esc(S.draftKid) + '" autocomplete="off"><button class="btn" data-a="add">Añadir</button></div>');
+  h.push('<p class="foot">v' + VERSION + '</p>');
+  if (S.sheet && S.kids[S.sheet.kid]) {
+    h.push('<div class="shade" data-a="close"><div class="sheet" role="dialog" aria-modal="true"><h3>' + esc(S.kids[S.sheet.kid].name) + '</h3><p class="muted">' + DAYS[S.sheet.day] + ' ' + dayDate(S.week, S.sheet.day).getDate() + '</p>' +
+      '<div class="row"><input type="text" id="note" maxlength="40" placeholder="Nota, p. ej. hasta las 14" value="' + esc(S.sheet.note) + '"></div>' +
+      '<div class="row"><button class="btn primary" data-a="save" style="flex:1">Guardar nota</button><button class="btn danger" data-a="remove">Quitar</button></div>' +
+      '<button class="btn wide" data-a="close">Cerrar</button></div></div>');
+  }
+  /* Live updates re-render the page; keep the cursor in a text box someone is typing in. */
+  var f = document.activeElement, fid = f && f.id, fv = fid && f.value, fs = fid && f.selectionStart;
+  app.innerHTML = h.join('');
+  if (fid && document.getElementById(fid)) {
+    f = document.getElementById(fid); f.value = fv; f.focus();
+    try { f.setSelectionRange(fs, fs); } catch (e) {}
+  }
+}
+
+app.addEventListener('click', function (ev) {
+  var t = ev.target, a;
+  while (t && t !== app && !t.getAttribute('data-a')) { t = t.parentNode; }
+  if (!t || t === app) { return; }
+  a = t.getAttribute('data-a');
+  if (a === 'close' && t.className === 'shade' && ev.target !== t) { return; }
+  if (a === 'chip') { tapChip(+t.getAttribute('data-d'), t.getAttribute('data-k')); }
+  else if (a === 'prev' || a === 'next') { S.week += a === 'next' ? 1 : -1; S.msg = ''; S.err = ''; watchWeek(); render(); }
+  else if (a === 'save') { saveNote(); }
+  else if (a === 'remove') { removePick(); }
+  else if (a === 'close') { S.sheet = null; render(); }
+  else if (a === 'copy') { copyWa(); }
+  else if (a === 'add') { addKid(); }
+});
+app.addEventListener('input', function (ev) { if (ev.target.id === 'newkid') { S.draftKid = ev.target.value; } });
+app.addEventListener('keydown', function (ev) {
+  if (ev.keyCode !== 13) { return; }
+  if (ev.target.id === 'newkid') { addKid(); } else if (ev.target.id === 'note') { saveNote(); }
+});
+
+/* ---------- start ---------- */
+var g = (location.hash || '').replace(/^#/, '');
+if (/[?&]demo\b/.test(location.search)) { store = memStore(); }
+else if (/^[A-Za-z0-9]{20,40}$/.test(g)) { store = fbStore(g); }
+else { S.fatal = 'Abre la página con el enlace del grupo de WhatsApp (el enlace completo).'; render(); return; }
+store.ready['catch'](function (e) { S.fatal = 'No se pudo conectar (' + e + '). Revisa la conexión y recarga.'; render(); });
+store.onKids(function (v) { S.kids = v; S.loadedKids = true; render(); });
+store.onConn(function (c) { if (c) { S.wasOn = true; } S.offline = S.wasOn && !c; render(); });
+watchWeek();
+render();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "groups": {
+      "$g": {
+        ".read": "auth != null && $g.length >= 20 && $g.length <= 40 && $g.matches(/^[A-Za-z0-9]+$/)",
+        "kids": {
+          "$k": {
+            ".write": "auth != null && !data.exists() && $g.length >= 20 && $g.length <= 40 && $g.matches(/^[A-Za-z0-9]+$/)",
+            ".validate": "$k.length <= 24 && newData.hasChildren(['name', 'at']) && newData.child('name').isString() && newData.child('name').val().length >= 1 && newData.child('name').val().length <= 30 && newData.child('at').isNumber()",
+            "name": { ".validate": true },
+            "at": { ".validate": true },
+            "$other": { ".validate": false }
+          }
+        },
+        "picks": {
+          "$week": {
+            ".validate": "$week.matches(/^20[0-9][0-9]-[01][0-9]-[0-3][0-9]$/)",
+            "$day": {
+              ".validate": "$day === '0' || $day === '1' || $day === '2'",
+              "$k": {
+                ".write": "auth != null && root.child('groups').child($g).child('kids').child($k).exists()",
+                ".validate": "newData.hasChildren(['note', 'at']) && newData.child('note').isString() && newData.child('note').val().length <= 40 && newData.child('at').isNumber()",
+                "note": { ".validate": true },
+                "at": { ".validate": true },
+                "$other": { ".validate": false }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
