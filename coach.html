@@ -48,6 +48,8 @@ h1{font-size:32px;margin:18px 0 6px;line-height:1.1}
 .msg{white-space:pre-wrap;word-break:break-word;background:var(--tint);border-radius:12px;padding:12px 14px;font-size:15px;line-height:1.45;margin:10px 0 0;color:var(--fg)}
 .btn{display:block;width:100%;border:0;border-radius:14px;padding:13px 16px;min-height:50px;font-size:17px;font-weight:600;cursor:pointer;background:var(--btn);color:#fff;text-align:center;text-decoration:none}
 .btn.wa{background:var(--wa)}
+.wa-pair{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.ml{font-size:14px;font-weight:600;color:var(--fg-2);margin:12px 0 -6px}
 .alt{display:inline-block;margin-top:10px;color:var(--sea);font-size:15px;font-weight:600;background:none;border:0;padding:4px 0;cursor:pointer;text-decoration:underline}
 .ok{color:var(--good);font-size:15px;margin:6px 0 0;min-height:20px}
 .how{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin:0 0 14px;box-shadow:var(--shadow)}
@@ -88,8 +90,8 @@ var T = {
     howT: 'Cómo funciona', flow: [['Lunes, 17:00', 'Los padres reciben un aviso con el enlace'], ['Padres', 'Tocan el nombre de su hijo/a en cada día'], ['Entrenadores', 'Abren su panel y ven quién va']],
     same: 'Los tres entrenadores veis la misma lista: es una sola página en internet y cada cambio aparece al momento para todos. Nadie tiene que copiar ni enviar listas.',
     one: 'Solo un entrenador', all: 'Los tres entrenadores',
-    s1: 'Envía el enlace al grupo de padres', s1t: 'Toca el botón verde, elige el grupo de padres en WhatsApp y toca Enviar.',
-    wa: 'Enviar por WhatsApp', showMsg: 'Ver el mensaje', hideMsg: 'Ocultar el mensaje', copy: 'Copiar el mensaje', copied: 'Copiado. Pégalo en el grupo.',
+    s1: 'Envía el enlace al grupo de padres', s1t: 'Decide el idioma: toca uno de los botones verdes, elige el grupo de padres en WhatsApp y toca Enviar.',
+    showMsg: 'Ver los mensajes', hideMsg: 'Ocultar los mensajes', copied: 'Copiado. Pégalo en el grupo.',
     s2: 'Fija el mensaje en el grupo', s2t: 'En el grupo, mantén pulsado el mensaje que acabas de enviar y toca «Fijar». Así los padres siempre encuentran el enlace.',
     s3: 'Guarda el panel en tu móvil', s3t: 'El panel muestra quién va cada día y vuestras notas. Ábrelo y guárdalo: en el iPhone toca Compartir y luego «Añadir a pantalla de inicio»; en Android, el menú ⋮ y «Añadir a pantalla de inicio».',
     open: 'Abrir el panel de entrenadores',
@@ -113,8 +115,8 @@ var T = {
     howT: 'How it works', flow: [['Monday, 17:00', 'Parents get a reminder with the link'], ['Parents', 'Tap their child’s name on each day'], ['Coaches', 'Open their dashboard and see who sails']],
     same: 'All three coaches see the same list: it is one page on the internet, and every change shows up for everyone at once. Nobody has to copy or send lists.',
     one: 'One coach only', all: 'All three coaches',
-    s1: 'Send the link to the parents’ group', s1t: 'Tap the green button, choose the parents’ group in WhatsApp and tap Send.',
-    wa: 'Send on WhatsApp', showMsg: 'Show the message', hideMsg: 'Hide the message', copy: 'Copy the message', copied: 'Copied. Paste it into the group.',
+    s1: 'Send the link to the parents’ group', s1t: 'Decide the language: tap one of the green buttons, choose the parents’ group in WhatsApp and tap Send.',
+    showMsg: 'Show the messages', hideMsg: 'Hide the messages', copied: 'Copied. Paste it into the group.',
     s2: 'Pin the message in the group', s2t: 'In the group, press and hold the message you just sent and tap “Pin”. That way parents can always find the link.',
     s3: 'Save the dashboard on your phone', s3t: 'The dashboard shows who sails each day and your notes. Open it and keep it: on iPhone tap Share, then “Add to Home Screen”; on Android, the ⋮ menu and “Add to Home screen”.',
     open: 'Open the coaches’ dashboard',
@@ -150,7 +152,11 @@ var g = (location.hash || '').replace(/^#/, '');
 var valid = /^[A-Za-z0-9]{20,40}$/.test(g);
 var link = BASE + '#' + g;
 var app = document.getElementById('app');
-var S = { showMsg: false, ok: '' };
+/* The coach chooses the language of the parents' message; these labels stay in their own language. */
+var SEND = { es: 'Enviar en español', en: 'Send in English' };
+var COPY = { es: 'Copiar en español', en: 'Copy in English' };
+var NAME = { es: 'Español', en: 'English' };
+var S = { showMsg: false, ok: { es: '', en: '' } };
 
 function render() {
   var l = T[lang], h = [], i;
@@ -159,16 +165,20 @@ function render() {
   h.push('<header class="hero"><div class="hero-in"><div class="top"><div class="brand">' + '<img class="logo" src="cna-logo-white.png" width="80" height="37" alt="Club Nàutic Arenal">' + '</div>' +
     '<button class="lang" data-a="lang">' + esc(l.other) + '</button></div><h1>' + esc(l.title) + '</h1><p class="sub">' + esc(valid ? l.sub : l.noLink) + '</p></div>' + WAVE + '</header>');
   if (!valid) { app.innerHTML = h.join(''); return; }
-  var msg = l.msg(link);
+  function waBtn(m) { return '<a class="btn wa" lang="' + m + '" href="https://wa.me/?text=' + esc(encodeURIComponent(T[m].msg(link))) + '" target="_blank" rel="noopener">' + esc(SEND[m]) + '</a>'; }
+  function msgBox(m) {
+    return '<p class="ml">' + esc(NAME[m]) + '</p><p class="msg" id="msg-' + m + '" lang="' + m + '">' + esc(T[m].msg(link)).split(esc(link)).join('<a href="' + esc(link) + '" target="_blank" rel="noopener">' + esc(link) + '</a>') + '</p>' +
+      '<button class="alt" data-a="copy" data-l="' + m + '">' + esc(COPY[m]) + '</button><p class="ok">' + esc(S.ok[m]) + '</p>';
+  }
   h.push('<main class="wrap">');
   var icons = [BELL, TAP, EYE];
   h.push('<section class="how"><h2>' + esc(l.howT) + '</h2><div class="flow">');
   for (i = 0; i < 3; i++) { h.push('<div class="fstep"><div class="ic">' + icons[i] + '</div><b>' + esc(l.flow[i][0]) + '</b><span>' + esc(l.flow[i][1]) + '</span></div>'); }
   h.push('</div><p class="same">' + esc(l.same) + '</p></section>');
   h.push('<section class="step"><div class="num">1</div><div class="body"><span class="tag">' + esc(l.one) + '</span><h2>' + esc(l.s1) + '</h2><p>' + esc(l.s1t) + '</p>' +
-    '<a class="btn wa" href="https://wa.me/?text=' + esc(encodeURIComponent(msg)) + '" target="_blank" rel="noopener">' + esc(l.wa) + '</a>' +
+    '<div class="wa-pair">' + waBtn('es') + waBtn('en') + '</div>' +
     '<button class="alt" data-a="msg">' + esc(S.showMsg ? l.hideMsg : l.showMsg) + '</button>' +
-    (S.showMsg ? '<p class="msg" id="msg">' + esc(msg).split(esc(link)).join('<a href="' + esc(link) + '" target="_blank" rel="noopener">' + esc(link) + '</a>') + '</p><button class="alt" data-a="copy">' + esc(l.copy) + '</button><p class="ok">' + esc(S.ok) + '</p>' : '') +
+    (S.showMsg ? msgBox('es') + msgBox('en') : '') +
     '</div></section>');
   h.push('<section class="step"><div class="num">2</div><div class="body"><span class="tag">' + esc(l.one) + '</span><h2>' + esc(l.s2) + '</h2><p>' + esc(l.s2t) + '</p></div></section>');
   h.push('<section class="step"><div class="num">3</div><div class="body"><span class="tag">' + esc(l.all) + '</span><h2>' + esc(l.s3) + '</h2><p>' + esc(l.s3t) + '</p>' +
@@ -180,9 +190,9 @@ function render() {
   h.push('</ul></section><p class="foot">⚓</p></main>');
   app.innerHTML = h.join('');
 }
-function copy() {
-  var t = T[lang].msg(link);
-  function done() { S.ok = T[lang].copied; render(); }
+function copy(m) {
+  var t = T[m].msg(link);
+  function done() { S.ok = { es: '', en: '' }; S.ok[m] = T[lang].copied; render(); }
   function fallback() {
     var a = document.createElement('textarea'); a.value = t; document.body.appendChild(a); a.select();
     try { if (document.execCommand('copy')) { done(); } } catch (e) {}
@@ -195,9 +205,9 @@ app.addEventListener('click', function (ev) {
   while (t && t !== app && !(t.getAttribute && t.getAttribute('data-a'))) { t = t.parentNode; }
   if (!t || t === app) { return; }
   a = t.getAttribute('data-a');
-  if (a === 'lang') { lang = lang === 'es' ? 'en' : 'es'; lsSet('lang', lang); S.ok = ''; render(); }
-  else if (a === 'msg') { S.showMsg = !S.showMsg; S.ok = ''; render(); }
-  else if (a === 'copy') { copy(); }
+  if (a === 'lang') { lang = lang === 'es' ? 'en' : 'es'; lsSet('lang', lang); S.ok = { es: '', en: '' }; render(); }
+  else if (a === 'msg') { S.showMsg = !S.showMsg; S.ok = { es: '', en: '' }; render(); }
+  else if (a === 'copy') { copy(t.getAttribute('data-l')); }
 });
 render();
 })();
