@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="referrer" content="no-referrer">
+<title>Guía para el entrenador · Vela</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230071E3'/%3E%3Cpath d='M16 5v19M16 6l8 15h-8M15 8L8 21h7M6 25h20' fill='none' stroke='%23fff' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="icon-180.png">
+<style>
+/* Coach's guide, same look as the sign-up page: navy sea header with a wave, then three numbered step cards
+   (send to the parents' group, pin it, put the dashboard on the home screen), a "every week" card and an "if something goes wrong" card.
+   One column; the cards stay at reading width on laptops. */
+:root{
+  color-scheme:light dark;
+  --bg:#F3F7FA; --card:#FFFFFF; --fg:#0B2545; --fg-2:#4A5D73; --line:#D3DEE8;
+  --sea:#0B6FB8; --navy:#0B2545; --navy-2:#134074; --tint:#E3F0F8; --btn:#134074; --wa:#128C4B;
+  --good:#13795B; --shadow:0 1px 2px rgba(11,37,69,.06),0 6px 20px rgba(11,37,69,.07);
+  --font:"Avenir Next",Avenir,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#07121F; --card:#0F2236; --fg:#EAF2F8; --fg-2:#9FB3C8; --line:#24405E;
+    --sea:#2F8FD8; --navy:#040C16; --navy-2:#0B2545; --tint:#16344F; --btn:#1F74B8; --wa:#1A9E58;
+    --good:#4CD3A3; --shadow:0 1px 2px rgba(0,0,0,.4); }
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font);font-size:17px;line-height:1.4;-webkit-text-size-adjust:100%}
+button{font-family:inherit}
+.hero{position:relative;color:#fff;background:linear-gradient(160deg,var(--navy) 0%,var(--navy-2) 60%,#1B5E8C 100%);padding-top:env(safe-area-inset-top)}
+.hero-in{max-width:680px;margin:0 auto;padding:14px calc(16px + env(safe-area-inset-right)) 58px calc(16px + env(safe-area-inset-left));position:relative;z-index:1}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.85)}
+.brand .logo{display:block;height:37px;width:auto}
+.lang{position:relative;flex:none;border:1px solid rgba(255,255,255,.45);background:rgba(255,255,255,.12);color:#fff;border-radius:10px;padding:2px 9px;min-height:20px;font-size:11px;font-weight:600;line-height:1.3;cursor:pointer}
+/* Half-size look, full-size tap area. */
+.lang::after{content:"";position:absolute;inset:-12px -10px}
+h1{font-size:32px;margin:18px 0 6px;line-height:1.1}
+.sub{color:rgba(255,255,255,.9);font-size:17px;margin:0}
+.sub.demo{margin-top:10px;font-weight:600}
+.wave{position:absolute;left:0;right:0;bottom:-1px;width:100%;height:46px;display:block}
+.wrap{max-width:680px;margin:0 auto;padding:4px calc(16px + env(safe-area-inset-right)) calc(40px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left))}
+.step{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:14px;box-shadow:var(--shadow);display:flex;gap:14px}
+.num{flex:none;width:38px;height:38px;border-radius:19px;background:var(--sea);color:#fff;font-weight:700;font-size:19px;display:flex;align-items:center;justify-content:center}
+.body{flex:1;min-width:0}
+.step h2{font-size:20px;margin:5px 0 6px}
+.step p{margin:0 0 10px;color:var(--fg-2)}
+.msg a{color:var(--sea);font-weight:600;text-decoration:underline;overflow-wrap:anywhere}
+.msg{white-space:pre-wrap;word-break:break-word;background:var(--tint);border-radius:12px;padding:12px 14px;font-size:15px;line-height:1.45;margin:10px 0 0;color:var(--fg)}
+.btn{display:block;width:100%;border:0;border-radius:14px;padding:13px 16px;min-height:50px;font-size:17px;font-weight:600;cursor:pointer;background:var(--btn);color:#fff;text-align:center;text-decoration:none}
+.btn.wa{background:var(--wa)}
+.wa-pair{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.ml{font-size:14px;font-weight:600;color:var(--fg-2);margin:12px 0 -6px}
+.alt{display:inline-block;margin-top:2px;min-height:44px;color:var(--sea);font-size:15px;font-weight:600;background:none;border:0;padding:4px 0;cursor:pointer;text-decoration:underline}
+.ok{color:var(--good);font-size:15px;margin:6px 0 0;min-height:20px}
+.how{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin:0 0 14px;box-shadow:var(--shadow)}
+.how h2{font-size:19px;margin:0 0 12px}
+.flow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;position:relative}
+.flow:before{content:"";position:absolute;left:16%;right:16%;top:22px;border-top:2px dashed var(--line)}
+.fstep{text-align:center;position:relative}
+.fstep .ic{width:44px;height:44px;margin:0 auto 8px;border-radius:22px;background:var(--sea);color:#fff;display:flex;align-items:center;justify-content:center}
+.fstep .ic svg{width:22px;height:22px}
+.fstep b{display:block;font-size:15px;line-height:1.2}
+.fstep span{display:block;font-size:14px;color:var(--fg-2);line-height:1.3;margin-top:3px}
+.same{margin:14px 0 0;padding:12px 14px;background:var(--tint);border-radius:12px;font-size:16px}
+.tag{display:inline-block;font-size:13px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;color:var(--sea);background:var(--tint);border-radius:20px;padding:3px 10px;margin:2px 0 4px}
+.box{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin:22px 0 14px;box-shadow:var(--shadow)}
+.box h2{font-size:19px;margin:0 0 8px;display:flex;align-items:center;gap:8px}
+.box h2 svg{width:22px;height:22px;color:var(--sea)}
+.box ul{margin:0;padding-left:20px}
+.box li{margin:6px 0}
+.box b{color:var(--fg)}
+.foot{margin-top:26px;font-size:13px;color:var(--fg-2);text-align:center}
+@media (min-width:900px){ h1{font-size:42px} .wave{height:70px} .hero-in{padding-bottom:76px} }
+</style>
+</head>
+<body>
+<div id="app"><p style="padding:20px">Cargando… / Loading…</p></div>
+<noscript><p style="padding:20px">Esta página necesita JavaScript. This page needs JavaScript.</p></noscript>
+<script>
+/* Coach's guide. Own code is ES5 on purpose (var and function only). The group id comes from the link's #part,
+   exactly as on the sign-up page, so this file holds no group link of its own. */
+(function () {
+'use strict';
+var BASE = 'https://tasar1-ship-it.github.io/sailing-signup/';
+var LS = 'ss1_';
+var T = {
+  es: {
+    other: 'English', brand: 'Vela', title: 'Guía para los entrenadores',
+    sub: 'Se prepara una vez. Después, los padres se apuntan solos y vosotros solo miráis el panel.',
+    howT: 'Cómo funciona', flow: [['Lunes, 17:00', 'Los padres que añadieron el recordatorio reciben un aviso con el enlace'], ['Padres', 'Ven solo a su hijo/a y lo tocan en cada día'], ['Entrenadores', 'Abren su panel y ven quién va']],
+    same: 'Los tres entrenadores veis la misma lista: es una sola página en internet y cada cambio aparece al momento para todos. Nadie tiene que copiar ni enviar listas.',
+    one: 'Solo un entrenador', all: 'Los tres entrenadores',
+    s1: 'Envía el enlace al grupo de padres', s1t: 'Elige el idioma: toca uno de los botones verdes, elige el grupo de padres en WhatsApp y toca Enviar.',
+    showMsg: 'Ver los mensajes', hideMsg: 'Ocultar los mensajes', copied: 'Copiado. Pégalo en el grupo.',
+    s2: 'Fija el mensaje en el grupo', s2t: 'En el grupo, mantén pulsado el mensaje que acabas de enviar y toca «Fijar». Así los padres siempre encuentran el enlace.',
+    s3: 'Pon el panel en la pantalla de inicio', s3t: 'El panel muestra quién va cada día, el plan y vuestras notas. Ábrelo en Safari (en Android, en Chrome), no dentro de WhatsApp, y añádelo a la pantalla de inicio para tenerlo a un toque: en el iPhone, Compartir → «Añadir a pantalla de inicio»; en Android, menú ⋮ → «Añadir a pantalla de inicio». No hay que guardar nada: la lista, el plan y las notas se guardan y se actualizan solos.',
+    open: 'Abrir el panel de entrenadores',
+    weekT: 'Cada semana', week: [
+      '<b>Lunes, 17:00:</b> los padres reciben un aviso en su calendario con el enlace (si una vez añadieron el «Recordatorio cada lunes» a su calendario).',
+      '<b>Cuando llega el plan de la semana:</b> uno de vosotros lo copia de WhatsApp, abre el panel y toca «📋 Pegar el plan de la semana». Revisa lo que sale y guárdalo: los padres lo ven bajo cada día.',
+      '<b>Antes de cada día de vela</b> (miércoles, viernes, sábado, domingo): cada padre toca el nombre de su hijo/a en los días que navega. Cada padre solo ve a su hijo/a; vosotros veis a todos en el panel.',
+      '<b>Antes de salir:</b> cualquiera de vosotros abre el panel y ve quién va cada día y las notas de los entrenadores (p. ej. hora de salida).'],
+    helpT: 'Si algo falla', help: [
+      '<b>Un padre no ve la lista:</b> es normal: cada padre solo ve a su hijo/a. La primera vez escribe su nombre en «Tu hijo/a» y lo toca; el móvil lo recuerda.',
+      '<b>Falta un niño:</b> sus padres escriben su nombre en «Tu hijo/a» y tocan «Añadir … a la lista».',
+      '<b>Alguien apuntado por error:</b> sus padres tocan su nombre y luego «Quitar».',
+      '<b>Nombre repetido o mal escrito:</b> quítalo en el panel, al final: «Nombres de la lista».',
+      '<b>El mensaje llegó dos veces al grupo:</b> no pasa nada; el que lo envió borra uno.'],
+    msg: function (link) {
+      return "*Asistencia: a partir de ahora, solo por el enlace*\n\nHola, familias:\n\nPara que este grupo funcione mejor para todos, hacemos un cambio. A partir de esta semana, la asistencia se apunta solo aquí:\n\n" + link + "\n\nAbrid el enlace. La primera vez, escribid el nombre de vuestro hijo o hija y tocadlo: el móvil lo recuerda y solo veréis su nombre. Después, tocad su nombre en cada día que venga. Si cambia algo, cambiadlo allí.\n\n¿Está enfermo/a o llega tarde? Tocad el nombre otra vez y elegid «Enfermo/a» o «Llega tarde». Si llega tarde, la página también os ofrece un WhatsApp ya escrito para el entrenador.\n\n¿Por qué?\n\nEste grupo lleva casi 1.700 mensajes, y unos 400 han sido solo para decir quién viene y cuándo. Los mensajes que de verdad importan se pierden entre las listas. Además, vamos a mejorar cómo os informamos de las horas de recogida, los cambios de plan y dónde recoger a los niños.\n\nLos entrenadores pasamos tiempo contando nombres en vez de preparar el entreno. Ese tiempo es para los niños.\n\nPor favor, no escribáis la asistencia en el grupo: solo contamos lo que está en el enlace.\n\n¡Gracias!\nFinn";
+    },
+    noLink: 'Abre esta guía con el enlace completo que te enviaron.',
+    demo: 'Vista de ejemplo: el enlace del mensaje es de prueba y el botón abre el panel de ejemplo.'
+  },
+  en: {
+    other: 'Español', brand: 'Sailing', title: 'Coaches’ guide',
+    sub: 'Set up once. After that, parents sign up by themselves and you just look at the dashboard.',
+    howT: 'How it works', flow: [['Monday, 17:00', 'Parents who added the reminder get one with the link'], ['Parents', 'See only their own child and tap them on each day'], ['Coaches', 'Open their dashboard and see who sails']],
+    same: 'All three coaches see the same list: it is one page on the internet, and every change shows up for everyone at once. Nobody has to copy or send lists.',
+    one: 'One coach only', all: 'All three coaches',
+    s1: 'Send the link to the parents’ group', s1t: 'Choose the language: tap one of the green buttons, choose the parents’ group in WhatsApp and tap Send.',
+    showMsg: 'Show the messages', hideMsg: 'Hide the messages', copied: 'Copied. Paste it into the group.',
+    s2: 'Pin the message in the group', s2t: 'In the group, press and hold the message you just sent and tap “Pin”. That way parents can always find the link.',
+    s3: 'Put the dashboard on your home screen', s3t: 'The dashboard shows who sails each day, the plan and your notes. Open it in Safari (Chrome on Android), not inside WhatsApp, and add it to your home screen, so it is one tap away next time: iPhone, Share → “Add to Home Screen”; Android, ⋮ menu → “Add to Home screen”. You never need to save anything: the list, the plan and your notes save and update by themselves.',
+    open: 'Open the coaches’ dashboard',
+    weekT: 'Every week', week: [
+      '<b>Monday, 17:00:</b> parents get a reminder in their calendar with the link (if they once added the “Monday reminder” to their calendar).',
+      '<b>When the week’s plan arrives:</b> one of you copies it from WhatsApp, opens the dashboard and taps “📋 Paste the week’s plan”. Check what comes out and save it: parents see it under each day.',
+      '<b>Before each sailing day</b> (Wednesday, Friday, Saturday, Sunday): each parent taps their child’s name on the days they sail. Each parent sees only their own child; you see everyone on the dashboard.',
+      '<b>Before you go out:</b> any of you opens the dashboard and sees who sails each day and the coaches’ notes (e.g. start time).'],
+    helpT: 'If something goes wrong', help: [
+      '<b>A parent cannot see the list:</b> that is normal: each parent sees only their own child. The first time, they type the name under “Your child” and tap it; the phone remembers it.',
+      '<b>A child is missing:</b> their parents type the name under “Your child” and tap “Add … to the list”.',
+      '<b>Someone signed up by mistake:</b> their parents tap the name, then “Remove”.',
+      '<b>Duplicate or misspelled name:</b> remove it at the bottom of the dashboard, under “Names on the list”.',
+      '<b>The message reached the group twice:</b> no problem; whoever sent it deletes one.'],
+    msg: function (link) {
+      return "*Attendance: from now on, only through the link*\n\nHello, families,\n\nTo make this group work better for everyone, we are making one change. Starting this week, attendance is recorded only here:\n\n" + link + "\n\nOpen the link. The first time, type your child's name and tap it: your phone remembers it, and you will only see your child's name. Then tap their name for each day they are coming. If anything changes, change it there.\n\nSick or running late? Tap your child's name again and choose \"Sick\" or \"Running late\". For a late arrival, the page also offers a ready-written WhatsApp message to the coach.\n\nWhy?\n\nThis group has almost 1,700 messages, and about 400 of them were only to say who is coming and when. The messages that really matter get lost in the lists. We are also going to improve how we inform you about pick-up times, plan changes, and where to collect the children.\n\nWe coaches spend time counting names instead of preparing training. That time belongs to the children.\n\nPlease don't post attendance in the group: we only count what is on the page.\n\nThank you!\nFinn";
+    },
+    noLink: 'Open this guide with the full link you were sent.',
+    demo: 'Example view: the link in the message is a sample, and the button opens the example dashboard.'
+  }
+};
+var WAVE = '<svg class="wave" viewBox="0 0 1440 80" preserveAspectRatio="none" aria-hidden="true"><path d="M0 34C200 6 380 64 620 40S1060 2 1240 26 1440 38 1440 38V80H0z" style="fill:var(--bg);opacity:.35"/><path d="M0 52C240 26 460 78 720 54S1180 22 1440 50V80H0z" style="fill:var(--bg)"/></svg>';
+var CAL = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>';
+var BELL = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg>';
+var TAP = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11V5.5a1.5 1.5 0 0 1 3 0V11"/><path d="M12 10.5V9a1.5 1.5 0 0 1 3 0v2"/><path d="M15 10.5a1.5 1.5 0 0 1 3 0V15a6 6 0 0 1-6 6h-1a6 6 0 0 1-5-2.7L3.5 14.6a1.5 1.5 0 0 1 2.4-1.8L9 15"/></svg>';
+var EYE = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
+var LIFE = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="M5.6 5.6l3.6 3.6M14.8 14.8l3.6 3.6M18.4 5.6l-3.6 3.6M9.2 14.8l-3.6 3.6"/></svg>';
+
+function lsGet(k) { try { return localStorage.getItem(LS + k); } catch (e) { return null; } }
+function lsSet(k, v) { try { localStorage.setItem(LS + k, v); } catch (e) {} }
+var ESC = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return ESC[c]; }); }
+var lang = lsGet('lang');
+if (lang !== 'es' && lang !== 'en') { lang = /^en/i.test(navigator.language || '') ? 'en' : 'es'; }
+/* Since 1.3.0 of the dashboard the guide's link is #<group>-<coach>: the parents' message gets only the group key,
+   the dashboard button gets both. */
+var km = /^([A-Za-z0-9]{20,40})-([A-Za-z0-9]{16,40})$/.exec((location.hash || '').replace(/^#/, ''));
+/* ?demo shows the whole guide with a sample link and the example dashboard, without any group or coach key (3 Nov 2026). */
+var DEMO = !km && /[?&]demo\b/.test(location.search);
+var valid = !!km || DEMO, g = km ? km[1] : (DEMO ? 'EJEMPLO' : ''), ck = km ? km[2] : '';
+var link = BASE + '#' + g;
+var app = document.getElementById('app');
+/* The coach chooses the language of the parents' message; these labels stay in their own language. */
+var SEND = { es: 'Enviar en español', en: 'Send in English' };
+var COPY = { es: 'Copiar en español', en: 'Copy in English' };
+var NAME = { es: 'Español', en: 'English' };
+var S = { showMsg: false, ok: { es: '', en: '' } };
+
+function render() {
+  var l = T[lang], h = [], i;
+  document.documentElement.lang = lang;
+  document.title = l.title + ' · ' + l.brand;
+  h.push('<header class="hero"><div class="hero-in"><div class="top"><div class="brand">' + '<img class="logo" src="cna-logo-white.png" width="80" height="37" alt="Club Nàutic Arenal">' + '</div>' +
+    '<button class="lang" data-a="lang">' + esc(l.other) + '</button></div><h1>' + esc(l.title) + '</h1><p class="sub">' + esc(valid ? l.sub : l.noLink) + '</p>' + (DEMO ? '<p class="sub demo">' + esc(l.demo) + '</p>' : '') + '</div>' + WAVE + '</header>');
+  if (!valid) { app.innerHTML = h.join(''); return; }
+  function waBtn(m) { return '<a class="btn wa" lang="' + m + '" href="https://wa.me/?text=' + esc(encodeURIComponent(T[m].msg(link))) + '" target="_blank" rel="noopener">' + esc(SEND[m]) + '</a>'; }
+  function msgBox(m) {
+    return '<p class="ml">' + esc(NAME[m]) + '</p><p class="msg" id="msg-' + m + '" lang="' + m + '">' + esc(T[m].msg(link)).split(esc(link)).join('<a href="' + esc(link) + '" target="_blank" rel="noopener">' + esc(link) + '</a>') + '</p>' +
+      '<button class="alt" data-a="copy" data-l="' + m + '">' + esc(COPY[m]) + '</button><p class="ok">' + esc(S.ok[m]) + '</p>';
+  }
+  h.push('<main class="wrap">');
+  var icons = [BELL, TAP, EYE];
+  h.push('<section class="how"><h2>' + esc(l.howT) + '</h2><div class="flow">');
+  for (i = 0; i < 3; i++) { h.push('<div class="fstep"><div class="ic">' + icons[i] + '</div><b>' + esc(l.flow[i][0]) + '</b><span>' + esc(l.flow[i][1]) + '</span></div>'); }
+  h.push('</div><p class="same">' + esc(l.same) + '</p></section>');
+  h.push('<section class="step"><div class="num">1</div><div class="body"><span class="tag">' + esc(l.one) + '</span><h2>' + esc(l.s1) + '</h2><p>' + esc(l.s1t) + '</p>' +
+    '<div class="wa-pair">' + waBtn('es') + waBtn('en') + '</div>' +
+    '<button class="alt" data-a="msg">' + esc(S.showMsg ? l.hideMsg : l.showMsg) + '</button>' +
+    (S.showMsg ? msgBox('es') + msgBox('en') : '') +
+    '</div></section>');
+  h.push('<section class="step"><div class="num">2</div><div class="body"><span class="tag">' + esc(l.one) + '</span><h2>' + esc(l.s2) + '</h2><p>' + esc(l.s2t) + '</p></div></section>');
+  h.push('<section class="step"><div class="num">3</div><div class="body"><span class="tag">' + esc(l.all) + '</span><h2>' + esc(l.s3) + '</h2><p>' + esc(l.s3t) + '</p>' +
+    '<a class="btn" href="' + esc(DEMO ? BASE + 'dashboard.html?demo' : BASE + 'dashboard.html#' + g + '-' + ck) + '" target="_blank" rel="noopener">' + esc(l.open) + '</a></div></section>');
+  h.push('<section class="box"><h2>' + CAL + esc(l.weekT) + '</h2><ul>');
+  for (i = 0; i < l.week.length; i++) { h.push('<li>' + l.week[i] + '</li>'); }
+  h.push('</ul></section><section class="box"><h2>' + LIFE + esc(l.helpT) + '</h2><ul>');
+  for (i = 0; i < l.help.length; i++) { h.push('<li>' + l.help[i] + '</li>'); }
+  h.push('</ul></section><p class="foot">⚓</p></main>');
+  app.innerHTML = h.join('');
+}
+function copy(m) {
+  var t = T[m].msg(link);
+  function done() { S.ok = { es: '', en: '' }; S.ok[m] = T[lang].copied; render(); }
+  function fallback() {
+    var a = document.createElement('textarea'); a.value = t; document.body.appendChild(a); a.select();
+    try { if (document.execCommand('copy')) { done(); } } catch (e) {}
+    document.body.removeChild(a);
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(t).then(done, fallback); } else { fallback(); }
+}
+app.addEventListener('click', function (ev) {
+  var t = ev.target, a;
+  while (t && t !== app && !(t.getAttribute && t.getAttribute('data-a'))) { t = t.parentNode; }
+  if (!t || t === app) { return; }
+  a = t.getAttribute('data-a');
+  if (a === 'lang') { lang = lang === 'es' ? 'en' : 'es'; lsSet('lang', lang); S.ok = { es: '', en: '' }; render(); }
+  else if (a === 'msg') { S.showMsg = !S.showMsg; S.ok = { es: '', en: '' }; render(); }
+  else if (a === 'copy') { copy(t.getAttribute('data-l')); }
+});
+render();
+})();
+</script>
+</body>
+</html>

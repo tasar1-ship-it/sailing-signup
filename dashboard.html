@@ -1,0 +1,823 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="referrer" content="no-referrer">
+<title>Panel de entrenadores · Vela</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230071E3'/%3E%3Cpath d='M16 5v19M16 6l8 15h-8M15 8L8 21h7M6 25h20' fill='none' stroke='%23fff' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="icon-180.png">
+<style>
+/* Coaches' dashboard: the sign-up page's header (logo, language, week switcher), then one card per day with who
+   sails (and the parent's note) and a shared coach's note that saves itself. Phones: one column. From 640px:
+   two columns, weekdays left (Wednesday above Friday), weekend right (Saturday above Sunday). */
+:root{
+  color-scheme:light dark;
+  --bg:#F3F7FA; --card:#FFFFFF; --field:#FFFFFF; --fg:#0B2545; --fg-2:#4A5D73; --line:#D3DEE8;
+  --sea:#0B6FB8; --navy:#0B2545; --navy-2:#134074; --tint:#E3F0F8; --good:#13795B; --bad:#C2273B;
+  --shadow:0 1px 2px rgba(11,37,69,.06),0 6px 20px rgba(11,37,69,.07);
+  --f0:#2E9A5C; --f1:#2F7FC8; --f2:#2F7FC8; --f3:#2E9A5C; --sun:#F5A83A; --sun-soft:#FFCB80;
+  --d0:#D9F0E0; --d0l:#8FCBA3; --d1:#DCEBF8; --d1l:#93BFE6; --d2:#C6DDF3; --d2l:#78ABDA; --d3:#EAF6EE; --d3l:#B3DEC0;
+  --font:"Avenir Next",Avenir,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#07121F; --card:#0F2236; --field:#132B44; --fg:#EAF2F8; --fg-2:#9FB3C8; --line:#24405E;
+    --sea:#2F8FD8; --navy:#040C16; --navy-2:#0B2545; --tint:#16344F; --good:#4CD3A3; --bad:#FF6B7D; --shadow:0 1px 2px rgba(0,0,0,.4);
+    --d0:#13301F; --d0l:#33694A; --d1:#12263D; --d1l:#2E5785; --d2:#16304F; --d2l:#3A6A9E; --d3:#10261A; --d3l:#2A573C; }
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font);font-size:17px;line-height:1.35;-webkit-text-size-adjust:100%}
+button,textarea{font-family:inherit}
+.hero{position:relative;color:#fff;background:linear-gradient(160deg,var(--navy) 0%,var(--navy-2) 60%,#1B5E8C 100%);padding-top:env(safe-area-inset-top)}
+.hero-in{max-width:900px;margin:0 auto;padding:14px calc(16px + env(safe-area-inset-right)) 54px calc(16px + env(safe-area-inset-left));position:relative;z-index:1}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.logo{display:block;height:37px;width:auto}
+.lang{position:relative;flex:none;border:1px solid rgba(255,255,255,.45);background:rgba(255,255,255,.12);color:#fff;border-radius:10px;padding:2px 9px;min-height:20px;font-size:11px;font-weight:600;line-height:1.3;cursor:pointer}
+.lang::after{content:"";position:absolute;top:-12px;right:-10px;bottom:-12px;left:-10px}
+h1{font-size:32px;margin:36px 0 6px;letter-spacing:-.01em;line-height:1.1;font-weight:700;color:var(--sun)}
+.sub{color:var(--sun-soft);font-size:16px;margin:0}
+.week{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:18px 0 0;max-width:520px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:16px;padding:6px}
+.week b{font-size:17px;text-align:center;flex:1;font-weight:600;color:var(--sun)}
+.nav{flex:none;width:44px;height:44px;border-radius:12px;border:0;background:rgba(255,255,255,.16);color:#fff;font-size:24px;line-height:1;cursor:pointer}
+.wave{position:absolute;left:0;right:0;bottom:-1px;width:100%;height:46px;display:block}
+.wrap{max-width:900px;margin:0 auto;padding:4px calc(16px + env(safe-area-inset-right)) calc(36px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left))}
+.bar{background:var(--bad);color:#fff;border-radius:12px;padding:10px 12px;font-size:15px;margin:0 0 12px}
+.muted{color:var(--fg-2);font-size:16px;margin:0}
+.grid{display:grid;grid-template-columns:minmax(0,1fr);gap:14px}
+@media (min-width:640px){ .grid{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:auto auto;grid-auto-flow:column;align-items:start} }
+.day0{--cardbg:var(--d0);--cardline:var(--d0l)} .day1{--cardbg:var(--d1);--cardline:var(--d1l);--cardbw:1.5px} .day2{--cardbg:var(--d2);--cardline:var(--d2l);--cardbw:1.5px} .day3{--cardbg:var(--d3);--cardline:var(--d3l)}
+.card{background:var(--cardbg,var(--card));border:var(--cardbw,1px) solid var(--cardline,var(--line));border-radius:18px;padding:16px 16px 14px;box-shadow:var(--shadow);min-width:0}
+.card h2{font-size:20px;margin:0 0 8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.flag{width:22px;height:22px;flex:none}
+.n{margin-left:auto;font-size:15px;font-weight:600;color:var(--sea);background:var(--tint);border-radius:20px;padding:4px 10px;white-space:nowrap}
+.card ul{margin:4px 0 0;padding-left:22px}
+.card li{font-size:17px;margin:4px 0;overflow-wrap:anywhere}
+.card li span{color:var(--fg-2);font-size:15px}
+.card li.sick{color:var(--fg-2)}
+.none{color:var(--fg-2);font-style:italic;margin:4px 0 0;font-size:16px}
+.note{margin-top:12px;padding-top:10px;border-top:1px solid var(--cardline,var(--line))}
+.note label{display:block;font-size:14px;font-weight:600;color:var(--fg-2);margin-bottom:5px}
+.note textarea{display:block;width:100%;min-height:62px;resize:vertical;font-size:16px;line-height:1.35;padding:9px 11px;border-radius:12px;border:1.5px solid var(--cardline,var(--line));background:var(--field);color:var(--fg)}
+.note textarea:focus{outline:none;border-color:var(--sea)}
+.st{font-size:13px;color:var(--fg-2);margin:4px 2px 0;min-height:17px}
+.st.ok{color:var(--good)} .st.err{color:var(--bad)}
+.ver{margin-top:26px;font-size:13px;color:var(--fg-2);text-align:center}
+/* Week plan (1.2.0): a paste box that reads the coach's WhatsApp plan, a preview to check, then one plan line per day
+   that the parents see on the sign-up page. */
+button{font-family:inherit}
+.pastebtn{display:block;width:100%;margin:0 0 14px;border:1.5px dashed var(--sea);background:var(--card);color:var(--sea);border-radius:14px;padding:12px 14px;min-height:48px;font-size:17px;font-weight:600;cursor:pointer;text-align:left}
+.paste{background:var(--card);border:1.5px solid var(--sea);border-radius:18px;padding:16px;margin:0 0 14px;box-shadow:var(--shadow)}
+.paste h3{margin:0 0 4px;font-size:19px}
+.paste textarea{display:block;width:100%;margin-top:10px;min-height:150px;resize:vertical;font-size:16px;line-height:1.35;padding:9px 11px;border-radius:12px;border:1.5px solid var(--line);background:var(--field);color:var(--fg)}
+.paste textarea:focus{outline:none;border-color:var(--sea)}
+.btns{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.btn{border:0;border-radius:14px;padding:11px 16px;min-height:46px;font-size:16px;font-weight:600;cursor:pointer;background:var(--tint);color:var(--fg)}
+.btn.primary{background:var(--sea);color:#fff}
+.prev{margin-top:12px;padding:10px 12px;border-radius:12px;background:var(--tint)}
+.prev ul{margin:6px 0 0;padding-left:20px}
+.prev li{margin:5px 0;font-size:16px;overflow-wrap:anywhere}
+.prev li i{color:var(--fg-2)}
+.prev li em{display:block;font-style:normal;color:var(--bad);font-size:14px}
+.warn{color:var(--bad);font-size:15px;margin:8px 0 0}
+.okmsg{color:var(--good);font-size:15px;margin:-6px 2px 14px}
+.field{margin:0 0 10px}
+.field label{display:block;font-size:14px;font-weight:600;color:var(--fg-2);margin-bottom:5px}
+.field textarea{display:block;width:100%;min-height:46px;resize:vertical;overflow:hidden;font-size:16px;font-weight:600;line-height:1.35;padding:8px 11px;border-radius:12px;border:1.5px solid var(--cardline,var(--line));background:var(--field);color:var(--fg)}
+.field textarea:focus{outline:none;border-color:var(--sea)}
+/* Names on the list (1.4.0): coaches remove a duplicate or misspelt name, after a confirming second tap. */
+.namesbtn{margin:22px 0 0}
+.names{margin-top:22px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:var(--shadow)}
+.names h3{margin:0 0 4px;font-size:19px}
+.names ul{list-style:none;margin:10px 0 0;padding:0}
+.names li{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;padding:6px 0;border-top:1px solid var(--line)}
+.names li:first-child{border-top:0}
+.names li b{flex:1;min-width:0;font-weight:500;overflow-wrap:anywhere}
+.names li b small{display:block;font-size:14px;color:var(--fg-2);font-weight:400}
+.slow{margin:4px 0 14px}
+.slow .btn{margin-top:8px}
+.names .ask{flex-basis:100%;margin:0;font-size:16px;font-weight:600}
+.btn.danger{color:var(--bad)}
+.btn.dangerfill{background:var(--bad);color:#fff}
+.names .okmsg{margin:10px 0 0}
+.field textarea::placeholder{font-weight:400;color:var(--fg-2);opacity:.8}
+</style>
+</head>
+<body>
+<div id="app"><p style="padding:20px">Cargando… / Loading…</p></div>
+<noscript><p style="padding:20px">Esta página necesita JavaScript. This page needs JavaScript.</p></noscript>
+<script src="firebase-app-compat.js"></script>
+<script src="firebase-auth-compat.js"></script>
+<script src="firebase-database-compat.js"></script>
+<script>
+/* Coaches' dashboard. Own code is ES5 on purpose (var and function only). Reads the same group as the sign-up page
+   (link #<group>-<coach>, since 1.3.0); writes coach/<g>/notes/<Friday>/<day> {text, at} (coaches only) and, since 1.2.0,
+   groups/<g>/plan/<Friday>/<day> {text, at} (shown to the parents). */
+(function () {
+'use strict';
+var VERSION = '1.9.1';
+var FB = {
+  apiKey: 'AIzaSyD3Q2TRCGlCkJPd8wvf8aijdQU8a0oJXmc',
+  authDomain: 'sailing-signup.firebaseapp.com',
+  databaseURL: 'https://sailing-signup-default-rtdb.europe-west1.firebasedatabase.app',
+  projectId: 'sailing-signup',
+  appId: '1:1090198402941:web:30a83e8de794f93cff7e14'
+};
+var LS = 'ss1_';
+var T = {
+  es: {
+    other: 'English', title: 'Panel de entrenadores', sub: 'Quién navega cada día. Se actualiza solo.',
+    days: ['Viernes', 'Sábado', 'Domingo', 'Miércoles'], months: ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'],
+    weekend: 'Semana', prev: 'Semana anterior', next: 'Semana siguiente', loading: 'Cargando…', nobody: 'nadie apuntado',
+    slow: 'Todavía conectando… Revisa la señal.', retry: 'Reintentar',
+    namesBtn: function (n) { return '👥 Nombres de la lista (' + n + ')'; }, namesT: 'Nombres de la lista',
+    namesHelp: 'Quita un nombre repetido o mal escrito. Se borra de todas las semanas y los padres dejan de verlo.',
+    removeKid: 'Quitar', removeAsk: function (n) { return '¿Quitar a ' + n + ' de la lista?'; }, removeYes: 'Sí, quitar', namesDone: 'Listo',
+    removed: function (n) { return n + ' ya no está en la lista.'; }, removeFail: 'No se pudo quitar el nombre. Revisa la conexión e inténtalo otra vez.',
+    count: function (n) { return n + (n === 1 ? ' apuntado' : ' apuntados'); }, sick: 'Enfermo/a', late: 'Llega tarde',
+    noteLabel: 'Nota del entrenador', notePh: 'P. ej. salida 10:00, traer neopreno',
+    saving: 'Guardando…', saved: 'Guardado', saveFail: 'No se guardó. Revisa la conexión.',
+    offline: 'Sin conexión. Deja la página abierta: las notas se guardarán al volver la conexión.',
+    readFail: 'No se pudo leer la lista. Revisa la conexión y recarga.', connFail: 'No se pudo conectar. Revisa la conexión y recarga.',
+    noLink: 'Abre el panel con el enlace completo de la guía de entrenadores.',
+    oldLink: 'Este enlace no es el de entrenadores. Abre el panel desde la guía de entrenadores (enlace nuevo de Ronald).',
+    badKey: 'El enlace de entrenadores no es válido o ha cambiado. Pide a Ronald el enlace nuevo.',
+    planLabel: 'Plan del día (lo ven los padres)', planPh: 'P. ej. 15:00 Agua · Finn',
+    pasteBtn: '📋 Pegar el plan de la semana', pasteT: 'Plan de la semana',
+    pasteHelp: 'Pega el mensaje del plan tal cual, de WhatsApp. Revisa lo que sale y guárdalo: aparece debajo de cada día en la página de los padres.',
+    pastePh: 'Pega aquí el mensaje', read: 'Leer el plan', cancel: 'Cancelar', savePlan: 'Guardar en la lista',
+    previewT: 'Revisa antes de guardar', unchanged: 'no está en el mensaje, no se cambia',
+    noDays: 'No encontré ningún día (miércoles, viernes, sábado o domingo). Revisa el texto pegado.',
+    skipped: function (d) { return d + ': la lista no tiene ese día, no se guarda.'; },
+    cut: 'demasiado largo: se guardan los primeros 200 caracteres',
+    otherWeek: function (d) { return d + ': es de otra semana, no se guarda. Pega ese día por separado.'; },
+    badDate: function (d) { return d + ': la fecha no coincide con el día, no se guarda. Revisa el mensaje.'; },
+    unclear: function (d) { return d + ': no entiendo la fecha, no se guarda. Escríbela así: Miércoles 11 nov.'; },
+    noWeek: 'Las fechas no cuadran con ninguna semana: no se guarda nada. Revisa las fechas.',
+    planSaved: 'Plan guardado. Los padres lo ven debajo de cada día.', planFail: 'El plan no se guardó. Revisa la conexión.'
+  },
+  en: {
+    other: 'Español', title: 'Coaches’ dashboard', sub: 'Who sails each day. Updates by itself.',
+    days: ['Friday', 'Saturday', 'Sunday', 'Wednesday'], months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+    weekend: 'Week', prev: 'Previous week', next: 'Next week', loading: 'Loading…', nobody: 'nobody signed up',
+    slow: 'Still connecting… Check your signal.', retry: 'Try again',
+    namesBtn: function (n) { return '👥 Names on the list (' + n + ')'; }, namesT: 'Names on the list',
+    namesHelp: 'Remove a duplicate or misspelt name. It goes from every week and parents no longer see it.',
+    removeKid: 'Remove', removeAsk: function (n) { return 'Remove ' + n + ' from the list?'; }, removeYes: 'Yes, remove', namesDone: 'Done',
+    removed: function (n) { return n + ' is no longer on the list.'; }, removeFail: 'Could not remove the name. Check the connection and try again.',
+    count: function (n) { return n + ' signed up'; }, sick: 'Sick', late: 'Running late',
+    noteLabel: 'Coach’s note', notePh: 'E.g. start 10:00, bring a wetsuit',
+    saving: 'Saving…', saved: 'Saved', saveFail: 'Not saved. Check the connection.',
+    offline: 'Offline. Keep this page open: notes will be saved when the connection is back.',
+    readFail: 'Could not read the list. Check the connection and reload.', connFail: 'Could not connect. Check the connection and reload.',
+    noLink: 'Open the dashboard with the full link from the coaches’ guide.',
+    oldLink: 'This is not the coaches’ link. Open the dashboard from the coaches’ guide (new link from Ronald).',
+    badKey: 'The coaches’ link is not valid or has changed. Ask Ronald for the new link.',
+    planLabel: 'Plan for the day (parents see it)', planPh: 'E.g. 15:00 Water · Finn',
+    pasteBtn: '📋 Paste the week’s plan', pasteT: 'The week’s plan',
+    pasteHelp: 'Paste the plan message as it is, from WhatsApp. Check what comes out and save it: it appears under each day on the parents’ page.',
+    pastePh: 'Paste the message here', read: 'Read the plan', cancel: 'Cancel', savePlan: 'Save to the list',
+    previewT: 'Check before saving', unchanged: 'not in the message, left as it is',
+    noDays: 'No day found (Wednesday, Friday, Saturday or Sunday). Check the pasted text.',
+    skipped: function (d) { return d + ': the list has no such day, not saved.'; },
+    cut: 'too long: the first 200 characters are saved',
+    otherWeek: function (d) { return d + ': belongs to another week, not saved. Paste that day on its own.'; },
+    badDate: function (d) { return d + ': the date does not match the day, not saved. Check the message.'; },
+    unclear: function (d) { return d + ': date not understood, not saved. Write it like: Wednesday 11 Nov.'; },
+    noWeek: 'None of the dates fits a week: nothing is saved. Check the dates.',
+    planSaved: 'Plan saved. Parents see it under each day.', planFail: 'The plan was not saved. Check the connection.'
+  }
+};
+var LOGO = '<img class="logo" src="cna-logo-white.png" width="80" height="37" alt="Club Nàutic Arenal">';
+var WAVE = '<svg class="wave" viewBox="0 0 1440 80" preserveAspectRatio="none" aria-hidden="true"><path d="M0 34C200 6 380 64 620 40S1060 2 1240 26 1440 38 1440 38V80H0z" style="fill:var(--bg);opacity:.35"/><path d="M0 52C240 26 460 78 720 54S1180 22 1440 50V80H0z" style="fill:var(--bg)"/></svg>';
+var FLAGS = ['var(--f0)', 'var(--f1)', 'var(--f2)', 'var(--f3)'];
+function flag(i) { return '<svg class="flag" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 2.5v19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M6 3.5l14 5.5-14 5.5z" style="fill:' + FLAGS[i] + '"/></svg>'; }
+function lsGet(k) { try { return localStorage.getItem(LS + k); } catch (e) { return null; } }
+function lsSet(k, v) { try { localStorage.setItem(LS + k, v); } catch (e) {} }
+var lang = lsGet('lang');
+if (lang !== 'es' && lang !== 'en') { lang = /^en/i.test(navigator.language || '') ? 'en' : 'es'; }
+function L() { return T[lang]; }
+var ESC = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return ESC[c]; }); }
+function pad(n) { return n < 10 ? '0' + n : '' + n; }
+
+/* Same week logic as the sign-up page: Mon-Fri shows the coming Friday's week, Saturday and Sunday until 18:00 the
+   current one, from Sunday 18:00 the coming one (1.4.0). The time is taken once, when the page opens; a page brought
+   back to the screen after its week has ended moves on to the new week (1.7.0, see resume()).
+   Days: 0 Friday, 1 Saturday, 2 Sunday, 3 Wednesday (two days before Friday). */
+var ORDER = [3, 0, 1, 2];
+var NOW = new Date();
+function friday(offset) {
+  var d = new Date(NOW.getTime()); d.setHours(12, 0, 0, 0);
+  var wd = d.getDay(), back = wd === 6 ? 1 : (wd === 0 ? (NOW.getHours() >= 18 ? -5 : 2) : -(5 - wd));
+  d.setDate(d.getDate() - back + 7 * offset);
+  return d;
+}
+function weekId(offset) { var d = friday(offset); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+function dayDate(offset, i) { var d = friday(offset); d.setDate(d.getDate() + (i === 3 ? -2 : i)); return d; }
+function weekLabel(offset) {
+  var a = dayDate(offset, 3), b = dayDate(offset, 2), m = L().months;
+  var s = a.getMonth() === b.getMonth() ? a.getDate() : a.getDate() + ' ' + m[a.getMonth()];
+  return s + ' – ' + b.getDate() + ' ' + m[b.getMonth()];
+}
+
+var app = document.getElementById('app');
+/* draft and st are keyed 'n<day>' (coach's note) or 'p<day>' (plan line). paste is the paste box. */
+var S = { fatal: '', week: 0, kids: {}, picks: {}, notes: {}, plan: {}, loaded: false, offline: false, wasOn: false, draft: {}, st: {}, paste: { open: false, text: '', res: null, msg: '' }, names: { open: false, ask: null, msg: '', err: false } };
+var store = null, offWeek = null, timers = {}, redrawing = false;
+
+/* ---------- stores: Firebase, or in memory for ?demo ---------- */
+/* Since 1.3.0 the dashboard link carries a second key, the coaches' key: #<group>-<coach>. Opening it registers this
+   browser as a coach (coachUids/<g>/<uid> = coach key; the rules accept it only if it equals coachKey/<g>, which no
+   browser can read). Only registered coaches can write the plan and read or write coach notes, which moved from
+   groups/<g>/coachNotes (readable with the parents' link) to coach/<g>/notes. */
+function fbStore(g, c) {
+  var ready = new Promise(function (res, rej) {
+    if (typeof firebase === 'undefined') { rej('no-sdk'); return; }
+    try { firebase.initializeApp(FB); } catch (e) { rej('no-sdk'); return; }
+    firebase.auth().signInAnonymously().then(function (cred) {
+      var db = firebase.database(), uid = (cred && cred.user && cred.user.uid) || firebase.auth().currentUser.uid;
+      db.ref('coachUids/' + g + '/' + uid).set(c).then(function () { moveOldNotes(db).then(function () { res(db); }); }, function () { rej('badKey'); });
+    })['catch'](function (e) { rej((e && e.code) || 'no-auth'); });
+  });
+  function base(db) { return db.ref('groups/' + g); }
+  function notesRef(db) { return db.ref('coach/' + g + '/notes'); }
+  /* Notes written before 1.3.0 are copied to the coaches-only place, then removed from the parents' readable one. */
+  function moveOldNotes(db) {
+    var old = base(db).child('coachNotes');
+    return old.once('value').then(function (s) {
+      var v = s.val(), jobs = [], w, d;
+      if (!v) { return; }
+      for (w in v) { if (v.hasOwnProperty(w)) { for (d in v[w]) { if (v[w].hasOwnProperty(d)) { jobs.push(copyNote(db, w, d, v[w][d])); } } } }
+      return Promise.all(jobs).then(function () { return old.remove(); });
+    })['catch'](function () {});
+  }
+  function copyNote(db, w, d, n) {
+    var r = notesRef(db).child(w + '/' + d);
+    return r.once('value').then(function (s) { if (!s.exists() && n && n.text) { return r.set({ text: String(n.text).slice(0, 500), at: n.at || 0 }); } });
+  }
+  function put(r, text) { return text ? r.set({ text: text, at: firebase.database.ServerValue.TIMESTAMP }) : r.remove(); }
+  return {
+    ready: ready,
+    onKids: function (cb) { ready.then(function (db) { base(db).child('kids').on('value', function (s) { cb(s.val() || {}); }, onFail); }); },
+    /* A week left before sign-in finished must not start listening afterwards (1.6.0): it kept sending the old
+       week's plan into S.plan, and the 1.5.1 "unchanged" check then skipped a real change. */
+    onWeek: function (w, cbPicks, cbNotes, cbPlan) {
+      var a = null, b = null, c = null, gone = false;
+      ready.then(function (db) {
+        if (gone) { return; }
+        a = base(db).child('picks/' + w); a.on('value', function (s) { cbPicks(s.val() || {}); }, onFail);
+        b = notesRef(db).child(w); b.on('value', function (s) { cbNotes(s.val() || {}); }, onFail);
+        c = base(db).child('plan/' + w); c.on('value', function (s) { cbPlan(s.val() || {}); }, function () { cbPlan({}); });
+      });
+      return function () { gone = true; if (a) { a.off(); } if (b) { b.off(); } if (c) { c.off(); } };
+    },
+    setNote: function (w, day, text) { return ready.then(function (db) { return put(notesRef(db).child(w + '/' + day), text); }); },
+    setPlan: function (w, day, text) { return ready.then(function (db) { return put(base(db).child('plan/' + w + '/' + day), text); }); },
+    removeKid: function (k) { return ready.then(function (db) { return base(db).child('kids/' + k).remove(); }); },
+    onConn: function (cb) { ready.then(function (db) { db.ref('.info/connected').on('value', function (s) { cb(!!s.val()); }); }); },
+    reconnect: function () { ready.then(function (db) { if (db.goOffline && db.goOnline) { db.goOffline(); db.goOnline(); } }); }
+  };
+}
+function memStore() {
+  var kids = { k1: { name: 'Ana' }, k2: { name: 'Bruno' }, k3: { name: 'Carla' }, k4: { name: 'Dani' } }, picks = {}, notes = {}, plan = {}, cbs = {}, kidsCb = null;
+  var w0 = weekId(0); picks[w0] = { 1: { k1: { note: '', at: 1 }, k3: { note: 'hasta las 14', at: 2 } }, 2: { k2: { note: '', at: 1 } } };
+  function copy(o) { return JSON.parse(JSON.stringify(o || {})); }
+  function emit(w) { if (cbs[w]) { cbs[w][0](copy(picks[w])); cbs[w][1](copy(notes[w])); cbs[w][2](copy(plan[w])); } }
+  function put(m, w, day, text) { m[w] = m[w] || {}; if (text) { m[w][day] = { text: text, at: new Date().getTime() }; } else { delete m[w][day]; } emit(w); return Promise.resolve(); }
+  return {
+    ready: Promise.resolve(),
+    onKids: function (cb) { kidsCb = cb; setTimeout(function () { cb(copy(kids)); }, 0); },
+    removeKid: function (k) { delete kids[k]; if (kidsCb) { kidsCb(copy(kids)); } return Promise.resolve(); },
+    onWeek: function (w, a, b, c) { cbs[w] = [a, b, c]; setTimeout(function () { emit(w); }, 0); return function () { delete cbs[w]; }; },
+    setNote: function (w, day, text) { return put(notes, w, day, text); },
+    setPlan: function (w, day, text) { return put(plan, w, day, text); },
+    onConn: function () {}
+  };
+}
+function onFail() { S.fatal = 'readFail'; render(); }
+
+/* ---------- actions ---------- */
+/* Leaving a box saves it, and the store answers at once. A redraw at that moment would replace the button the coach
+   is tapping, so the tap was lost (1.2.1). Data updates therefore wait while a finger or mouse button is down. */
+var held = false, pendingRender = false, releaseTimer = 0;
+function renderSoon() { if (held) { pendingRender = true; return; } render(); }
+function hold() { held = true; clearTimeout(releaseTimer); }
+function release() { held = false; if (pendingRender) { pendingRender = false; render(); } }
+function releaseLater() { clearTimeout(releaseTimer); releaseTimer = setTimeout(release, 400); }
+document.addEventListener('mousedown', hold, true);
+document.addEventListener('touchstart', hold, true);
+document.addEventListener('mouseup', releaseLater, true);
+document.addEventListener('touchend', releaseLater, true);
+document.addEventListener('touchcancel', releaseLater, true);
+document.addEventListener('click', function () { clearTimeout(releaseTimer); release(); }, false);
+/* S.planFor = the week whose plan S.plan holds, set when it arrives (1.6.0). */
+function watchWeek() {
+  var w = weekId(S.week);
+  if (offWeek) { offWeek(); }
+  S.picks = {}; S.notes = {}; S.plan = {}; S.planFor = ''; S.draft = {}; S.st = {}; S.mine = {}; S.picksIn = ''; S.notesIn = ''; S.slow = false;
+  /* The week's lists still missing after 5 s: "Todavía conectando…" with Reintentar (1.9.1); the boxes stay locked. */
+  setTimeout(function () { if (w === weekId(S.week) && !weekReady() && !S.fatal) { S.slow = true; render(); } }, 5000);
+  offWeek = store.onWeek(w, function (v) { S.picks = v; S.picksIn = w; renderSoon(); }, function (v) { S.notes = v; S.notesIn = w; renderSoon(); }, function (v) { S.plan = v; S.planFor = w; renderSoon(); });
+}
+/* The week on screen has its sign-ups, notes and plan (1.9.0). Until then the cards say "Cargando…" instead of
+   "0 apuntados / nadie apuntado", and the note and plan boxes cannot be typed in, so nothing overwrites a saved text
+   the coach has not seen yet. */
+function weekReady() { var w = weekId(S.week); return S.picksIn === w && S.notesIn === w && S.planFor === w; }
+function noteText(d) { var n = S.notes[d]; return n && n.text ? n.text : ''; }
+function planText(d) { var n = S.plan[d]; return n && n.text ? n.text : ''; }
+/* k is 'n<day>' (coach's note, up to 500 characters) or 'p<day>' (plan line, one line, up to 200). */
+function tidyField(k, v) {
+  v = String(v);
+  if (k.charAt(0) === 'p') { v = v.replace(/\s*\n\s*/g, ' · ').replace(/[ \t]+/g, ' '); }
+  return v.replace(/^\s+|\s+$/g, '').slice(0, k.charAt(0) === 'p' ? 200 : 500);
+}
+/* The box a coach is typing in keeps exactly what was typed until it is left (1.7.0): the saved text is tidied (no
+   space or line break at the end), and showing that while typing joined words ("Aguacon Finn"). */
+function typingIn() { var a = document.activeElement; return (a && a.getAttribute && a.getAttribute('data-k')) || ''; }
+function dropDraft(k) { if (typingIn() !== k) { delete S.draft[k]; } }
+/* Saves are plain writes again (1.9.0): the 1.7.0 merge in a database transaction doubled text on a slow connection,
+   showed "Guardado" when nothing was saved and could wipe or bring back another coach's text. If two coaches save the
+   same box at the same moment, the later save wins, as before 1.7.0.
+   S.mine[k] = the text this coach last saved in that box. Leaving a box whose text is still what this coach saved
+   writes nothing, so a note another coach emptied or changed meanwhile is not written back. */
+function saveField(k) {
+  if (!(k in S.draft)) { return; }
+  var d = +k.slice(1), isPlan = k.charAt(0) === 'p', text = tidyField(k, S.draft[k]), w = weekId(S.week),
+    now = isPlan ? planText(d) : noteText(d);
+  if (text === now || (k in S.mine && text === S.mine[k])) { dropDraft(k); if (!(k in S.draft)) { renderSoon(); } return; }
+  S.st[k] = 'saving'; paintStatus(k);
+  (isPlan ? store.setPlan : store.setNote)(w, d, text).then(function () {
+    if (w !== weekId(S.week)) { return; }
+    S.st[k] = 'saved'; S.mine[k] = text;
+    if (S.draft[k] !== undefined && tidyField(k, S.draft[k]) === text) { dropDraft(k); }
+    paintStatus(k);
+  })['catch'](function () { S.st[k] = 'err'; paintStatus(k); });
+}
+
+/* ---------- the coach's WhatsApp plan -> one line per day ----------
+   Reads lines such as "• Miércoles 4 NOVIEMBRE: 15h Entrenamiento agua. MARTA GARCIA"; a line without a day name
+   (e.g. "ADRI-NANDO-MIGUEL") belongs to the day above it. Times "15h" / "9:45H" become 15:00 / 9:45; names in capitals
+   (four letters or more) become Marta Garcia; short capitals such as CNA stay. The dates pick the week.
+   Since 1.5.0 (audit M-2, L-1): one line can name several days ("Sábado y domingo: ..."; "Fin de semana" / "finde" =
+   Saturday and Sunday), short day names count (Mié, Vie, Sáb, Dom) and short months are dates ("11 nov", "sept").
+   Since 1.6.0 (fresh-eyes review, 4 Nov 2026): the reader never guesses the week. A day whose date it cannot read is
+   not saved and is named in the preview; when the message has dates but none fits a week, nothing is saved. It also
+   reads WhatsApp bold (*Sábado*), "Sábado 14 y domingo 15 de noviembre", "del 14 al 15", "día 11", "11th",
+   "November 11", "14/15 nov", "Miércoles 11 – 15h", Catalan months, "Viernes a domingo", numbered lists, Android
+   copies, accents typed as two characters, and Miérc., Vier., Juev., Mart. */
+function fold(s) { return String(s).toLowerCase().replace(/[áàä]/g, 'a').replace(/[éèë]/g, 'e').replace(/[íìï]/g, 'i').replace(/[óòö]/g, 'o').replace(/[úùü]/g, 'u'); }
+var DAYW = { miercoles: 3, viernes: 0, sabado: 1, domingo: 2, wednesday: 3, friday: 0, saturday: 1, sunday: 2 };
+var OTHERW = { lunes: 1, martes: 1, jueves: 1, monday: 1, tuesday: 1, thursday: 1 };
+/* Short day names count only where they look like a heading (see headingRest). "Mar movido", "MAR-NANDO", "Mar 1 m"
+   or "Sun cream" stays a note under the day above. */
+var DAYS_SHORT = { mie: 3, mier: 3, mierc: 3, vie: 0, vier: 0, sab: 1, dom: 2, wed: 3, fri: 0, sat: 1, sun: 2 };
+var OTHER_SHORT = { lun: 1, mar: 1, mart: 1, jue: 1, juev: 1, mon: 1, tue: 1, tues: 1, thu: 1, thur: 1, thurs: 1 };
+var ORDER_POS = { 3: 0, 0: 1, 1: 2, 2: 3 };
+var WEEKEND = /^(fin\s+de\s+semana|finde|weekend)(?![a-z])/;
+var MONTHS = { enero: 0, febrero: 1, marzo: 2, abril: 3, mayo: 4, junio: 5, julio: 6, agosto: 7, septiembre: 8, setiembre: 8, octubre: 9, noviembre: 10, diciembre: 11,
+  january: 0, february: 1, march: 2, april: 3, may: 4, june: 5, july: 6, august: 7, september: 8, october: 9, november: 10, december: 11,
+  gener: 0, febrer: 1, 'març': 2, maig: 4, juny: 5, juliol: 6, agost: 7, setembre: 8, novembre: 10, desembre: 11 };
+/* A month by its full name or its first three letters or more ("nov", "nov.", "sept", "dic"); -1 if none. */
+function monthOf(word) {
+  var w = fold(word), k;
+  if (MONTHS.hasOwnProperty(w)) { return MONTHS[w]; }
+  if (w.length >= 3) { for (k in MONTHS) { if (MONTHS.hasOwnProperty(k) && k.indexOf(w) === 0) { return MONTHS[k]; } } }
+  return -1;
+}
+function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase(); }
+var ORD = '(?:st|nd|rd|th|º|ª)?';
+var TIME_START = /^\d{1,2}(?:[:.]\d{2})?\s*h\b|^\d{1,2}[:.]\d{2}(?!\d)/i;
+/* The date at the start of what follows the day names: { date, month, rest } (month -1 = not given), { unclear, rest }
+   when it starts with a number that is neither a date we can read nor a time, or { rest } when there is no date. */
+function readDate(rest) {
+  /* "(11/11)" and "- 11/11" are dates too (1.7.0): before, they were read as "no date" and the week on screen was used. */
+  var r = rest.replace(/^(?:el|del|d[ií]a|the|on)\s+(?=\d)/i, '').replace(/^(?:\(\s*|[–-]\s*)(?=\d)/, ''), m, mo, d1, d2;
+  m = new RegExp('^(\\d{1,2})' + ORD + '(?:\\s*(?:-|–|y|al|a|&|\\/|to)\\s*(\\d{1,2})' + ORD + ')?(?:\\s+de)?\\s+([^\\s:,.\\d)]+)\\.?\\)?[\\s,.:]*([\\s\\S]*)$', 'i').exec(r);
+  if (m && (mo = monthOf(m[3])) >= 0) { d1 = +m[1]; d2 = m[2] ? +m[2] : 0; return { date: d1, month: d2 && d1 > d2 ? (mo + 11) % 12 : mo, rest: m[4] }; }
+  m = new RegExp('^([^\\s:,.\\d]+)\\.?\\s+(\\d{1,2})' + ORD + '(?!\\d|[:.]\\d|\\s*h\\b)[\\s,.:;–-]*([\\s\\S]*)$', 'i').exec(r);
+  if (m && (mo = monthOf(m[1])) >= 0) { return { date: +m[2], month: mo, rest: m[3] }; }
+  m = /^(\d{1,2})\/(\d{1,2})(?:\/\d{2,4})?(?!\d)[\s:,.)–-]*([\s\S]*)$/.exec(r);
+  if (m && +m[2] >= 1 && +m[2] <= 12) { return { date: +m[1], month: +m[2] - 1, rest: m[3] }; } /* "Miércoles 4/11" (1.2.3) */
+  /* "14.11" is a date (1.7.0) when its second number is this month or next month; it used to be read as the time
+     14:11. Anything else stays a time: "10.30", "9.45", "9.05h", and "Sábado 10.10" in November (10:10, not 10 Oct,
+     which would put the plan in a past week). */
+  m = /^(\d{1,2})\.(\d{1,2})(?:\.\d{2,4})?(?!\d|\s*h\b)[\s:,.)–-]*([\s\S]*)$/i.exec(r);
+  if (m && +m[1] >= 1 && +m[1] <= 31 && (+m[2] - 1 === NOW.getMonth() || +m[2] - 1 === (NOW.getMonth() + 1) % 12)) { return { date: +m[1], month: +m[2] - 1, rest: m[3] }; }
+  if (!TIME_START.test(r)) {
+    m = new RegExp('^(\\d{1,2})' + ORD + '(?:\\s*(?:-|–|y|al|a|&|\\/)\\s*(\\d{1,2})' + ORD + ')?(?:\\s*[:,.;](?!\\d)|\\s+[–-](?:\\s|$)|\\s*$)([\\s\\S]*)$', 'i').exec(r);
+    if (m) { return { date: +m[1], month: -1, rest: m[3] }; } /* "Miércoles 4: ...", "Miércoles 11 – 15h", "14-15:" */
+  }
+  if (/^\d/.test(r) && !TIME_START.test(r)) { return { unclear: true, rest: rest }; }
+  return { rest: rest };
+}
+/* A short day name alone heads a line only when a colon, a dash and a space, a readable date, a time or the end of the
+   line follows it. */
+function headingRest(r) {
+  return /^$|^:|^[–-](?:\s|$)/.test(r) || !!readDate(r).date || TIME_START.test(r);
+}
+/* One day word at the start of s: { days: [...] } for a sailing day or the weekend, { other: true } for Mon, Tue, Thu. */
+function dayToken(s) {
+  var m = WEEKEND.exec(fold(s)), t, k;
+  if (m) { return { days: [1, 2], len: m[1].length, label: s.slice(0, m[1].length), short: false }; }
+  t = /^([^\s:,.\d\/&+–-]+)/.exec(s);
+  if (!t) { return null; }
+  k = fold(t[1]);
+  if (DAYW.hasOwnProperty(k)) { return { days: [DAYW[k]], len: t[1].length, label: t[1], short: false }; }
+  if (OTHERW.hasOwnProperty(k)) { return { other: true, len: t[1].length, label: t[1], short: false }; }
+  if (DAYS_SHORT.hasOwnProperty(k)) { return { days: [DAYS_SHORT[k]], len: t[1].length, label: t[1], short: true }; }
+  if (OTHER_SHORT.hasOwnProperty(k)) { return { other: true, len: t[1].length, label: t[1], short: true }; }
+  return null;
+}
+var JOINER = /^[\s.]*(?:[,\/&+–-]|(?:y|and|a|al|to|hasta)(?=\s))\s*/i;
+var RANGE_JOIN = /^[\s.]*(?:[–-]|a|al|to|hasta)\s*$/i;
+/* The day words heading a line ("Sábado y domingo", "Fin de semana", "Viernes a domingo", "Sábado 14 y domingo 15"):
+   { days, others, dates, word, rest } or null. A date between two day names belongs to the first (1.6.0). */
+function readHead(line) {
+  var s = line, tok = dayToken(line), h = { days: [], others: [], dates: [], word: '', rest: '' }, n = 0, isShort = false, j, nx, i, dm, range = false, last = -1, a, b;
+  if (!tok) { return null; }
+  while (tok) {
+    n++; if (tok.short) { isShort = true; }
+    if (!h.word) { h.word = cap(tok.label); }
+    if (tok.other) { h.others.push(cap(tok.label)); }
+    else {
+      /* "Viernes a domingo", "Viernes-Domingo": every sailing day from the first to the last. */
+      if (range && last >= 0) { a = ORDER_POS[last]; b = ORDER_POS[tok.days[0]]; for (i = a + 1; i < b; i++) { if (h.days.indexOf(ORDER[i]) < 0) { h.days.push(ORDER[i]); } } }
+      for (i = 0; i < tok.days.length; i++) { if (h.days.indexOf(tok.days[i]) < 0) { h.days.push(tok.days[i]); } }
+      last = tok.days[tok.days.length - 1];
+    }
+    s = s.slice(tok.len);
+    dm = new RegExp('^[\\s.]*(\\d{1,2})' + ORD + '(?:\\s+(?:de\\s+)?([^\\s:,.\\d]+)\\.?)?(?=' + JOINER.source.slice(1) + ')', 'i').exec(s);
+    if (dm && (!dm[2] || monthOf(dm[2]) >= 0)) {
+      j = JOINER.exec(s.slice(dm[0].length));
+      if (j && dayToken(s.slice(dm[0].length + j[0].length))) { h.dates.push({ d: +dm[1], m: dm[2] ? monthOf(dm[2]) : -1 }); s = s.slice(dm[0].length); }
+    }
+    j = JOINER.exec(s);
+    nx = j ? dayToken(s.slice(j[0].length)) : null;
+    if (!nx) { break; }
+    range = RANGE_JOIN.test(j[0]);
+    s = s.slice(j[0].length); tok = nx;
+  }
+  h.rest = s.replace(/^[\s,.]+/, '');
+  if (isShort && n === 1 && !headingRest(h.rest)) { return null; }
+  return h;
+}
+var KEEP = { OPTI: 1, ILCA: 1, RFEV: 1, FBVELA: 1, CNSA: 1 };
+var UP = 'A-ZÁÉÍÓÚÜÑÀÈÒÇÏ', LOW = 'a-záéíóúüñàèòçï';
+/* A dot after these words is an abbreviation, not the end of a sentence (1.6.0). */
+var ABBREV = /(?:^|[^A-Za-zÀ-ÿ])(?:aprox|approx|pto|avda|av|ej|etc|sr|sra|dr|n[ºo]|min|m[aá]x|uds?|p|c)$/i;
+function tidyPart(s) {
+  s = s.replace(/\b(\d{1,2})[:.](\d{2})\s*h\b/gi, '$1:$2').replace(/\b(\d{1,2})\s*h\b/gi, function (m, n, off, str) {
+    /* "Entreno de 2h" is a length, not a clock time (1.6.0). */
+    return /(?:^|\s)(?:de|durante|unas?|for|about)\s*$/i.test(str.slice(0, off)) ? m : n + ':00';
+  });
+  s = s.replace(new RegExp('([' + UP + ']{2,})\\s*-\\s*(?=[' + UP + ']{2,})', 'g'), '$1, ');
+  s = s.replace(new RegExp('(^|[^' + UP + LOW + '])([' + UP + ']{4,})(?![' + LOW + '])', 'g'), function (m, a, w) {
+    /* Club and class abbreviations stay in capitals: no vowel (RCNP) or a known one (1.2.3). */
+    return KEEP.hasOwnProperty(w) || !/[AEIOUÁÉÍÓÚÜÀÈÒÏ]/.test(w) ? m : a + w.charAt(0) + w.slice(1).toLowerCase(); });
+  s = s.replace(/\.\s+/g, function (m, off, str) { return ABBREV.test(str.slice(0, off)) ? m : ' · '; });
+  return s.replace(/[.\s]+$/, '').replace(/\s+/g, ' ').replace(/^[\s:·,–-]+/, '');
+}
+/* A copy of several WhatsApp messages starts each line with "[09:53, 2/11/2026] Joan: " (iPhone) or
+   "2/11/26, 9:53 - Joan: " (Android); drop it (1.2.2, Android 1.6.0). */
+var WA_PREFIX = /^\[(?=[^\]]*\d)(?=[^\]]*[:\/])[^\]]{5,30}\]\s*[^:\n]{1,40}:\s*/;
+var WA_ANDROID = /^\d{1,2}\/\d{1,2}\/\d{2,4},?\s+\d{1,2}:\d{2}(?::\d{2})?(?:\s*[ap]\.?\s*m\.?)?\s+[–-]\s+[^:\n]{1,40}:\s*/i;
+var INVISIBLE = /[‎‏‪-‮⁦-⁩﻿]/g;
+var NOT_LETTER = new RegExp('^[^0-9A-Za-z' + 'ÁÉÍÓÚÜÑÀÈÒÇÏáéíóúüñàèòçï' + ']+');
+var LIST_NUMBER = /^(?:\d{1,2}[.)]\s+|\d️?⃣\s*)/;
+/* WhatsApp formatting: *bold*, _italic_, ~strike~ (1.6.0). */
+function unformat(s) { return s.replace(/[*~]+/g, '').replace(/(^|[\s(])_+|_+(?=[\s:.,;)!?]|$)/g, '$1'); }
+function sameDate(d, x) { return d.getDate() === x.date && (x.month < 0 || d.getMonth() === x.month); }
+/* A line for several days ("Sábado y domingo 7 y 8 nov") fits a week when its date is one of those days. */
+function fits(o, x) { var i; for (i = 0; i < x.days.length; i++) { if (sameDate(dayDate(o, x.days[i]), x)) { return true; } } return false; }
+function weekOf(x) {
+  var k, o;
+  for (k = 0; k <= 16; k++) {
+    o = S.week + (k % 2 ? (k + 1) / 2 : -k / 2);
+    if (o >= -8 && o <= 8 && fits(o, x)) { return o; }
+  }
+  return null;
+}
+function parsePlan(text) {
+  var lines, out = [], skipped = [], cur = null, i, k, line, h, rest, rd, d0, probe;
+  text = String(text || '');
+  if (text.normalize) { text = text.normalize('NFC'); }
+  lines = text.split(/\r?\n/);
+  for (i = 0; i < lines.length; i++) {
+    line = unformat(lines[i].replace(INVISIBLE, '').replace(WA_PREFIX, '').replace(WA_ANDROID, '')).replace(/^[\s•*·–—-]+/, '').replace(/\s+$/, '');
+    if (!line) { continue; }
+    /* A list number ("1. Miércoles", "1️⃣ Miércoles") or an emoji ("🔹 Miércoles") before the day word does not hide it. */
+    probe = line.replace(LIST_NUMBER, '');
+    if (probe !== line && readHead(probe)) { line = probe; }
+    probe = line.replace(NOT_LETTER, '');
+    if (probe !== line && readHead(probe)) { line = probe; }
+    h = readHead(line);
+    for (k = 0; h && k < h.others.length; k++) { skipped.push(h.others[k]); }
+    if (h && h.days.length) {
+      cur = { days: h.days, date: 0, month: -1, parts: [], word: h.word, unclear: false, label: line.split(':')[0].slice(0, 40) };
+      rd = readDate(h.rest); rest = rd.rest;
+      if (h.dates.length) {
+        d0 = h.dates[0]; cur.date = d0.d;
+        cur.month = d0.m >= 0 ? d0.m : (rd.date && rd.month >= 0 ? (d0.d > rd.date ? (rd.month + 11) % 12 : rd.month) : -1);
+        if (rd.unclear) { rest = rest.replace(/^\d{1,2}\S*\s*/, ''); }
+      } else if (rd.date) { cur.date = rd.date; cur.month = rd.month; }
+      else if (rd.unclear) { cur.unclear = true; }
+      rest = rest.replace(/^[:\s–-]+/, '');
+      if (rest) { cur.parts.push(rest); }
+      out.push(cur);
+    } else if (h) {
+      cur = null;
+    } else if (cur) { cur.parts.push(line); }
+  }
+  var res = { week: S.week, days: {}, cut: {}, skipped: skipped, wrong: [], unclear: [], noWeek: false, none: !out.length }, o, j, d, found = false, asked = false, parts, t, all;
+  /* The week: the first dated day that falls within two months either side of now, nearest to the week on screen first. */
+  for (j = 0; j < out.length; j++) {
+    if (out[j].date || out[j].unclear) { asked = true; }
+    if (!found && out[j].date) { o = weekOf(out[j]); if (o !== null) { res.week = o; found = true; } }
+  }
+  /* The message names dates, but none fits a week, or the only dates cannot be read: then no day is saved, so
+     nothing lands in the week on screen by guesswork (1.6.0). */
+  if (asked && !found) { res.noWeek = true; }
+  for (j = 0; j < out.length; j++) {
+    if (out[j].unclear) { res.unclear.push(out[j].label); out[j].bad = true; }
+    else if (out[j].date && !fits(res.week, out[j])) {
+      /* Every other dated day must fall in that week; a later week's day used to overwrite this week's (1.2.3). */
+      res.wrong.push({ label: out[j].word + ' ' + out[j].date, other: weekOf(out[j]) !== null }); out[j].bad = true;
+    } else if (res.noWeek) { out[j].bad = true; }
+  }
+  for (j = 0; j < out.length; j++) {
+    if (out[j].bad) { continue; }
+    parts = [];
+    for (i = 0; i < out[j].parts.length; i++) { t = tidyPart(out[j].parts[i]); if (t) { parts.push(t); } }
+    t = parts.join(' · ');
+    if (!t) { continue; }
+    for (k = 0; k < out[j].days.length; k++) {
+      d = out[j].days[k];
+      all = res.days[d] ? res.days[d] + ' · ' + t : t;
+      if (all.length > 200) { res.cut[d] = true; }
+      res.days[d] = all.slice(0, 200);
+    }
+  }
+  return res;
+}
+function readPaste() {
+  /* A page opened before Sunday 18:00 and pasted into after it reads the plan for the new week (1.9.0). */
+  checkWeek();
+  var res = parsePlan(S.paste.text);
+  S.paste.res = res; S.paste.msg = '';
+  if (res.week !== S.week) { saveDrafts(); S.week = res.week; watchWeek(); }
+  render();
+}
+/* A day whose saved plan already reads exactly the same is not written again (1.5.1), so its time stays and the
+   parents' page keeps showing when that day's plan really changed ("actualizado ..."). Only when S.plan is known to be
+   the pasted week's plan (S.planFor, 1.6.0); otherwise every day is written. */
+/* While the plan is being sent the button says "Guardando…" and cannot be tapped again (1.9.0): a second tap found the
+   plan already on the coach's own screen, sent nothing and said "Plan guardado" during a dropped connection. */
+function copyPaste(P) { return { open: P.open, text: P.text, res: P.res, msg: P.msg }; }
+function savePaste() {
+  if (S.paste.busy) { return; }
+  var res = S.paste.res, w = weekId(res.week), jobs = [], d, known = S.planFor === w, mine = S.paste;
+  S.paste.busy = true; S.paste.msg = '';
+  for (d in res.days) {
+    if (res.days.hasOwnProperty(d)) {
+      if (!(known && planText(+d) === res.days[d])) { jobs.push(store.setPlan(w, +d, res.days[d])); }
+      delete S.draft['p' + d];
+    }
+  }
+  render();
+  /* The answer only acts on the paste it belongs to (1.9.1): reopened or re-read meanwhile, it is ignored. */
+  Promise.all(jobs).then(function () { if (S.paste !== mine || !mine.busy) { return; } S.paste = { open: false, text: '', res: null, msg: 'planSaved' }; render(); })
+    ['catch'](function () { if (S.paste !== mine) { return; } S.paste.busy = false; S.paste.msg = 'planFail'; render(); });
+}
+function saveDrafts() { var k; for (k in S.draft) { if (S.draft.hasOwnProperty(k)) { saveField(k); } } }
+function paintStatus(k) {
+  var el = document.getElementById('st' + k); if (!el) { return; }
+  var s = S.st[k], l = L();
+  el.className = 'st' + (s === 'saved' ? ' ok' : s === 'err' ? ' err' : '');
+  el.textContent = s === 'saving' ? l.saving : s === 'saved' ? l.saved : s === 'err' ? l.saveFail : '';
+}
+
+/* ---------- render ---------- */
+/* Parents mark sick or late as a mark at the start of their note (sign-up page 1.7.0). */
+var MARKS = { sick: '🤒', late: '⏰' };
+function parseNote(note) {
+  var st;
+  note = note || '';
+  for (st in MARKS) { if (note.indexOf(MARKS[st]) === 0) { return { st: st, text: note.slice(MARKS[st].length).replace(/^ /, '') }; } }
+  return { st: '', text: note };
+}
+function showNote(note) {
+  var n = parseNote(note), l = L();
+  return (n.st ? MARKS[n.st] + ' ' + l[n.st] : '') + (n.st && n.text ? ' · ' : '') + n.text;
+}
+function sailing(list) { var n = 0, j; for (j = 0; j < list.length; j++) { if (!list[j].sick) { n++; } } return n; }
+function picked(d) {
+  var p = S.picks[d] || {}, out = [], k;
+  for (k in p) { if (S.kids[k]) { out.push({ name: S.kids[k].name, note: p[k].note || '', at: p[k].at || 0, sick: parseNote(p[k].note).st === 'sick' }); } }
+  out.sort(function (a, b) { return a.at - b.at; });
+  return out;
+}
+function hasKeys(o) { var k; for (k in o) { if (o.hasOwnProperty(k)) { return true; } } return false; }
+function pasteHtml(l) {
+  var P = S.paste, h = [], o, d, res = P.res, j;
+  if (!P.open) {
+    h.push('<button class="pastebtn" data-a="pasteopen">' + esc(l.pasteBtn) + '</button>');
+    if (P.msg) { h.push('<p class="okmsg">' + esc(l[P.msg]) + '</p>'); }
+    return h.join('');
+  }
+  h.push('<section class="paste"><h3>' + esc(l.pasteT) + '</h3><p class="muted">' + esc(l.pasteHelp) + '</p>');
+  h.push('<textarea id="pastebox" placeholder="' + esc(l.pastePh) + '">\n' + esc(P.text) + '</textarea>');
+  if (!res) {
+    h.push('<div class="btns"><button class="btn primary" data-a="pasteread">' + esc(l.read) + '</button><button class="btn" data-a="pasteclose">' + esc(l.cancel) + '</button></div>');
+  } else if (res.none) {
+    h.push('<p class="warn">' + esc(l.noDays) + '</p><div class="btns"><button class="btn" data-a="pasteclose">' + esc(l.cancel) + '</button></div>');
+  } else {
+    h.push('<div class="prev"><b>' + esc(l.previewT + ' · ' + l.weekend + ' ' + weekLabel(res.week)) + '</b><ul>');
+    for (o = 0; o < ORDER.length; o++) {
+      d = ORDER[o];
+      h.push('<li><b>' + esc(l.days[d] + ' ' + dayDate(res.week, d).getDate()) + ':</b> ' + (res.days.hasOwnProperty(d) ? esc(res.days[d]) : '<i>' + esc(l.unchanged) + '</i>') +
+        (res.cut[d] ? '<em>' + esc(l.cut) + '</em>' : '') + '</li>');
+    }
+    h.push('</ul>');
+    for (j = 0; j < res.skipped.length; j++) { h.push('<p class="warn">' + esc(l.skipped(res.skipped[j])) + '</p>'); }
+    for (j = 0; j < res.wrong.length; j++) { h.push('<p class="warn">' + esc(res.wrong[j].other ? l.otherWeek(res.wrong[j].label) : l.badDate(res.wrong[j].label)) + '</p>'); }
+    for (j = 0; j < res.unclear.length; j++) { h.push('<p class="warn">' + esc(l.unclear(res.unclear[j])) + '</p>'); }
+    if (res.noWeek) { h.push('<p class="warn">' + esc(l.noWeek) + '</p>'); }
+    /* Nothing to save: no Save button, so "Plan saved" never shows for a message that saved nothing (1.6.0). */
+    h.push('</div><div class="btns">' + (hasKeys(res.days) ? '<button class="btn primary" data-a="pastesave"' + (P.busy ? ' disabled' : '') + '>' + esc(P.busy ? l.saving : l.savePlan) + '</button>' : '') + '<button class="btn" data-a="pasteclose">' + esc(l.cancel) + '</button></div>');
+  }
+  if (P.msg) { h.push('<p class="warn">' + esc(l[P.msg]) + '</p>'); }
+  h.push('</section>');
+  return h.join('');
+}
+/* Names on the list (1.4.0): closed by default; "Quitar" asks once more before the name is deleted. */
+function kidDays(k) {
+  var out = [], o, d;
+  for (o = 0; o < ORDER.length; o++) { d = ORDER[o]; if (S.picks[d] && S.picks[d][k]) { out.push(L().days[d] + ' ' + dayDate(S.week, d).getDate()); } }
+  return out.join(', ');
+}
+function namesHtml(l) {
+  var N = S.names, list = [], h = [], k, j;
+  for (k in S.kids) { if (S.kids.hasOwnProperty(k) && S.kids[k] && S.kids[k].name) { list.push({ id: k, name: String(S.kids[k].name) }); } }
+  list.sort(function (a, b) { return a.name.localeCompare(b.name); });
+  var msg = N.msg ? '<p class="' + (N.err ? 'warn' : 'okmsg') + '">' + esc(N.msg) + '</p>' : '';
+  if (!N.open) { return '<button class="pastebtn namesbtn" data-a="namesopen">' + esc(l.namesBtn(list.length)) + '</button>' + msg; }
+  h.push('<section class="names"><h3>' + esc(l.namesT) + '</h3><p class="muted">' + esc(l.namesHelp) + '</p><ul>');
+  for (j = 0; j < list.length; j++) {
+    /* The days this child is signed up for in the week on screen (1.8.0), so of two equal names the coach can see
+       which one holds the sign-ups before removing one. */
+    h.push('<li><b>' + esc(list[j].name) + (kidDays(list[j].id) ? '<small>' + esc(kidDays(list[j].id)) + '</small>' : '') + '</b>');
+    if (N.ask === list[j].id) {
+      h.push('<p class="ask">' + esc(l.removeAsk(list[j].name)) + '</p><button class="btn dangerfill" data-a="kidyes" data-kid="' + esc(list[j].id) + '">' + esc(l.removeYes) + '</button><button class="btn" data-a="kidno">' + esc(l.cancel) + '</button>');
+    } else {
+      h.push('<button class="btn danger" data-a="kidask" data-kid="' + esc(list[j].id) + '">' + esc(l.removeKid) + '</button>');
+    }
+    h.push('</li>');
+  }
+  h.push('</ul>' + msg + '<div class="btns"><button class="btn" data-a="namesclose">' + esc(l.namesDone) + '</button></div></section>');
+  return h.join('');
+}
+function removeKid(k) {
+  var name = S.kids[k] ? S.kids[k].name : '';
+  S.names.ask = null; render();
+  store.removeKid(k).then(function () { S.names.msg = L().removed(name); S.names.err = false; render(); },
+    function () { S.names.msg = L().removeFail; S.names.err = true; render(); });
+}
+/* The plan box grows with its text, so a long plan line is never cut off (1.2.1). */
+function fit(t) { if (!t) { return; } t.style.height = 'auto'; t.style.height = (t.scrollHeight + 3) + 'px'; }
+/* A box this coach still has open, whose text is already saved, shows another coach's newer text at once (1.9.1).
+   Before, the coach kept seeing their own text and the next keystroke wrote it over the other coach's. */
+function adoptNewer() {
+  var k, d, now;
+  for (k in S.draft) {
+    if (S.draft.hasOwnProperty(k) && k in S.mine && tidyField(k, S.draft[k]) === S.mine[k]) {
+      d = +k.slice(1); now = k.charAt(0) === 'p' ? planText(d) : noteText(d);
+      if (now !== S.mine[k]) { delete S.draft[k]; S.mine[k] = now; }
+    }
+  }
+}
+function render() {
+  adoptNewer();
+  var l = L(), h = [], o, d, p, j, date, val, ready = weekReady();
+  document.documentElement.lang = lang;
+  document.title = l.title + (lang === 'en' ? ' · Sailing' : ' · Vela');
+  h.push('<header class="hero"><div class="hero-in"><div class="top">' + LOGO + '<button class="lang" data-a="lang">' + esc(l.other) + '</button></div><h1>' + esc(l.title) + '</h1>');
+  if (S.fatal) { app.innerHTML = h.join('') + '<p class="sub">' + esc(l[S.fatal]) + '</p>' + (S.fatal === 'connFail' || S.fatal === 'readFail' ? '<button class="btn" data-a="retry">' + esc(l.retry) + '</button>' : '') + '</div>' + WAVE + '</header>'; return; }
+  h.push('<p class="sub">' + esc(l.sub) + '</p>');
+  h.push('<div class="week"><button class="nav" data-a="prev" aria-label="' + esc(l.prev) + '">‹</button><b>' + esc(l.weekend + ' ' + weekLabel(S.week)) + '</b><button class="nav" data-a="next" aria-label="' + esc(l.next) + '">›</button></div>');
+  h.push('</div>' + WAVE + '</header><main class="wrap">');
+  if (S.offline) { h.push('<div class="bar">' + esc(l.offline) + '</div>'); }
+  if (!S.loaded) { h.push('<p class="muted">' + esc(l.loading) + '</p>'); }
+  /* A slow or hanging connection: after 5 s say so and offer a retry, as on the parents' page (1.8.0). */
+  if ((!S.loaded || !ready) && S.slow) { h.push('<div class="slow"><p class="muted">' + esc(l.slow) + '</p><button class="btn" data-a="retry">' + esc(l.retry) + '</button></div>'); }
+  h.push(pasteHtml(l));
+  h.push('<div class="grid">');
+  for (o = 0; o < ORDER.length; o++) {
+    d = ORDER[o]; p = picked(d); date = dayDate(S.week, d);
+    val = ('n' + d) in S.draft ? S.draft['n' + d] : noteText(d);
+    h.push('<section class="card day' + d + '"><h2>' + flag(d) + '<span>' + esc(l.days[d]) + ' ' + date.getDate() + '</span><span class="n">' + (ready ? esc(l.count(sailing(p))) : '…') + '</span></h2>');
+    h.push('<div class="field"><label for="fp' + d + '">' + esc(l.planLabel) + '</label><textarea id="fp' + d + '" data-k="p' + d + '" rows="1" maxlength="200" placeholder="' + esc(l.planPh) + '"' + (ready ? '' : ' readonly') + '>\n' +
+      esc(('p' + d) in S.draft ? S.draft['p' + d] : planText(d)) + '</textarea><p class="st" id="stp' + d + '" aria-live="polite"></p></div>');
+    if (p.length) {
+      h.push('<ul>');
+      for (j = 0; j < p.length; j++) { h.push('<li' + (p[j].sick ? ' class="sick"' : '') + '>' + esc(p[j].name) + (p[j].note ? ' <span>(' + esc(showNote(p[j].note)) + ')</span>' : '') + '</li>'); }
+      h.push('</ul>');
+    } else { h.push('<p class="none">' + esc(ready ? l.nobody : l.loading) + '</p>'); }
+    h.push('<div class="note"><label for="fn' + d + '">' + esc(l.noteLabel) + '</label><textarea id="fn' + d + '" data-k="n' + d + '" maxlength="500" placeholder="' + esc(l.notePh) + '"' + (ready ? '' : ' readonly') + '>\n' + esc(val) + '</textarea><p class="st" id="stn' + d + '" aria-live="polite"></p></div></section>');
+  }
+  h.push('</div>' + namesHtml(l) + '<p class="ver">v' + VERSION + '</p></main>');
+  /* Live updates re-render; keep the cursor where a coach is typing. */
+  var f = document.activeElement, fid = f && f.id, fs = fid && f.selectionStart, fe = fid && f.selectionEnd, fv = fid && f.value;
+  redrawing = true; app.innerHTML = h.join(''); redrawing = false;
+  for (o = 0; o < ORDER.length; o++) { paintStatus('n' + ORDER[o]); paintStatus('p' + ORDER[o]); fit(document.getElementById('fp' + ORDER[o])); }
+  if (fid && document.getElementById(fid)) {
+    f = document.getElementById(fid); f.focus();
+    /* Another coach's text arrived in the box this coach has open but has not typed in: the cursor goes to its end, so
+       new typing is added after it instead of before it (1.9.0). */
+    if (f.value !== fv) { fs = fe = f.value.length; }
+    try { f.setSelectionRange(fs, fe); } catch (e) {}
+  }
+}
+
+app.addEventListener('click', function (ev) {
+  var t = ev.target;
+  while (t && t !== app && !(t.getAttribute && t.getAttribute('data-a'))) { t = t.parentNode; }
+  if (!t || t === app) { return; }
+  var a = t.getAttribute('data-a');
+  if (a === 'lang') { lang = lang === 'es' ? 'en' : 'es'; lsSet('lang', lang); render(); }
+  else if (a === 'retry') { location.reload(); }
+  else if (a === 'prev' || a === 'next') {
+    saveDrafts();
+    S.week += a === 'next' ? 1 : -1; watchWeek(); render();
+  }
+  else if (a === 'pasteopen') { S.paste = { open: true, text: '', res: null, msg: '' }; render(); var pb = document.getElementById('pastebox'); if (pb) { pb.focus(); } }
+  else if (a === 'pasteclose') { S.paste = { open: false, text: '', res: null, msg: '' }; render(); }
+  else if (a === 'pasteread') { readPaste(); }
+  else if (a === 'pastesave') { savePaste(); }
+  else if (a === 'namesopen') { S.names = { open: true, ask: null, msg: '', err: false }; render(); }
+  else if (a === 'namesclose') { S.names = { open: false, ask: null, msg: '', err: false }; render(); }
+  else if (a === 'kidask') { S.names.ask = t.getAttribute('data-kid'); S.names.msg = ''; render(); }
+  else if (a === 'kidno') { S.names.ask = null; render(); }
+  else if (a === 'kidyes') { removeKid(t.getAttribute('data-kid')); }
+});
+app.addEventListener('input', function (ev) {
+  var t = ev.target; if (t.tagName !== 'TEXTAREA') { return; }
+  /* Changing the pasted text throws away a preview made from the old text. */
+  if (t.id === 'pastebox') { S.paste.text = t.value; if (S.paste.res) { S.paste.res = null; S.paste.msg = ''; S.paste.busy = false; S.paste = copyPaste(S.paste); render(); } return; }
+  var k = t.getAttribute('data-k'); if (!k) { return; }
+  /* Typing again means this text is meant to be saved, even if it matches an earlier save. */
+  delete S.mine[k];
+  S.draft[k] = t.value; S.st[k] = ''; paintStatus(k); if (k.charAt(0) === 'p') { fit(t); }
+  clearTimeout(timers[k]);
+  timers[k] = setTimeout(function () { saveField(k); }, 900);
+});
+app.addEventListener('focusout', function (ev) {
+  var t = ev.target; if (t.tagName !== 'TEXTAREA') { return; }
+  var k = t.getAttribute('data-k'); if (!k) { return; }
+  /* A box taken away by a redraw is not being left; the typing goes on in the new copy (1.7.0). */
+  if (redrawing || !document.body.contains(t)) { return; }
+  clearTimeout(timers[k]);
+  /* Leaving the box: the tidied text can now be shown. */
+  setTimeout(function () { saveField(k); }, 0);
+});
+/* Text typed just before the page is closed, the app is switched or the phone is locked is saved at once (1.7.0);
+   before, the last 0.9 s of typing were lost. */
+function saveNow() { var k; for (k in timers) { if (timers.hasOwnProperty(k)) { clearTimeout(timers[k]); } } saveDrafts(); }
+/* A page brought back to the screen after its week has ended moves on to the week a fresh page would show (1.7.0). */
+function checkWeek() {
+  var was = weekId(0), now = new Date(), old = NOW;
+  NOW = now; if (weekId(0) === was || !store) { return false; }
+  NOW = old; saveNow(); NOW = now;
+  S.week = 0; if (S.paste.res) { S.paste.res = null; S.paste.msg = ''; }
+  watchWeek(); render();
+  return true;
+}
+/* Back after more than a minute away: the connection is restarted (1.9.0). On phones a connection can die without
+   the page noticing, so the list stopped updating and saves waited for ever. */
+var hiddenAt = 0;
+function resume() {
+  if (document.hidden) { hiddenAt = new Date().getTime(); saveNow(); return; }
+  if (hiddenAt && new Date().getTime() - hiddenAt > 60000 && store && store.reconnect) { store.reconnect(); }
+  hiddenAt = 0;
+  checkWeek();
+}
+document.addEventListener('visibilitychange', resume);
+window.addEventListener('pagehide', saveNow);
+window.addEventListener('pageshow', function (ev) { if (ev.persisted) { resume(); } });
+
+/* ---------- start ---------- */
+var g = (location.hash || '').replace(/^#/, ''), km = /^([A-Za-z0-9]{20,40})-([A-Za-z0-9]{16,40})$/.exec(g);
+if (/[?&]demo\b/.test(location.search)) { store = memStore(); g = ''; }
+else if (km) { store = fbStore(km[1], km[2]); }
+else if (/^[A-Za-z0-9]{20,40}$/.test(g)) { S.fatal = 'oldLink'; render(); return; }
+else { S.fatal = 'noLink'; render(); return; }
+store.ready['catch'](function (e) { S.fatal = e === 'badKey' ? 'badKey' : 'connFail'; render(); });
+store.onKids(function (v) { S.kids = v; S.loaded = true; renderSoon(); });
+setTimeout(function () { if (!S.loaded && !S.fatal) { S.slow = true; render(); } }, 5000);
+store.onConn(function (c) { if (c) { S.wasOn = true; } S.offline = S.wasOn && !c; renderSoon(); });
+watchWeek();
+render();
+})();
+</script>
+</body>
+</html>

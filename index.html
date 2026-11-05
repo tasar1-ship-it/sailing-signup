@@ -1,0 +1,773 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="referrer" content="no-referrer">
+<title>Vela · Esta semana</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230071E3'/%3E%3Cpath d='M16 5v19M16 6l8 15h-8M15 8L8 21h7M6 25h20' fill='none' stroke='%23fff' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="icon-180.png">
+<style>
+/* Sailing look. A navy sea header (title, language button, week switcher) ends in a wave over the page.
+   Below it, one white card per day (Friday, Saturday, Sunday), each marked by a coloured pennant, with every
+   child as a tap button; selected children turn sea blue. Since 1.10.0 only the children this phone remembers are shown.
+   Phones: one column. From 900px wide the three day cards sit side by side. A sheet edits a child's note. */
+:root{
+  color-scheme:light dark;
+  --bg:#F3F7FA; --card:#FFFFFF; --field:#FFFFFF; --fg:#0B2545; --fg-2:#4A5D73; --line:#D3DEE8;
+  --sea:#0B6FB8; --sea-2:#13A0C9; --pick-1:#0B5E9E; --pick-2:#0C7BA8; --navy:#0B2545; --navy-2:#134074; --tint:#E3F0F8;
+  --on-fg:#FFFFFF; --btn:#134074; --good:#13795B; --bad:#C2273B; --shadow:0 1px 2px rgba(11,37,69,.06),0 6px 20px rgba(11,37,69,.07);
+  --f0:#2E9A5C; --f1:#2F7FC8; --f2:#2F7FC8; --f3:#2E9A5C; --sun:#F5A83A; --sun-soft:#FFCB80;
+  --d0:#D9F0E0; --d0l:#8FCBA3; --d1:#DCEBF8; --d1l:#93BFE6; --d2:#C6DDF3; --d2l:#78ABDA; --d3:#EAF6EE; --d3l:#B3DEC0;
+  --font:"Avenir Next",Avenir,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#07121F; --card:#0F2236; --field:#132B44; --fg:#EAF2F8; --fg-2:#9FB3C8; --line:#24405E;
+    --sea:#2F8FD8; --sea-2:#3DB8DC; --pick-1:#1F74B8; --pick-2:#0D78A6; --navy:#040C16; --navy-2:#0B2545; --tint:#16344F;
+    --btn:#1F74B8; --good:#4CD3A3; --bad:#FF6B7D; --shadow:0 1px 2px rgba(0,0,0,.4);
+    --d0:#13301F; --d0l:#33694A; --d1:#12263D; --d1l:#2E5785; --d2:#16304F; --d2l:#3A6A9E; --d3:#10261A; --d3l:#2A573C; }
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font);font-size:17px;line-height:1.35;-webkit-text-size-adjust:100%}
+button{font-family:inherit}
+.hero{position:relative;color:#fff;background:linear-gradient(160deg,var(--navy) 0%,var(--navy-2) 60%,#1B5E8C 100%);padding-top:env(safe-area-inset-top)}
+.hero-in{max-width:640px;margin:0 auto;padding:14px calc(16px + env(safe-area-inset-right)) 54px calc(16px + env(safe-area-inset-left));position:relative;z-index:1}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.85)}
+.brand .logo{display:block;height:37px;width:auto}
+.lang{position:relative;flex:none;border:1px solid rgba(255,255,255,.45);background:rgba(255,255,255,.12);color:#fff;border-radius:10px;padding:2px 9px;min-height:20px;font-size:11px;font-weight:600;line-height:1.3;cursor:pointer}
+/* Half-size look, full-size tap area. */
+.lang::after{content:"";position:absolute;top:-12px;right:-10px;bottom:-12px;left:-10px}
+h1{font-size:32px;margin:36px 0 6px;letter-spacing:-.01em;line-height:1.1;font-weight:700;color:var(--sun)}
+.sub{color:var(--sun-soft);font-size:16px;font-weight:400;margin:0;max-width:34em}
+.week{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:18px 0 0;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:16px;padding:6px}
+.week b{font-size:17px;text-align:center;flex:1;font-weight:600;color:var(--sun)}
+.nav{flex:none;width:44px;height:44px;border-radius:12px;border:0;background:rgba(255,255,255,.16);color:#fff;font-size:24px;line-height:1;cursor:pointer}
+.wave{position:absolute;left:0;right:0;bottom:-1px;width:100%;height:46px;display:block}
+.wrap{max-width:640px;margin:0 auto;padding:4px calc(16px + env(safe-area-inset-right)) calc(36px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left))}
+.muted{color:var(--fg-2);font-size:16px;margin:0}
+/* Weekdays (Wednesday, Friday) share a green family, the weekend (Saturday, Sunday) a stronger ocean blue; the later day of each pair is a shade deeper. */
+.day0{--cardbg:var(--d0);--cardline:var(--d0l)} .day1{--cardbg:var(--d1);--cardline:var(--d1l);--cardbw:1.5px} .day2{--cardbg:var(--d2);--cardline:var(--d2l);--cardbw:1.5px} .day3{--cardbg:var(--d3);--cardline:var(--d3l)}
+.card{background:var(--cardbg,var(--card));border-radius:18px;padding:16px 14px 14px;margin-bottom:14px;box-shadow:var(--shadow);border:var(--cardbw,1px) solid var(--cardline,var(--line))}
+.card h2{font-size:21px;margin:0 0 12px;display:flex;align-items:center;gap:8px;font-weight:700}
+.card h2 .flag{width:22px;height:22px;flex:none}
+.card h2 .dn{white-space:nowrap}
+.card h2{flex-wrap:wrap;row-gap:6px}
+.card h2 .n{margin-left:auto;font-size:15px;font-weight:600;color:var(--sea);background:var(--tint);border-radius:20px;padding:4px 10px;white-space:nowrap}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1.5px solid var(--line);border-radius:22px;padding:9px 15px;min-height:44px;font-size:17px;font-weight:500;background:var(--field);color:var(--fg);cursor:pointer;text-align:left;line-height:1.2}
+.chip[disabled]{opacity:.55;cursor:default}
+/* A change not yet confirmed by the database (1.13.0): dimmed, with dots, until the server has it. */
+.chip.wait{opacity:.6}
+.chip.wait:after{content:"\00a0\2026"}
+/* Selected names: white text stays at 4.5:1 or more across the whole gradient (1.9.2; was 3.0:1 at the light end). */
+.chip.on{background:linear-gradient(135deg,var(--pick-1) 0%,var(--pick-2) 100%);border-color:transparent;color:var(--on-fg);font-weight:600}
+.chip.on:before{content:"\2713\00a0"}
+.chip small{display:block;font-size:14px;font-weight:500;opacity:.92}
+.chip.on.sick{background:var(--field);color:var(--fg-2);border:1.5px dashed var(--line);font-weight:500}
+.chip.on.sick:before{content:none}
+.btn.sel{outline:2.5px solid var(--sea);outline-offset:1px;font-weight:700}
+@media (hover:hover){ .chip:hover{border-color:var(--sea)} .chip.on:hover{filter:brightness(1.06)} }
+.row{display:flex;gap:8px;margin-top:6px}
+input[type=text],input[type=time]{flex:1;min-width:0;font:inherit;font-size:17px;padding:11px 12px;border-radius:12px;border:1.5px solid var(--line);background:var(--field);color:var(--fg)}
+input[type=text]:focus,input[type=time]:focus{outline:none;border-color:var(--sea)}
+.btn{border:0;border-radius:14px;padding:12px 16px;min-height:48px;font-size:17px;font-weight:600;cursor:pointer;background:var(--tint);color:var(--fg)}
+.btn.primary{background:var(--btn);color:#fff}
+.btn.danger{color:var(--bad)}
+.btn.wide{width:100%;margin-top:6px}
+.sec{margin:22px 0 8px;font-size:16px;font-weight:600;color:var(--fg-2)}
+.ok{color:var(--good);font-size:15px;margin:8px 2px 0;min-height:20px}
+.err{color:var(--bad);font-size:15px;margin:6px 2px 0}
+.bar{background:var(--bad);color:#fff;border-radius:12px;padding:10px 12px;font-size:15px;margin:0 0 12px}
+.shade{position:fixed;top:0;right:0;bottom:0;left:0;background:rgba(4,12,22,.5);display:flex;align-items:flex-end;justify-content:center;z-index:5}
+.sheet{background:var(--card);color:var(--fg);width:100%;max-width:640px;max-height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch;border-radius:20px 20px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom))}
+.sheet h3{margin:0 0 4px;font-size:22px}
+.sheet .row{margin-top:12px}
+.foot{margin-top:30px;font-size:13px;color:var(--fg-2);text-align:center;display:flex;align-items:center;justify-content:center;gap:6px}
+.foot svg{width:16px;height:16px}
+.tools{max-width:640px}
+.panel{background:var(--card);border-radius:18px;padding:16px;margin-bottom:14px;box-shadow:var(--shadow);border:1px solid var(--line)}
+.panel h2{font-size:19px;margin:0 0 6px;display:flex;align-items:center;gap:8px}
+.panel h2 svg{width:22px;height:22px;color:var(--sea);flex:none}
+.panel p{margin:0}
+.helpl{display:inline-block;margin-top:3px;background:none;border:0;padding:4px 0;min-height:44px;color:#fff;font-size:16px;font-weight:600;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.howto ol{margin:6px 0 0;padding-left:22px}
+.howto li{margin:8px 0;font-size:16px;line-height:1.4}
+.howto li b{color:var(--fg)}
+.remind{border:1.5px solid var(--sea);background:linear-gradient(180deg,var(--tint),var(--card) 80%)}
+.remind .btn{margin-top:12px}
+.alt{display:inline-block;margin-top:2px;min-height:44px;color:var(--sea);font-size:15px;font-weight:600;background:none;border:0;padding:4px 0;cursor:pointer;text-decoration:underline}
+/* Shown when the connection fails, or is still loading after 5 seconds (1.9.1). */
+.retry{display:inline-block;margin-top:14px;min-height:44px;padding:10px 18px;border-radius:12px;border:1px solid rgba(255,255,255,.5);background:rgba(255,255,255,.16);color:#fff;font-size:16px;font-weight:600;cursor:pointer}
+.slow .btn{margin-top:10px}
+.remind.done{display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--card);border:1px solid var(--line)}
+.remind.done svg{width:22px;height:22px;color:var(--good);flex:none}
+.remind.done p{flex:1;color:var(--fg-2);font-size:15px}
+.remind.done .alt{margin:0}
+/* Find your child (1.10.0): a parent types the name; only matches appear. Then "On this phone" lists their own children. */
+.find{border:1.5px solid var(--sea)}
+.find .row{margin-top:12px}
+.find .chips{margin-top:12px}
+.find .btn.wide{margin-top:12px}
+.hint{color:var(--fg-2);font-size:15px;margin:10px 2px 0}
+.mine ul{list-style:none;margin:4px 0 0;padding:0}
+.mine li{display:flex;align-items:center;justify-content:space-between;gap:10px;border-bottom:1px solid var(--line);font-size:17px;font-weight:600}
+.mine li .alt{font-weight:500;color:var(--fg-2)}
+.summary{margin-top:26px}
+/* Summary: weekdays in the left column (Wednesday above Friday), the weekend in the right (Saturday above Sunday);
+   each day a bullet list of names. */
+.sum-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:auto auto;grid-auto-flow:column;gap:16px 18px;margin-top:4px;align-items:start}
+.sum-day{min-width:0}
+.sum-day b{display:block;font-size:16px;padding-bottom:4px;border-bottom:1px solid var(--line)}
+.sum-day b span{white-space:nowrap}
+@media (max-width:360px){ .sum-day b{font-size:14px} .summary .sum-grid{gap:16px 12px} }
+.sum-day ul{margin:6px 0 0;padding-left:20px}
+.sum-day li{font-size:16px;margin:3px 0;overflow-wrap:anywhere}
+.sum-day li span{color:var(--fg-2);font-size:14px}
+.sum-day li.sick{color:var(--fg-2)}
+/* The coach's plan for the day (1.9.0), entered on the coaches' dashboard. */
+.plan{margin:-2px 0 12px;padding:8px 11px;border-radius:12px;background:var(--field);border:1px solid var(--cardline,var(--line));font-size:16px;font-weight:600;line-height:1.35;overflow-wrap:anywhere}
+.plan span{display:block;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--fg-2);margin-bottom:2px}
+/* When the coaches last changed the day's plan (1.11.0), in normal case after the "PLAN" label. */
+.plan .upd{font-style:normal;font-weight:600;letter-spacing:0;text-transform:none}
+.sum-day .sp{display:block;font-size:14px;font-weight:500;color:var(--fg-2);margin-top:2px}
+.sum-day p{font-size:15px;margin:6px 0 0}
+.none{color:var(--fg-2);font-style:italic}
+a.btn{display:block;text-align:center;text-decoration:none;line-height:24px}
+@media (min-width:900px){ .remind{max-width:640px} }
+@media (min-width:900px){
+  .hero-in{max-width:1100px;padding:20px 32px 70px}
+  h1{font-size:44px}
+  .week{max-width:520px}
+  .wave{height:70px}
+  .wrap{max-width:1100px;padding-left:32px;padding-right:32px}
+  .days{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:start}
+  .days .card{margin:0;padding:20px 18px 18px}
+  .tools{margin-top:24px}
+  .shade{align-items:center}
+  .sheet{max-width:460px;border-radius:20px}
+}
+@media (min-width:1200px){ .days{grid-template-columns:repeat(4,minmax(0,1fr))} }
+</style>
+</head>
+<body>
+<div id="app"><p class="muted" style="padding:20px">Cargando… / Loading…</p></div>
+<noscript><p style="padding:20px">Esta página necesita JavaScript. This page needs JavaScript.</p></noscript>
+<script src="firebase-app-compat.js"></script>
+<script src="firebase-auth-compat.js"></script>
+<script src="firebase-database-compat.js"></script>
+<script>
+/* Sailing sign-up. Own code is ES5 on purpose (var and function only). */
+(function () {
+'use strict';
+var VERSION = '1.14.1';
+var FB = {
+  apiKey: 'AIzaSyD3Q2TRCGlCkJPd8wvf8aijdQU8a0oJXmc',
+  authDomain: 'sailing-signup.firebaseapp.com',
+  databaseURL: 'https://sailing-signup-default-rtdb.europe-west1.firebasedatabase.app',
+  projectId: 'sailing-signup',
+  appId: '1:1090198402941:web:30a83e8de794f93cff7e14'
+};
+var LS = 'ss1_';
+/* Screen text in both languages. */
+var T = {
+  es: {
+    other: 'English', title: '¿Quién navega?', pageTitle: 'Vela · Esta semana',
+    intro: 'Toca el nombre de tu hijo/a en cada día. Toca otra vez para avisar si está enfermo/a o llega tarde, añadir una nota o quitarlo.',
+    days: ['Viernes', 'Sábado', 'Domingo', 'Miércoles'], months: ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'],
+    weekend: 'Semana', prev: 'Semana anterior', next: 'Semana siguiente', loading: 'Cargando…', slow: 'Todavía conectando… Revisa la señal.', retry: 'Reintentar',
+    count: function (n) { return n + (n === 1 ? ' apuntado' : ' apuntados'); },
+    offline: 'Sin conexión. Deja la página abierta: los cambios se guardarán al volver la conexión.',
+    gone: 'Los entrenadores quitaron un nombre repetido de la lista. Busca otra vez el nombre de tu hijo/a.',
+    kidPh: 'Nombre del niño/a', added: function (n) { return n + ' añadido.'; },
+    findT: 'Tu hijo/a', findText: 'Escribe el nombre de tu hijo/a y tócalo. Este móvil lo recuerda y solo verás su nombre.',
+    findMore: 'Escribe al menos 2 letras.', findNone: 'No está en la lista todavía.', addNew: function (n) { return 'Añadir «' + n + '» a la lista'; },
+    mineT: 'En este móvil', unmine: 'Quitar de este móvil', addOther: 'Añadir otro hijo/a', done: 'Listo',
+    notePh: 'Nota, p. ej. hasta las 14', saveNote: 'Guardar nota', sick: 'Enfermo/a', late: 'Llega tarde',
+    lateAsk: 'Guardado en la lista. ¿Avisar también al entrenador por WhatsApp?', lateSend: 'Enviar WhatsApp al entrenador', lateSkip: 'No hace falta',
+    lateAt: '¿A qué hora llega? (opcional)',
+    lateMsg: function (o) { return 'Hola, ' + o.name + ' llega tarde el ' + o.day.toLowerCase() + ' ' + o.date + (o.time ? ', sobre las ' + o.time : '') + (o.note ? ' (' + o.note + ')' : '') + '. Lo he marcado en la lista.'; }, remove: 'Quitar', close: 'Cerrar',
+    saveFail: function (c) { return 'No se guardó (' + c + '). Inténtalo de nuevo.'; },
+    readFail: function (c) { return 'No se pudo leer la lista (' + c + '). Revisa la conexión y recarga.'; },
+    connFail: function (c) { return 'No se pudo conectar (' + c + '). Revisa la conexión y recarga.'; },
+    noLink: 'Abre la página con el enlace del grupo de WhatsApp (el enlace completo).',
+    remTitle: 'Recordatorio cada lunes', remText: 'Toca una vez y tu calendario te avisará cada lunes a las 17:00 para apuntar a tu hijo/a, con este enlace dentro.',
+    remIcs: 'Añadir al calendario', remGoogle: 'Añadir a Google Calendar', remAltGoogle: '¿Usas Google Calendar?', remAltIcs: '¿Usas el calendario del iPhone o del Mac?',
+    remDone: 'Recordatorio añadido. Si lo guardaste en el calendario, te avisará cada lunes a las 17:00.', remAgain: 'Otra vez',
+    calTitle: 'Apuntar a vela', calDesc: 'Apunta a tu hijo/a para esta semana:',
+    sumTitle: 'Resumen', nobody: 'nadie apuntado', planT: 'Plan',
+    updated: 'actualizado', today: 'hoy', yesterday: 'ayer', wdays: ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'],
+    helpLink: '¿Cómo funciona?', helpT: 'Cómo funciona', help: [
+      '**La primera vez:** escribe el nombre de tu hijo/a y tócalo. Este móvil lo recuerda; solo ves su nombre.',
+      '**Una vez:** toca el botón del «Recordatorio cada lunes». Cada lunes a las 17:00 te llega un aviso con este enlace.',
+      '**Cada semana:** toca el nombre de tu hijo/a en los días que navega. Se pone azul: ya está apuntado/a.',
+      '**¿Un cambio?** Toca el nombre otra vez: «Enfermo/a», «Llega tarde», una nota (p. ej. hasta las 14) o quitarlo.']
+  },
+  en: {
+    other: 'Español', title: 'Who’s sailing?', pageTitle: 'Sailing · This week',
+    intro: 'Tap your child’s name on each day. Tap again to report them sick or late, add a note or remove them.',
+    days: ['Friday', 'Saturday', 'Sunday', 'Wednesday'], months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+    weekend: 'Week', prev: 'Previous week', next: 'Next week', loading: 'Loading…', slow: 'Still connecting… Check your signal.', retry: 'Try again',
+    count: function (n) { return n + ' signed up'; },
+    offline: 'Offline. Keep this page open: changes will be saved when the connection is back.',
+    gone: 'The coaches removed a repeated name from the list. Please find your child’s name again.',
+    kidPh: 'Child’s name', added: function (n) { return n + ' added.'; },
+    findT: 'Your child', findText: 'Type your child’s name and tap it. This phone remembers it, and you only see their name.',
+    findMore: 'Type at least 2 letters.', findNone: 'Not on the list yet.', addNew: function (n) { return 'Add “' + n + '” to the list'; },
+    mineT: 'On this phone', unmine: 'Remove from this phone', addOther: 'Add another child', done: 'Done',
+    notePh: 'Note, e.g. until 2 pm', saveNote: 'Save note', sick: 'Sick', late: 'Running late',
+    lateAsk: 'Saved on the list. Also tell the coach on WhatsApp?', lateSend: 'Send WhatsApp to the coach', lateSkip: 'No need',
+    lateAt: 'Arriving at about (optional)',
+    lateMsg: function (o) { return 'Hi, ' + o.name + ' will be late on ' + o.day + ' ' + o.date + (o.time ? ', at about ' + o.time : '') + (o.note ? ' (' + o.note + ')' : '') + '. I have marked it on the list.'; }, remove: 'Remove', close: 'Close',
+    saveFail: function (c) { return 'Not saved (' + c + '). Please try again.'; },
+    readFail: function (c) { return 'Could not read the list (' + c + '). Check the connection and reload.'; },
+    connFail: function (c) { return 'Could not connect (' + c + '). Check the connection and reload.'; },
+    noLink: 'Open this page with the full link from the WhatsApp group.',
+    remTitle: 'Monday reminder', remText: 'Tap once and your calendar will remind you every Monday at 17:00 to sign your child up, with this link inside.',
+    remIcs: 'Add to calendar', remGoogle: 'Add to Google Calendar', remAltGoogle: 'Using Google Calendar?', remAltIcs: 'Using the iPhone or Mac calendar?',
+    remDone: 'Reminder added. If you saved it in your calendar, it will remind you every Monday at 17:00.', remAgain: 'Again',
+    calTitle: 'Sign up for sailing', calDesc: 'Sign your child up for this week:',
+    sumTitle: 'Summary', nobody: 'nobody signed up', planT: 'Plan (in Spanish)',
+    updated: 'updated', today: 'today', yesterday: 'yesterday', wdays: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+    helpLink: 'How does it work?', helpT: 'How it works', help: [
+      '**First time:** type your child’s name and tap it. This phone remembers it; you only see their name.',
+      '**Once:** tap the button on the “Monday reminder” card. Every Monday at 17:00 you get a reminder with this link.',
+      '**Every week:** tap your child’s name on the days they sail. It turns blue: they are signed up.',
+      '**A change?** Tap the name again: “Sick”, “Running late”, a note (e.g. until 2 pm) or remove them.']
+  }
+};
+/* Small drawings: the wave under the header, a pennant per day, the anchor in the footer. */
+var WAVE = '<svg class="wave" viewBox="0 0 1440 80" preserveAspectRatio="none" aria-hidden="true"><path d="M0 34C200 6 380 64 620 40S1060 2 1240 26 1440 38 1440 38V80H0z" style="fill:var(--bg);opacity:.35"/><path d="M0 52C240 26 460 78 720 54S1180 22 1440 50V80H0z" style="fill:var(--bg)"/></svg>';
+var FLAGS = ['var(--f0)', 'var(--f1)', 'var(--f2)', 'var(--f3)'];
+function flag(i) { return '<svg class="flag" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 2.5v19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M6 3.5l14 5.5-14 5.5z" style="fill:' + FLAGS[i] + '"/></svg>'; }
+var BELL = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg>';
+var CHECK = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M7.5 12.5l3 3 6-6.5"/></svg>';
+var LIST = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1.2"/><circle cx="4.5" cy="12" r="1.2"/><circle cx="4.5" cy="18" r="1.2"/></svg>';
+var KID = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>';
+var ANCHOR = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="5" r="2"/><path d="M12 7v14M8 11h8M4 14a8 7 0 0 0 16 0"/></svg>';
+/* A phone that refuses storage (blocked site data, some in-app browsers, a full quota) keeps the values for this visit
+   in memory (1.13.0); before, the chosen child was forgotten at once and the "Tu hijo/a" box came back for ever. */
+var MEM = {};
+function lsGet(k) { var v = null; if (MEM.hasOwnProperty(k)) { return MEM[k]; } try { v = localStorage.getItem(LS + k); } catch (e) {} return v !== undefined ? v : null; }
+function lsSet(k, v) { MEM[k] = v; try { localStorage.setItem(LS + k, v); } catch (e) {} }
+var lang = lsGet('lang');
+if (lang !== 'es' && lang !== 'en') { lang = /^en/i.test(navigator.language || '') ? 'en' : 'es'; }
+function L() { return T[lang]; }
+var app = document.getElementById('app');
+/* fatal and err hold a function of the language, so a language switch also translates a message already shown. */
+var S = { fatal: null, week: 0, kids: {}, picks: {}, plan: {}, pend: {}, pendAt: {}, loadedKids: false, slow: false, canRetry: false, sheet: null, msg: null, err: null, offline: false, q: '', find: false };
+var store = null, offPicks = null, offPlan = null;
+
+/* ---------- helpers ---------- */
+var ESC = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return ESC[c]; }); }
+function clean(s, n) { return String(s || '').replace(/\s+/g, ' ').replace(/^ | $/g, '').slice(0, n); }
+function pad(n) { return n < 10 ? '0' + n : '' + n; }
+/* Sick and late are kept in the note itself, as a mark at its start, so the database rules stay as they are. */
+var MARKS = { sick: '🤒', late: '⏰' };
+function parseNote(note) {
+  var st;
+  note = note || '';
+  for (st in MARKS) { if (note.indexOf(MARKS[st]) === 0) { return { st: st, text: note.slice(MARKS[st].length).replace(/^ /, '') }; } }
+  return { st: '', text: note };
+}
+function showNote(note) {
+  var n = parseNote(note), l = L();
+  return (n.st ? MARKS[n.st] + ' ' + l[n.st] : '') + (n.st && n.text ? ' · ' : '') + n.text;
+}
+function sailing(list) { var n = 0, j; for (j = 0; j < list.length; j++) { if (!list[j].sick) { n++; } } return n; }
+function say(key, arg) { return function () { var v = L()[key]; return typeof v === 'function' ? v(arg) : v; }; }
+/* Friday of the weekend to show: Mon-Fri -> the coming Friday, Saturday and Sunday until 18:00 -> the Friday just gone,
+   from Sunday 18:00 -> the coming Friday, so after the Sunday session the page shows next week (1.9.3 / dashboard 1.4.0).
+   The time is taken once, when the page opens, so an open page never changes week under the list it is showing.
+   A page brought back to the screen after its week has ended does move on to the new week (1.12.0, see resume()). */
+var NOW = new Date();
+function friday(offset) {
+  var d = new Date(NOW.getTime()); d.setHours(12, 0, 0, 0);
+  var wd = d.getDay(), back = wd === 6 ? 1 : (wd === 0 ? (NOW.getHours() >= 18 ? -5 : 2) : -(5 - wd));
+  d.setDate(d.getDate() - back + 7 * offset);
+  return d;
+}
+function weekId(offset) { var d = friday(offset); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+/* Days are stored as 0 Friday, 1 Saturday, 2 Sunday, 3 Wednesday (added in 1.4.0, two days before Friday),
+   so sign-ups made before Wednesday existed keep their place. ORDER is the order on screen. */
+var ORDER = [3, 0, 1, 2];
+function dayDate(offset, i) { var d = friday(offset); d.setDate(d.getDate() + (i === 3 ? -2 : i)); return d; }
+function weekLabel(offset) {
+  var a = dayDate(offset, ORDER[0]), b = dayDate(offset, ORDER[ORDER.length - 1]), m = L().months;
+  var s = a.getMonth() === b.getMonth() ? a.getDate() : a.getDate() + ' ' + m[a.getMonth()];
+  return s + ' – ' + b.getDate() + ' ' + m[b.getMonth()];
+}
+function kidList() {
+  var out = [], k;
+  for (k in S.kids) { if (S.kids[k] && S.kids[k].name) { out.push({ id: k, name: S.kids[k].name }); } }
+  out.sort(function (a, b) { return a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1; });
+  return out;
+}
+/* This phone's own children (1.10.0): a parent sees only their own child's name. The ids are kept on the phone, per group;
+   the whole list stays readable to anyone with the link, so this hides names on screen, it does not secure them. */
+function mineKey() { return 'mine_' + (window.SS_PREVIEW_G || g || 'demo'); }
+function mineIds() { var v; try { v = JSON.parse(lsGet(mineKey()) || '[]'); } catch (e) { v = []; } return v instanceof Array ? v : []; }
+/* Ids remembered on this phone whose name the coaches removed (a repeated name): forgotten, and the family is told once
+   to find their child again (1.14.0). Before, the day cards simply vanished. */
+function pruneMine() {
+  if (!S.loadedKids || !store || store.demo) { return; }
+  var ids = mineIds(), keep = [], j;
+  for (j = 0; j < ids.length; j++) { if (S.kids[ids[j]]) { keep.push(ids[j]); } }
+  if (keep.length < ids.length) { lsSet(mineKey(), JSON.stringify(keep)); S.gone = true; }
+}
+function myKids() {
+  var ids = mineIds(), all = kidList(), out = [], j;
+  for (j = 0; j < all.length; j++) { if (ids.indexOf(all[j].id) >= 0) { out.push(all[j]); } }
+  return out;
+}
+/* Hyphens, apostrophes and dots count as spaces (1.13.0), so "maria" finds Ana-María and "Ana María" is the same child. */
+function norm(s) { s = clean(String(s || '').replace(/[-‐-―'’.]/g, ' '), 30).toLowerCase(); try { s = s.normalize('NFD').replace(/[̀-ͯ]/g, ''); } catch (e) {} return s; }
+/* Names matching what was typed, from 2 letters on, at the start of any word; children already on this phone are left out. */
+/* Names matching what was typed, from 2 letters on, at the start of any word; children already on this phone are left
+   out. (1.14.1: the 1.14.0 word-by-word rule matched "Daniela" to "Dani" and hid the Add button; back to this rule.) */
+function matches(q) {
+  var all = kidList(), ids = mineIds(), out = [], j;
+  q = norm(q);
+  if (q.length < 2) { return out; }
+  for (j = 0; j < all.length; j++) { if (ids.indexOf(all[j].id) < 0 && (' ' + norm(all[j].name)).indexOf(' ' + q) >= 0) { out.push(all[j]); } }
+  return out;
+}
+/* What was typed is only the start of a listed name ("Te" for "Test child"), so it is not a new name (1.14.1). */
+function startOfMatch(q, m) { var j, n = norm(q); for (j = 0; j < m.length; j++) { if (norm(m[j].name).indexOf(n) === 0) { return m[j]; } } return null; }
+function picked(day) {
+  var p = S.picks[day] || {}, out = [], k;
+  for (k in p) { if (S.kids[k]) { out.push({ id: k, name: S.kids[k].name, note: p[k].note || '', at: p[k].at || 0, sick: parseNote(p[k].note).st === 'sick' }); } }
+  out.sort(function (a, b) { return a.at - b.at; });
+  return out;
+}
+
+/* ---------- stores: Firebase, or in memory for ?demo ---------- */
+function fbStore(g) {
+  var ready = new Promise(function (res, rej) {
+    if (typeof firebase === 'undefined') { rej('no-sdk'); return; }
+    try { firebase.initializeApp(FB); } catch (e) { rej('no-sdk'); return; }
+    firebase.auth().signInAnonymously().then(function () { res(firebase.database()); }).catch(function (e) { rej((e && e.code) || 'no-auth'); });
+  });
+  function base(db) { return db.ref('groups/' + g); }
+  return {
+    ready: ready,
+    onKids: function (cb) { ready.then(function (db) { base(db).child('kids').on('value', function (s) { cb(s.val() || {}); }, onFail); }); },
+    onPicks: function (w, cb) {
+      /* A week left before sign-in finished must not start listening afterwards (1.12.0, as dashboard 1.6.0). */
+      var r = null, gone = false;
+      ready.then(function (db) { if (gone) { return; } r = base(db).child('picks/' + w); r.on('value', function (s) { cb(s.val() || {}); }, onFail); });
+      return function () { gone = true; if (r) { r.off(); } };
+    },
+    onPlan: function (w, cb) {
+      var r = null, gone = false;
+      /* A read failure here only hides the plan; the sign-up itself must keep working. */
+      ready.then(function (db) { if (gone) { return; } r = base(db).child('plan/' + w); r.on('value', function (s) { cb(s.val() || {}); }, function () { cb({}); }); });
+      return function () { gone = true; if (r) { r.off(); } };
+    },
+    setPick: function (w, day, kid, v) {
+      return ready.then(function (db) {
+        var r = base(db).child('picks/' + w + '/' + day + '/' + kid);
+        return v ? r.set({ note: v.note, at: v.at || firebase.database.ServerValue.TIMESTAMP }) : r.remove();
+      });
+    },
+    /* onKey gets the new child's id right after the local write, so the phone can remember it even while offline. */
+    addKid: function (name, onKey) {
+      return ready.then(function (db) {
+        var r = base(db).child('kids').push(), w = r.set({ name: name, at: firebase.database.ServerValue.TIMESTAMP });
+        onKey(r.key);
+        return w;
+      });
+    },
+    onConn: function (cb) { ready.then(function (db) { db.ref('.info/connected').on('value', function (s) { cb(!!s.val()); }); }); },
+    reconnect: function () { ready.then(function (db) { if (db.goOffline && db.goOnline) { db.goOffline(); db.goOnline(); } }); }
+  };
+}
+function memStore(names) {
+  var kids = {}, picks = {}, kcb = null, pcbs = {}, n = 0, plan = {};
+  /* ?demo shows a made-up plan for the current week, so the plan line can be seen without the database. */
+  /* Its times (1.11.0): Wednesday's plan saved two days ago, Friday's yesterday, Saturday's an hour ago. */
+  if (!names) { plan[weekId(0)] = { 3: { text: '15:00 Entrenamiento en el agua · Finn', at: NOW.getTime() - 2 * 864e5 }, 0: { text: '15:00 Entrenamiento en el agua · 18:00 Preparación física', at: NOW.getTime() - 864e5 }, 1: { text: '10:00 CNA · Regata', at: NOW.getTime() - 36e5 } }; }
+  (names || ['Ana', 'Bruno', 'Carla', 'Dani', 'Eva']).forEach(function (nm) { kids['-demo' + (n++)] = { name: nm, at: n }; });
+  function emitP(w) { if (pcbs[w]) { pcbs[w](JSON.parse(JSON.stringify(picks[w] || {}))); } }
+  return {
+    demo: true,
+    ready: Promise.resolve(),
+    onKids: function (cb) { kcb = cb; setTimeout(function () { cb(kids); }, 0); },
+    onPicks: function (w, cb) { pcbs[w] = cb; setTimeout(function () { emitP(w); }, 0); return function () { delete pcbs[w]; }; },
+    onPlan: function (w, cb) { setTimeout(function () { cb(JSON.parse(JSON.stringify(plan[w] || {}))); }, 0); return function () {}; },
+    setPick: function (w, day, kid, v) {
+      picks[w] = picks[w] || {}; picks[w][day] = picks[w][day] || {};
+      if (v) { picks[w][day][kid] = { note: v.note, at: v.at || new Date().getTime() }; } else { delete picks[w][day][kid]; }
+      emitP(w); return Promise.resolve();
+    },
+    addKid: function (name, onKey) { var id = '-demo' + (n++); kids[id] = { name: name, at: n }; kcb(kids); onKey(id); return Promise.resolve(); },
+    onConn: function () {}
+  };
+}
+function onFail(e) { S.fatal = say('readFail', (e && e.code) || 'error'); S.canRetry = true; render(); }
+
+/* ---------- actions ---------- */
+/* S.picksIn = the week whose sign-ups S.picks holds; until they arrive the names cannot be tapped (1.12.0), because a
+   tap on a name that only looks empty overwrote a saved sick or late mark. Data from another week is ignored. */
+function watchWeek() {
+  var w = weekId(S.week);
+  if (offPicks) { offPicks(); }
+  if (offPlan) { offPlan(); }
+  S.picks = {}; S.plan = {}; S.picksIn = '';
+  offPicks = store.onPicks(w, function (v) { if (w !== weekId(S.week)) { return; } S.picks = v; S.picksIn = w; renderData(); });
+  offPlan = store.onPlan(w, function (v) { if (w !== weekId(S.week)) { return; } S.plan = v; renderData(); });
+}
+function picksReady() { return S.picksIn === weekId(S.week); }
+/* A page left open (or kept by the phone in the background) and brought back after its week has ended moves on to
+   the week a fresh page would show (1.12.0). Before, it kept the old week for days and sign-ups went into a past week.
+   While the page is in use the week still never changes under the list. */
+/* Back after more than a minute away, the connection is restarted (1.14.0): on phones it can die without the page
+   noticing. The page is always redrawn on return, so "actualizado hoy" becomes "ayer" the next morning. */
+var hiddenAt = 0;
+function resume() {
+  if (document.hidden) { hiddenAt = new Date().getTime(); return; }
+  if (!store) { return; }
+  if (hiddenAt && new Date().getTime() - hiddenAt > 60000 && store.reconnect) { store.reconnect(); }
+  hiddenAt = 0;
+  var was = weekId(0); NOW = new Date();
+  if (weekId(0) !== was) { S.week = 0; S.sheet = null; S.nudge = null; S.msg = null; S.err = null; watchWeek(); }
+  render();
+}
+function planText(d) { var p = S.plan[d]; return p && typeof p.text === 'string' ? p.text : ''; }
+/* When the coaches last saved the day's plan (1.11.0): "actualizado hoy, 18:30", "ayer, 9:05", "lun 9 nov, 18:30".
+   The dashboard stores the time with every plan line; a line without one shows no time. */
+function planWhen(d) {
+  var p = S.plan[d], l = L(), t, n, ago;
+  if (!p || typeof p.at !== 'number' || !(p.at > 0)) { return ''; }
+  t = new Date(p.at); n = new Date();
+  ago = Math.round((new Date(n.getFullYear(), n.getMonth(), n.getDate()).getTime() - new Date(t.getFullYear(), t.getMonth(), t.getDate()).getTime()) / 864e5);
+  return l.updated + ' ' + (ago <= 0 ? l.today : ago === 1 ? l.yesterday : l.wdays[t.getDay()] + ' ' + t.getDate() + ' ' + l.months[t.getMonth()]) +
+    ', ' + t.getHours() + ':' + pad(t.getMinutes());
+}
+function fail(e) { S.err = say('saveFail', (e && e.code) || e || 'error'); render(); }
+/* Every write goes through here: until the database confirms it, the name shows dimmed with dots (1.13.0). Before, a
+   tick looked saved at once, and on a weak signal it could be lost if the page was closed before it was sent. */
+function sendPick(w, day, kid, v) {
+  var key = w + '/' + day + '/' + kid;
+  S.pend[key] = (S.pend[key] || 0) + 1; S.pendAt[key] = new Date().getTime();
+  /* Shown only after 0.6 s, so a normal connection does not make every tap flicker. */
+  setTimeout(function () { if (S.pend[key]) { renderData(); } }, 700);
+  function done() { S.pend[key]--; if (!S.pend[key]) { delete S.pend[key]; } renderData(); }
+  store.setPick(w, day, kid, v).then(done, function (e) { done(); fail(e); });
+}
+function pending(day, kid) { var key = weekId(S.week) + '/' + day + '/' + kid; return !!S.pend[key] && new Date().getTime() - S.pendAt[key] >= 600; }
+/* The sheet always works on the sign-up as it is now, not as it was when the sheet opened (1.13.0): saving a note keeps a
+   sick or late mark another parent set meanwhile. */
+function live(sh) { return (S.picks[sh.day] || {})[sh.kid] || null; }
+function liveSt(sh) { var p = live(sh); return p ? parseNote(p.note).st : ''; }
+function tapChip(day, kid) {
+  S.err = null; S.msg = null;
+  if (!picksReady()) { return; }
+  var p = (S.picks[day] || {})[kid];
+  if (!p) { sendPick(weekId(S.week), day, kid, { note: '' }); render(); return; }
+  var n = parseNote(p.note);
+  /* No keyboard on opening (1.13.0): most taps are for Sick, Late or Remove, and the keyboard hid those buttons. */
+  S.sheet = { day: day, kid: kid, note: n.text, st: n.st, at: p.at }; render();
+}
+function saveNote() {
+  var sh = S.sheet, i = document.getElementById('note'), p = live(sh);
+  S.sheet = null;
+  sendPick(weekId(S.week), sh.day, sh.kid, { note: makeNote(liveSt(sh), i ? i.value : ''), at: p ? p.at : sh.at });
+  render();
+}
+function makeNote(st, text) { text = clean(text, 36); return st ? MARKS[st] + (text ? ' ' + text : '') : text; }
+/* One tap saves and closes; tapping the chosen one again takes the mark off. */
+function setStatus(st) {
+  var sh = S.sheet, i = document.getElementById('note'), next = liveSt(sh) === st ? '' : st, text = clean(i ? i.value : '', 36);
+  S.sheet = null;
+  /* The text in the box goes only with "late" (its time); marking sick or taking a mark off clears it, so no time is left behind. */
+  if (next !== 'late') { text = ''; }
+  /* Late is time-critical and the coach gets no alert from the list, so offer a ready-written WhatsApp message.
+     No number is stored: WhatsApp opens its chat picker and the parent picks the coach. */
+  S.nudge = next === 'late' && S.kids[sh.kid] ? { name: S.kids[sh.kid].name, kid: sh.kid, w: weekId(S.week), day: sh.day, at: sh.at, date: dayDate(S.week, sh.day).getDate(), note: text } : null;
+  sendPick(weekId(S.week), sh.day, sh.kid, { note: makeNote(next, text), at: sh.at });
+  render();
+}
+function removePick() {
+  var sh = S.sheet; S.sheet = null;
+  sendPick(weekId(S.week), sh.day, sh.kid, null);
+  render();
+}
+function pickMine(id) {
+  var ids = mineIds();
+  S.gone = false;
+  if (ids.indexOf(id) < 0) { ids.push(id); lsSet(mineKey(), JSON.stringify(ids)); }
+  S.q = ''; S.find = false; S.err = null; render();
+}
+function unMine(id) {
+  var ids = mineIds(), i = ids.indexOf(id);
+  if (i >= 0) { ids.splice(i, 1); lsSet(mineKey(), JSON.stringify(ids)); }
+  S.msg = null; render();
+}
+/* A name that is already on the list is taken as this phone's child instead of being added twice. */
+function addKid() {
+  var name = clean(S.q, 30), list = kidList(), j;
+  S.err = null; S.msg = null;
+  if (norm(name).length < 2) { return; }
+  for (j = 0; j < list.length; j++) { if (norm(list[j].name) === norm(name)) { pickMine(list[j].id); return; } }
+  S.msg = say('added', name);
+  store.addKid(name, pickMine)['catch'](fail);
+}
+/* The shareable address of this group's page (the preview copy passes its group id in SS_PREVIEW_G). */
+var BASE = 'https://tasar1-ship-it.github.io/sailing-signup/';
+function groupLink() { var id = window.SS_PREVIEW_G || g; return BASE + (id ? '#' + id : ''); }
+
+/* ---------- Monday reminder: a weekly calendar event at 17:00 local time, with the link inside ---------- */
+var UA = navigator.userAgent || '';
+var IOS = /iPhone|iPad|iPod/.test(UA) || (/Macintosh/.test(UA) && navigator.maxTouchPoints > 1);
+var ANDROID = /Android/.test(UA);
+function nextMonday() {
+  var now = new Date(), d = new Date(); d.setHours(17, 0, 0, 0);
+  var add = (8 - d.getDay()) % 7;
+  if (add === 0 && now > d) { add = 7; }
+  d.setDate(d.getDate() + add);
+  return d;
+}
+function stamp(d, h, m) { return d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate()) + 'T' + pad(h) + pad(m) + '00'; }
+function icsEsc(t) { return String(t).replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\n/g, '\\n'); }
+function fold(line) { var out = [], i; for (i = 0; i < line.length; i += 60) { out.push((i ? ' ' : '') + line.slice(i, i + 60)); } return out.join('\r\n'); }
+function icsText() {
+  var l = L(), d = nextMonday(), now = new Date(), link = groupLink(), desc = l.calDesc + '\n' + link;
+  var utc = now.getUTCFullYear() + pad(now.getUTCMonth() + 1) + pad(now.getUTCDate()) + 'T' + pad(now.getUTCHours()) + pad(now.getUTCMinutes()) + pad(now.getUTCSeconds()) + 'Z';
+  var rows = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//sailing-signup//ES', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH',
+    'BEGIN:VEVENT', 'UID:' + now.getTime() + '-' + Math.floor(Math.random() * 1e9) + '@sailing-signup', 'DTSTAMP:' + utc,
+    'DTSTART:' + stamp(d, 17, 0), 'DTEND:' + stamp(d, 17, 15), 'RRULE:FREQ=WEEKLY;BYDAY=MO',
+    'SUMMARY:' + icsEsc('⛵ ' + l.calTitle), 'DESCRIPTION:' + icsEsc(desc), 'URL:' + link,
+    'BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:' + icsEsc(l.calTitle), 'TRIGGER:PT0M', 'END:VALARM',
+    'END:VEVENT', 'END:VCALENDAR'];
+  var j; for (j = 0; j < rows.length; j++) { rows[j] = fold(rows[j]); }
+  return rows.join('\r\n') + '\r\n';
+}
+function googleUrl() {
+  var l = L(), d = nextMonday();
+  return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=' + encodeURIComponent('⛵ ' + l.calTitle) +
+    '&dates=' + stamp(d, 17, 0) + '/' + stamp(d, 17, 15) + '&ctz=Europe/Madrid&recur=' + encodeURIComponent('RRULE:FREQ=WEEKLY;BYDAY=MO') +
+    '&details=' + encodeURIComponent(l.calDesc + '\n' + groupLink());
+}
+function openIcs() {
+  /* iPhone: open the calendar file itself, so iOS shows its "Add to Calendar" sheet (WebKit refuses data: links here).
+     Elsewhere: download it; Mac Calendar or Outlook opens it. */
+  var url = URL.createObjectURL(new Blob([icsText()], { type: 'text/calendar;charset=utf-8' }));
+  if (IOS) { location.href = url; }
+  else {
+    var a = document.createElement('a');
+    a.href = url; a.download = 'recordatorio-vela.ics'; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 10000);
+  }
+  remDone();
+}
+function remDone() { lsSet('rem', '1'); S.remAlt = false; setTimeout(render, 300); }
+
+/* ---------- render ---------- */
+/* Parents' "how it works": closed until the link under the intro opens it; the same link closes it. */
+function helpOpen() { return !!S.help; }
+function helpHtml(l) {
+  if (!helpOpen()) { return ''; }
+  var items = [], i;
+  for (i = 0; i < l.help.length; i++) { items.push('<li>' + esc(l.help[i]).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>') + '</li>'); }
+  return '<section class="panel howto"><h2>' + LIST + esc(l.helpT) + '</h2><ol>' + items.join('') + '</ol></section>';
+}
+/* First visit, or "add another child": type a name, tap the match. Only matching names are shown, never the whole list. */
+function findRes(l) {
+  var q = clean(S.q, 30), m = matches(q), all = kidList(), exact = false, h = '', j;
+  if (norm(q).length < 2) { return '<p class="hint">' + esc(l.findMore) + '</p>'; }
+  for (j = 0; j < all.length; j++) { if (norm(all[j].name) === norm(q)) { exact = true; } }
+  if (m.length) {
+    h += '<div class="chips">';
+    for (j = 0; j < m.length; j++) { h += '<button class="chip" data-a="mine" data-k="' + esc(m[j].id) + '">' + esc(m[j].name) + '</button>'; }
+    h += '</div>';
+  } else if (!exact) { h += '<p class="hint">' + esc(l.findNone) + '</p>'; }
+  /* Not when what was typed is just the start of a listed name (1.14.0/1.14.1): after "Te" the button "Añadir «Te»"
+     stood next to "Test child" and invited junk names. "Daniela" next to "Dani" still offers to add Daniela. */
+  if (!exact && !startOfMatch(q, m)) { h += '<button class="btn wide" data-a="add">' + esc(l.addNew(q)) + '</button>'; }
+  return h;
+}
+function findHtml(l, mine) {
+  return '<section class="panel find"><h2>' + KID + esc(l.findT) + '</h2>' + (S.gone ? '<p class="err">' + esc(l.gone) + '</p>' : '') + '<p class="muted">' + esc(l.findText) + '</p>' +
+    '<div class="row"><input type="text" id="find" maxlength="30" placeholder="' + esc(l.kidPh) + '" value="' + esc(S.q) + '" autocomplete="off" autocapitalize="words"></div>' +
+    '<div id="findres">' + findRes(l) + '</div>' + (mine.length ? '<button class="alt" data-a="finddone">' + esc(l.done) + '</button>' : '') + '</section>';
+}
+function mineHtml(l, mine) {
+  var h = '<section class="panel mine"><h2>' + KID + esc(l.mineT) + '</h2><ul>', j;
+  for (j = 0; j < mine.length; j++) { h += '<li><span>' + esc(mine[j].name) + '</span><button class="alt" data-a="unmine" data-k="' + esc(mine[j].id) + '">' + esc(l.unmine) + '</button></li>'; }
+  h += '</ul>' + (S.find ? '' : '<button class="alt" data-a="find">' + esc(l.addOther) + '</button>');
+  return h + (S.msg ? '<p class="ok">' + esc(S.msg()) + '</p>' : '') + '</section>';
+}
+function remindHtml(l) {
+  var google = ANDROID ? !S.remAlt : !!S.remAlt;
+  if (lsGet('rem') === '1') {
+    return '<section class="panel remind done">' + CHECK + '<p>' + esc(l.remDone) + '</p><button class="alt" data-a="remagain">' + esc(l.remAgain) + '</button></section>';
+  }
+  return '<section class="panel remind"><h2>' + BELL + esc(l.remTitle) + '</h2><p class="muted">' + esc(l.remText) + '</p>' +
+    (google ? '<a class="btn primary wide" data-a="remg" href="' + esc(googleUrl()) + '" target="_blank" rel="noopener">' + esc(l.remGoogle) + '</a>'
+            : '<button class="btn primary wide" data-a="remics">' + esc(l.remIcs) + '</button>') +
+    '<button class="alt" data-a="remalt">' + esc(google ? l.remAltIcs : l.remAltGoogle) + '</button></section>';
+}
+function nudgeHref(l) {
+  var n = S.nudge, tm = /^(\d{1,2}):(\d{2})$/.exec(n.note), hhmm = tm ? pad(+tm[1]) + ':' + tm[2] : '';
+  return 'https://wa.me/?text=' + encodeURIComponent(l.lateMsg({ name: n.name, day: l.days[n.day], date: n.date, time: hhmm, note: tm ? '' : n.note }));
+}
+function render() {
+  var l = L(), h = [];
+  document.documentElement.lang = lang;
+  document.title = l.pageTitle;
+  h.push('<header class="hero"><div class="hero-in"><div class="top"><div class="brand">' + '<img class="logo" src="cna-logo-white.png" width="80" height="37" alt="Club Nàutic Arenal">' + '</div><button class="lang" data-a="lang" lang="' + (lang === 'es' ? 'en' : 'es') + '">' + esc(l.other) + '</button></div><h1>' + esc(l.title) + '</h1>');
+  if (S.fatal) { app.innerHTML = h.join('') + '<p class="sub">' + esc(S.fatal()) + '</p>' + (S.canRetry ? '<button class="retry" data-a="retry">' + esc(l.retry) + '</button>' : '') + '</div>' + WAVE + '</header>'; return; }
+  var kids = myKids(), o, d, j, p, on, date, mp;
+  h.push('<p class="sub">' + esc(l.intro) + '</p><button class="helpl" data-a="help" aria-expanded="' + (helpOpen() ? 'true' : 'false') + '">' + esc(l.helpLink) + '</button>');
+  h.push('<div class="week"><button class="nav" data-a="prev" aria-label="' + esc(l.prev) + '">‹</button><b>' + esc(l.weekend + ' ' + weekLabel(S.week)) + '</b><button class="nav" data-a="next" aria-label="' + esc(l.next) + '">›</button></div>');
+  h.push('</div>' + WAVE + '</header><main class="wrap">');
+  if (S.offline) { h.push('<div class="bar">' + esc(l.offline) + '</div>'); }
+  h.push(helpHtml(l));
+  /* The find box comes first: on a first visit it is the one thing to do. */
+  if (S.loadedKids && (S.find || !kids.length)) { h.push(findHtml(l, kids)); }
+  h.push(remindHtml(l));
+  if (S.err) { h.push('<p class="err">' + esc(S.err()) + '</p>'); }
+  if (!S.loadedKids) { h.push('<p class="muted">' + esc(l.loading) + '</p>'); }
+  if (!S.loadedKids && S.slow) { h.push('<div class="slow"><p class="muted">' + esc(l.slow) + '</p><button class="btn" data-a="retry">' + esc(l.retry) + '</button></div>'); }
+  if (!S.loadedKids || !kids.length) { h.push('<p class="foot">' + ANCHOR + '<span>v' + VERSION + '</span></p></main>'); paint(h); return; }
+  if (!picksReady()) { h.push('<p class="muted">' + esc(l.loading) + '</p>'); }
+  h.push('<div class="days">');
+  for (o = 0; o < ORDER.length; o++) {
+    d = ORDER[o];
+    date = dayDate(S.week, d);
+    p = S.picks[d] || {};
+    h.push('<section class="card day' + d + '"><h2>' + flag(d) + '<span class="dn">' + esc(l.days[d]) + ' ' + date.getDate() + '</span><span class="n">' + esc(l.count(sailing(picked(d)))) + '</span></h2>' +
+      (planText(d) ? '<p class="plan"><span>' + esc(l.planT) + (planWhen(d) ? ' · <em class="upd">' + esc(planWhen(d)) + '</em>' : '') + '</span>' + esc(planText(d)) + '</p>' : '') + '<div class="chips">');
+    for (j = 0; j < kids.length; j++) {
+      on = p[kids[j].id];
+      h.push('<button class="chip' + (on ? ' on' : '') + (on && parseNote(on.note).st === 'sick' ? ' sick' : '') + (pending(d, kids[j].id) ? ' wait' : '') + '" data-a="chip" data-d="' + d + '" data-k="' + esc(kids[j].id) + '" aria-pressed="' + (on ? 'true' : 'false') + '"' + (picksReady() ? '' : ' disabled') + '>' +
+        esc(kids[j].name) + (on && on.note ? '<small>' + esc(showNote(on.note)) + '</small>' : '') + '</button>');
+    }
+    h.push('</div></section>');
+  }
+  h.push('</div><div class="tools">');
+  h.push(mineHtml(l, kids));
+  /* Summary: each day's number of sailors, and by name only this phone's children. */
+  h.push('<section class="panel summary"><h2>' + LIST + esc(l.sumTitle) + '</h2><div class="sum-grid">');
+  for (o = 0; o < ORDER.length; o++) {
+    d = ORDER[o];
+    p = picked(d); mp = [];
+    for (j = 0; j < p.length; j++) { if (mineIds().indexOf(p[j].id) >= 0) { mp.push(p[j]); } }
+    h.push('<div class="sum-day"><b><span>' + esc(l.days[d]) + ' ' + dayDate(S.week, d).getDate() + '</span> <span>· ' + sailing(p) + '</span></b>' + (planText(d) ? '<span class="sp">' + esc(planText(d)) + '</span>' : ''));
+    if (mp.length) {
+      h.push('<ul>');
+      for (j = 0; j < mp.length; j++) { h.push('<li' + (mp[j].sick ? ' class="sick"' : '') + '>' + esc(mp[j].name) + (mp[j].note ? ' <span>(' + esc(showNote(mp[j].note)) + ')</span>' : '') + '</li>'); }
+      h.push('</ul>');
+    } else if (!p.length) { h.push('<p class="none">' + esc(l.nobody) + '</p>'); }
+    h.push('</div>');
+  }
+  h.push('</div></section>');
+  h.push('</div><p class="foot">' + ANCHOR + '<span>v' + VERSION + '</span></p></main>');
+  if (S.nudge) {
+    var tm = /^(\d{1,2}):(\d{2})$/.exec(S.nudge.note), hhmm = tm ? pad(+tm[1]) + ':' + tm[2] : '';
+    h.push('<div class="shade" data-a="nudgeoff"><div class="sheet" role="dialog" aria-modal="true"><h3>' + MARKS.late + ' ' + esc(S.nudge.name) + '</h3>' +
+      '<div class="sec" style="margin-top:4px"><label for="lateAt">' + esc(l.lateAt) + '</label></div><div class="row"><input type="time" id="lateAt" value="' + esc(hhmm) + '"></div>' +
+      /* Offline, the panel does not claim "Guardado en la lista" (1.14.0); it shows the offline text instead. */
+      '<p class="muted">' + esc(S.offline ? l.offline : l.lateAsk) + '</p>' +
+      '<a class="btn primary wide" data-a="nudge" href="' + esc(nudgeHref(l)) + '" target="_blank" rel="noopener">' + esc(l.lateSend) + '</a>' +
+      '<button class="btn wide" data-a="nudgeoff">' + esc(l.lateSkip) + '</button></div></div>');
+  }
+  /* Another parent removed this sign-up while the sheet was open: close it rather than act on a sign-up that is gone. */
+  if (S.sheet && picksReady() && !live(S.sheet)) { S.sheet = null; }
+  if (S.sheet && S.kids[S.sheet.kid]) {
+    S.sheet.st = liveSt(S.sheet);
+    h.push('<div class="shade" data-a="close"><div class="sheet" role="dialog" aria-modal="true"><h3>' + esc(S.kids[S.sheet.kid].name) + '</h3><p class="muted">' + esc(l.days[S.sheet.day]) + ' ' + dayDate(S.week, S.sheet.day).getDate() + '</p>' +
+      '<div class="row"><button class="btn' + (S.sheet.st === 'sick' ? ' sel' : '') + '" data-a="sick" style="flex:1">' + MARKS.sick + ' ' + esc(l.sick) + '</button><button class="btn' + (S.sheet.st === 'late' ? ' sel' : '') + '" data-a="late" style="flex:1">' + MARKS.late + ' ' + esc(l.late) + '</button></div>' +
+      '<div class="row"><input type="text" id="note" maxlength="36" placeholder="' + esc(l.notePh) + '" value="' + esc(S.sheet.note) + '"></div>' +
+      '<div class="row"><button class="btn primary" data-a="save" style="flex:1">' + esc(l.saveNote) + '</button><button class="btn danger" data-a="remove">' + esc(l.remove) + '</button></div>' +
+      '<button class="btn wide" data-a="close">' + esc(l.close) + '</button></div></div>');
+  }
+  paint(h);
+}
+/* Database updates redraw at once (1.14.0; 1.13.0 held them while someone typed, and the held redraw threw away a note
+   being typed). Only the open "late" panel is left alone: a redraw there replaced the WhatsApp button under the finger,
+   so the first tap did nothing on iPhone. The updates are drawn when the panel closes. */
+function renderData() { if (S.nudge) { return; } render(); }
+/* Live updates re-render the page; keep the cursor in a text box someone is typing in. */
+function paint(h) {
+  var f = document.activeElement, fid = f && f.id, fv = fid && f.value, fs = fid && f.selectionStart;
+  app.innerHTML = h.join('');
+  if (fid && document.getElementById(fid)) {
+    f = document.getElementById(fid); f.value = fv; f.focus();
+    try { f.setSelectionRange(fs, fs); } catch (e) {}
+  }
+}
+
+app.addEventListener('click', function (ev) {
+  var t = ev.target, a;
+  while (t && t !== app && !t.getAttribute('data-a')) { t = t.parentNode; }
+  if (!t || t === app) { return; }
+  a = t.getAttribute('data-a');
+  if ((a === 'close' || a === 'nudgeoff') && t.className === 'shade' && ev.target !== t) { return; }
+  if (a === 'chip') { tapChip(+t.getAttribute('data-d'), t.getAttribute('data-k')); }
+  else if (a === 'retry') { location.reload(); }
+  else if (a === 'prev' || a === 'next') { S.week += a === 'next' ? 1 : -1; S.msg = null; S.err = null; watchWeek(); render(); }
+  else if (a === 'save') { saveNote(); }
+  else if (a === 'remove') { removePick(); }
+  else if (a === 'sick' || a === 'late') { setStatus(a); }
+  else if (a === 'nudge') { S.nudge = null; setTimeout(render, 300); }
+  else if (a === 'nudgeoff') { S.nudge = null; render(); }
+  else if (a === 'close') { S.sheet = null; render(); }
+  else if (a === 'add') { addKid(); }
+  else if (a === 'mine') { S.msg = null; pickMine(t.getAttribute('data-k')); }
+  else if (a === 'unmine') { unMine(t.getAttribute('data-k')); }
+  else if (a === 'find') { S.find = true; S.q = ''; S.msg = null; render(); var fi = document.getElementById('find'); if (fi) { fi.focus(); } }
+  else if (a === 'finddone') { S.find = false; S.q = ''; render(); }
+  else if (a === 'remics') { openIcs(); }
+  else if (a === 'remg') { remDone(); }
+  else if (a === 'remalt') { S.remAlt = !S.remAlt; render(); }
+  else if (a === 'remagain') { lsSet('rem', ''); render(); }
+  else if (a === 'help') {
+    if (helpOpen()) { S.help = false; render(); }
+    else { S.help = true; render(); var hp = document.querySelector('.howto'); if (hp && hp.scrollIntoView) { hp.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } }
+  }
+  else if (a === 'lang') { lang = lang === 'es' ? 'en' : 'es'; lsSet('lang', lang); render(); }
+});
+/* Typing only redraws the matches, so the phone keyboard and its suggestions are not disturbed. */
+app.addEventListener('input', function (ev) {
+  if (ev.target.id !== 'find') { return; }
+  S.q = ev.target.value;
+  var r = document.getElementById('findres'); if (r) { r.innerHTML = findRes(L()); }
+});
+/* A time picked after "late" replaces the note, so the list and the WhatsApp text both carry it. */
+app.addEventListener('change', function (ev) {
+  var n = S.nudge;
+  if (ev.target.id !== 'lateAt' || !n) { return; }
+  n.note = ev.target.value;
+  sendPick(n.w, n.day, n.kid, { note: makeNote('late', n.note), at: n.at });
+  var b = document.querySelector('a[data-a="nudge"]'); if (b) { b.href = nudgeHref(L()); }
+});
+app.addEventListener('keydown', function (ev) {
+  if (ev.keyCode !== 13) { return; }
+  /* Enter takes the one match only when what was typed is the start of its name (1.14.1): "Daniela" + Enter took "Dani". */
+  if (ev.target.id === 'find') { var m = matches(S.q), sm = m.length === 1 ? startOfMatch(S.q, m) : null; if (sm) { pickMine(sm.id); } }
+  else if (ev.target.id === 'note') { saveNote(); }
+});
+
+/* ---------- start ---------- */
+var g = (location.hash || '').replace(/^#/, '');
+if (window.SS_PREVIEW) { store = memStore(window.SS_PREVIEW); }
+else if (/[?&]demo\b/.test(location.search)) { store = memStore(); }
+else if (/^[A-Za-z0-9]{20,40}$/.test(g)) { store = fbStore(g); }
+else { S.fatal = say('noLink'); render(); return; }
+store.ready['catch'](function (e) { S.fatal = say('connFail', e); S.canRetry = true; render(); });
+/* A slow or hanging connection: after 5 s offer a retry instead of a silent "Cargando…" (1.9.1). */
+setTimeout(function () { if (!S.loadedKids && !S.fatal) { S.slow = true; render(); } }, 5000);
+store.onKids(function (v) { S.kids = v; S.loadedKids = true; pruneMine(); renderData(); });
+store.onConn(function (c) { if (c) { S.wasOn = true; } S.offline = S.wasOn && !c; renderData(); });
+watchWeek();
+document.addEventListener('visibilitychange', resume);
+window.addEventListener('pageshow', resume);
+render();
+})();
+</script>
+</body>
+</html>
